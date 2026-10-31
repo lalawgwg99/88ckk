@@ -751,17 +751,17 @@
     ];
 
     const PILLS = [
-      { id: 'huanglong', name: '黃龍丹', herbId: 'huanglong_grass', herbCost: 2, qiGain: 140, breakBonus: 0.08, tox: 15, desc: '修+140｜破+8%｜毒+15' },
-      { id: 'jinsui', name: '金髓丸', herbId: 'jinsui_mushroom', herbCost: 2, qiGain: 650, breakBonus: 0.12, tox: 18, desc: '修+650｜破+12%｜毒+18' },
-      { id: 'zhuji', name: '築基丹', herbId: 'blood_ginseng', herbCost: 3, qiGain: 5500, breakBonus: 0.35, tox: 25, desc: '修+5,500｜破+35%｜毒+25' },
-      { id: 'peiyuan', name: '培元丹', herbId: 'snow_lotus', herbCost: 2, qiGain: 32000, breakBonus: 0.18, tox: 20, desc: '修+3.2萬｜破+18%｜毒+20' },
-      { id: 'jiangchen', name: '降塵丹', herbId: 'snow_lotus', herbCost: 3, qiGain: 160000, breakBonus: 0.40, tox: 28, desc: '修+16萬｜破+40%｜毒+28' },
-      { id: 'jiuqu', name: '九曲丹', herbId: 'jiuqu_ginseng', herbCost: 3, qiGain: 4800000, breakBonus: 0.45, tox: 30, desc: '修+480萬｜破+45%｜毒+30' },
-      { id: 'peiying', name: '培嬰丹', herbId: 'thunder_bamboo', herbCost: 3, qiGain: 180000000, breakBonus: 0.45, tox: 32, desc: '修+1.8億｜破+45%｜毒+32' },
-      { id: 'qingxu', name: '清虛丹', herbId: 'panlong_fruit', herbCost: 3, qiGain: 28000000000, breakBonus: 0.45, tox: 35, desc: '修+280億｜破+45%｜毒+35' },
-      { id: 'guanghan', name: '廣寒丹', herbId: 'moluo_lotus', herbCost: 3, qiGain: 4500000000000, breakBonus: 0.50, tox: 35, desc: '修+4.5兆｜破+50%｜毒+35' },
-      { id: 'jiuzhuan', name: '九轉丹', herbId: 'chaos_fruit', herbCost: 3, qiGain: 800000000000000, breakBonus: 0.50, tox: 38, desc: '修+800兆｜破+50%｜毒+38' },
-      { id: 'zhangtian_pill', name: '掌天丹', herbId: 'hongmeng_herb', herbCost: 3, qiGain: 350000000000000000, breakBonus: 0.55, tox: 40, desc: '修+35京｜破+55%｜毒+40' }
+      { id: 'huanglong', name: '黃龍丹', herbId: 'huanglong_grass', herbCost: 2, qiGain: 140, breakBonus: 0.08, tox: 15, desc: '修+140｜毒+15' },
+      { id: 'jinsui', name: '金髓丸', herbId: 'jinsui_mushroom', herbCost: 2, qiGain: 650, breakBonus: 0.12, tox: 18, desc: '修+650｜毒+18' },
+      { id: 'zhuji', name: '築基丹', herbId: 'blood_ginseng', herbCost: 3, qiGain: 5500, breakBonus: 0.35, tox: 25, desc: '修+5,500｜毒+25' },
+      { id: 'peiyuan', name: '培元丹', herbId: 'snow_lotus', herbCost: 2, qiGain: 32000, breakBonus: 0.18, tox: 20, desc: '修+3.2萬｜毒+20' },
+      { id: 'jiangchen', name: '降塵丹', herbId: 'snow_lotus', herbCost: 3, qiGain: 160000, breakBonus: 0.40, tox: 28, desc: '修+16萬｜毒+28' },
+      { id: 'jiuqu', name: '九曲丹', herbId: 'jiuqu_ginseng', herbCost: 3, qiGain: 4800000, breakBonus: 0.45, tox: 30, desc: '修+480萬｜毒+30' },
+      { id: 'peiying', name: '培嬰丹', herbId: 'thunder_bamboo', herbCost: 3, qiGain: 180000000, breakBonus: 0.45, tox: 32, desc: '修+1.8億｜毒+32' },
+      { id: 'qingxu', name: '清虛丹', herbId: 'panlong_fruit', herbCost: 3, qiGain: 28000000000, breakBonus: 0.45, tox: 35, desc: '修+280億｜毒+35' },
+      { id: 'guanghan', name: '廣寒丹', herbId: 'moluo_lotus', herbCost: 3, qiGain: 4500000000000, breakBonus: 0.50, tox: 35, desc: '修+4.5兆｜毒+35' },
+      { id: 'jiuzhuan', name: '九轉丹', herbId: 'chaos_fruit', herbCost: 3, qiGain: 800000000000000, breakBonus: 0.50, tox: 38, desc: '修+800兆｜毒+38' },
+      { id: 'zhangtian_pill', name: '掌天丹', herbId: 'hongmeng_herb', herbCost: 3, qiGain: 350000000000000000, breakBonus: 0.55, tox: 40, desc: '修+35京｜毒+40' }
     ];
 
     const RELICS = [
@@ -1293,18 +1293,18 @@
       if (outcome === 'kill') {
         const relic = grantBossRelic();
         state.gachaTokens = (state.gachaTokens || 0) + 5;
-        addSectContribution(500);
+        addSectContribution(250);
         sc.buffSecondsLeft = 7200;
-        msg = `🏆 宗門大捷！擊殺神級 Boss【${boss.name}】！貢獻+500、探寶令+5、古寶【${relic.name}】+1、宗門增益（修為+10%，2 小時）！`;
+        msg = `🏆 宗門大捷！擊殺神級 Boss【${boss.name}】！貢獻+250、探寶令+5、古寶【${relic.name}】+1、宗門增益（修為+10%，2 小時）！`;
       } else if (outcome === 'repel') {
         state.gachaTokens = (state.gachaTokens || 0) + 2;
         state.stones = (state.stones || 0) + 1000;
-        addSectContribution(300);
-        msg = `⚔️ 擊退神級 Boss【${boss.name}】！貢獻+300、探寶令+2、靈石+1000。`;
+        addSectContribution(150);
+        msg = `⚔️ 擊退神級 Boss【${boss.name}】！貢獻+150、探寶令+2、靈石+1000。`;
       } else if (outcome === 'hold') {
         sc.arrayDurability = Math.max(0, (sc.arrayDurability || 0) - 30);
-        addSectContribution(100);
-        msg = `🛡️ 守住宗門！神級 Boss【${boss.name}】退去。貢獻+100、大陣耐久-30。`;
+        addSectContribution(50);
+        msg = `🛡️ 守住宗門！神級 Boss【${boss.name}】退去。貢獻+50、大陣耐久-30。`;
       } else {
         sc.arrayDurability = Math.max(0, (sc.arrayDurability || 0) - 60);
         msg = `💥 宗門失守！神級 Boss【${boss.name}】肆虐而去。大陣耐久-60${sc.arrayDurability <= 0 ? '（大陣已破，加成暫停，請修復）' : ''}。貢獻與職位不受影響。`;
@@ -1617,7 +1617,7 @@
       return CULTIVATION_ARTS.find(a => a.id === state.currentArtId) || CULTIVATION_ARTS[0];
     }
     function getArtEffectiveBonus(art) {
-      const lv = (state.artLevels && state.artLevels[art.id]) || 1;
+      const lv = Math.min(30, (state.artLevels && state.artLevels[art.id]) || 1);
       return art.rateBonus * (1 + (lv - 1) * 0.30);
     }
     function isDualResonanceActive() {
@@ -1639,7 +1639,7 @@
       let ownedCount = 0;
       RELICS.forEach(r => {
         const stars = (state.relics && state.relics[r.id]) || 0;
-        const infLv = (state.relicInfusion && state.relicInfusion[r.id]) || 0;
+        const infLv = Math.min(20, (state.relicInfusion && state.relicInfusion[r.id]) || 0);
         if (stars > 0) {
           ownedCount += 1;
           const eff = (1 + (stars - 1) * 0.30) * (1 + infLv * 0.20);
@@ -1658,13 +1658,13 @@
       const relicB = getRelicBonuses();
       const traitB = getTraitBonuses();
       const resonanceMult = isDualResonanceActive() ? 1.30 : 1.0;
-      const towerMult = 1 + ((state.towerFloor || 1) - 1) * 0.08;
+      const towerMult = Math.min(10, 1 + ((state.towerFloor || 1) - 1) * 0.08);
       let flatTreasure = 0;
       TREASURES.forEach(t => {
         flatTreasure += (state.treasureLevels[t.id] || 0) * t.qiFlatBonus;
       });
       const nangongBonus = 1 + ((state.companionAffinity.nangong || 0) * 0.01);
-      const reincBonus = 1 + (state.reincarnationCount * 0.25);
+      const reincBonus = Math.min(3, 1 + (state.reincarnationCount * 0.25));
       const injuryPenalty = state.injuryTimer > 0 ? 0.5 : 1.0;
       const lifespanPenalty = state.ageYears > realm.lifespan ? 0.5 : 1.0;
       const sectQiMult = (state.activePath === 'magic' && state.sect && state.sect.id === 'yanyue') ? (1 + getSectPassive()) : 1;
@@ -1676,7 +1676,7 @@
       const bRealm = getBodyRealm();
       const origin = getOrigin();
       const art = getCurrentArt();
-      const artLv = (state.artLevels && state.artLevels[art.id]) || 1;
+      const artLv = Math.min(30, (state.artLevels && state.artLevels[art.id]) || 1);
       const relicB = getRelicBonuses();
       const traitB = getTraitBonuses();
       const resonanceMult = isDualResonanceActive() ? 1.30 : 1.0;
@@ -1705,7 +1705,7 @@
     }
     function getBreakthroughChance() {
       const realm = getActiveRealm();
-      let base = realm.breakChance + state.pityBonus;
+      let base = realm.breakChance + Math.min(state.pityBonus || 0, 0.50);
       if (realm.majorGate && realm.reqCombat && getTotalCombat() < realm.reqCombat) {
         base = base * 0.35;
       }
@@ -1978,6 +1978,7 @@
       const stars = (state.relics && state.relics[relicId]) || 0;
       if (stars <= 0) return;
       const curLv = (state.relicInfusion && state.relicInfusion[relicId]) || 0;
+      if (curLv >= 20) { showToast('✨ 已滿 20 級注靈！'); return; }
       const cost = (curLv + 1) * 20;
       if ((state.spiritDust || 0) < cost) {
         showToast(`✨ 需 ${cost} 靈塵！`);
@@ -2066,7 +2067,6 @@
         state.qi = Math.min(realm.maxQi * 2.0, state.qi + actualQi);
       }
 
-      state.pityBonus = Math.min(0.85, state.pityBonus + pill.breakBonus * effMult);
       state.toxicity = Math.min(100, state.toxicity + pill.tox);
 
       playSound('dew');
@@ -2113,7 +2113,7 @@
         }
         state.toxicity = Math.min(100, state.toxicity + 25);
         state.injuryTimer = 25;
-        state.pityBonus = Math.min(0.85, state.pityBonus + 0.05);
+        state.pityBonus = Math.min(0.50, state.pityBonus + 0.05);
         playSound('plucked');
         spawnFloatingText(`💥 -${formatNum(lostQi)}`, 'text-rose-800');
         addLog(`⚡ 破境失敗，損失 ${formatNum(lostQi)} 修為！`, true);
@@ -2673,6 +2673,7 @@
       const art = CULTIVATION_ARTS.find(a => a.id === artId);
       if (!art || !state.unlockedArts.includes(artId)) return;
       const lv = (state.artLevels && state.artLevels[art.id]) || 1;
+      if (lv >= 30) { showToast('📖 已滿 30 層！'); return; }
       const cost = Math.round((art.cost + 120) * Math.pow(1.65, lv));
       if (state.stones < cost) {
         showToast(`需 ${formatNum(cost)} 靈石！`);
@@ -3587,7 +3588,7 @@
         state.relicInfusion = savedInfusion;
         if (savedSect && savedSect.id) { state.sect = savedSect; ensureSectState(); }
         state.gachaTokens = 3 + nextReinc;
-        addLog(`【涅槃重修】第 ${nextReinc} 世（吐納+${nextReinc * 25}%、探寶令+${3 + nextReinc}）！`, true);
+        addLog(`【涅槃重修】第 ${nextReinc} 世（吐納+${Math.min(nextReinc * 25, 200)}%、探寶令+${3 + nextReinc}）！`, true);
         resetModal.classList.add('hidden');
         resetModal.classList.remove('flex');
         playSound('breakthrough');
