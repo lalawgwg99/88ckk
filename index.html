@@ -105,6 +105,8 @@
     }
     .break-ready { animation: breakPulse 1.4s ease-in-out infinite; }
     .qi-full { box-shadow: 0 0 8px rgba(158, 42, 34, 0.7); }
+    button { touch-action: manipulation; }
+    button:active { transform: scale(0.97); }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -694,7 +696,7 @@
       { id: 'sanmei_fire', name: '🔥 三昧真火', mult: 1.85, desc: '1.85倍法傷' },
       { id: 'fengxue_art', name: '❄️ 風雪之術', mult: 2.10, desc: '2.1倍群傷' },
       { id: 'xiuluo_slash', name: '🩸 修羅斬', mult: 1.75, lifesteal: 0.45, desc: '吸血45%' },
-      { id: 'jinghua_shuiyue', name: '🌸 鏡花水月', mult: 2.65, costStone: 15, desc: '2.65倍絕殺' }
+      { id: 'jinghua_shuiyue', name: '🌸 鏡花水月', mult: 2.65, costStone: 15, desc: '2.65倍絕殺（耗15靈石）' }
     ];
 
     const BLOODLINE_POOL = [
@@ -818,6 +820,9 @@
         pityBonus: 0,
         reincarnationCount: 0,
         speedMult: 1,
+        lastSeen: 0,
+        meditateCombo: 0,
+        lastMeditateAt: 0,
         audioMuted: false,
         activeView: 'cultivate',
         currentArtId: 'changchun',
@@ -875,8 +880,68 @@
 
     function saveState() {
       try {
+        state.lastSeen = Date.now();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch (e) {}
+    }
+
+    let pendingOfflineSummary = null;
+    // 離線修煉結算：關掉分頁再回來，按 50% 效率補修為／靈石／靈塵／綠液／靈草，上限 8 小時。
+    // 不補年齡（線上年齡已是加速的遊戲時間，離線照算會暴衝幾千年）。
+    function settleOfflineProgress() {
+      pendingOfflineSummary = null;
+      const last = state.lastSeen || 0;
+      if (!last) return;
+      const elapsedSec = Math.floor((Date.now() - last) / 1000);
+      if (elapsedSec < 60) return;
+      const capped = Math.min(elapsedSec, 8 * 3600);
+      const eff = 0.5;
+      if (state.moonCooldown > 0) state.moonCooldown = Math.max(0, state.moonCooldown - capped);
+      if (state.injuryTimer > 0) state.injuryTimer = Math.max(0, state.injuryTimer - capped);
+      const qiRate = getQiRatePerSec();
+      const qiGain = Math.round(qiRate * capped * eff);
+      const mRealm = getMagicRealm();
+      const bRealm = getBodyRealm();
+      const beforeQi = state.qi;
+      const beforeBody = state.bodyQi || 0;
+      if (state.activePath === 'body') {
+        state.bodyQi = Math.min(bRealm.maxQi * 2.0, beforeBody + qiGain);
+        state.qi = Math.min(mRealm.maxQi * 2.0, beforeQi + Math.round(qiGain * 0.25));
+      } else {
+        state.qi = Math.min(mRealm.maxQi * 2.0, beforeQi + qiGain);
+        state.bodyQi = Math.min(bRealm.maxQi * 2.0, beforeBody + Math.round(qiGain * 0.25));
+      }
+      const qiGot = (state.qi - beforeQi) + ((state.bodyQi || 0) - beforeBody);
+      const ziyanMult = 1 + ((state.companionAffinity.ziyan || 0) * 0.01);
+      const stonePerSec = Math.max(1, Math.round((1 + state.realmIndex * 2 + (state.treasureLevels.shenfeng || 1)) * ziyanMult));
+      const stoneGot = Math.round(stonePerSec * capped * eff);
+      state.stones += stoneGot;
+      const dustGot = Math.floor(capped / 8 * 2 * eff);
+      state.spiritDust = (state.spiritDust || 0) + dustGot;
+      const origin = getOrigin();
+      const yinyueMult = 1 + ((state.companionAffinity.yinyue || 0) * 0.01);
+      const xutianBonus = 1 + ((state.treasureLevels.xutian || 0) * 0.25);
+      state.dewProgress += 1.4 * capped * eff * origin.dewMult * yinyueMult * xutianBonus;
+      let dewGot = 0;
+      if (state.dewProgress >= 100) {
+        dewGot = Math.floor(state.dewProgress / 100);
+        state.dew += dewGot;
+        state.dewProgress = state.dewProgress % 100;
+      }
+      const herbGot = {};
+      (state.plots || []).forEach(plot => {
+        const herb = HERBS.find(h => h.id === plot.herbId) || HERBS[0];
+        plot.progress += (100 / herb.growTime) * capped * eff;
+        let n = 0;
+        while (plot.progress >= 100 && n < 10000) { plot.progress -= 100; n += 1; }
+        if (n > 0) {
+          state.herbs[herb.id] = (state.herbs[herb.id] || 0) + n;
+          herbGot[herb.name] = (herbGot[herb.name] || 0) + n;
+        }
+      });
+      const hrsTxt = capped >= 3600 ? `${(capped / 3600).toFixed(1)}小時` : `${Math.round(capped / 60)}分鐘`;
+      const herbTxt = Object.entries(herbGot).map(([k, v]) => `${k}+${v}`).join('、');
+      pendingOfflineSummary = `🌙 離線修煉 ${hrsTxt}（50%效率、上限8小時）：修為+${formatNum(qiGot)}、靈石+${formatNum(stoneGot)}、靈塵+${dustGot}${dewGot ? `、綠液+${dewGot}` : ''}${herbTxt ? `、靈草 ${herbTxt}` : ''}`;
     }
 
     // =========================================================================
@@ -1190,7 +1255,16 @@
     function handleMeditateClick() {
       const baseGain = Math.max(4, Math.round(getQiRatePerSec() * 1.2));
       const isCrit = Math.random() <= 0.22;
-      const gain = isCrit ? baseGain * 5 : baseGain;
+      const nowMs = Date.now();
+      if (nowMs - (state.lastMeditateAt || 0) <= 2000) {
+        state.meditateCombo = (state.meditateCombo || 0) + 1;
+      } else {
+        state.meditateCombo = 1;
+      }
+      state.lastMeditateAt = nowMs;
+      const comboMult = 1 + Math.min(state.meditateCombo, 20) * 0.02;
+      const gain = Math.round((isCrit ? baseGain * 5 : baseGain) * comboMult);
+      const comboTxt = state.meditateCombo >= 5 ? ` 連擊x${state.meditateCombo}` : '';
       const realm = getActiveRealm();
 
       if (state.activePath === 'body') {
@@ -1206,14 +1280,14 @@
       if (isCrit) {
         state.spiritDust = (state.spiritDust || 0) + 5;
         playSound('breakthrough');
-        spawnFloatingText(`🌟 天人合一 +${formatNum(gain)}`, 'text-[#9e2a22]');
+        spawnFloatingText(`🌟 天人合一 +${formatNum(gain)}${comboTxt}`, 'text-[#9e2a22]');
         if (Math.random() <= 0.25) {
           state.gachaTokens = (state.gachaTokens || 0) + 1;
           addLog('🌟 天人合一暴擊，獲贈【🎟️探寶令+1】！', true);
         }
       } else {
         playSound('plucked');
-        spawnFloatingText(`+${formatNum(gain)}｜毒-3`, 'text-[#236c53]');
+        spawnFloatingText(`+${formatNum(gain)}｜毒-3${comboTxt}`, 'text-[#236c53]');
       }
       updateStatusUI();
       saveState();
@@ -1360,7 +1434,7 @@
     }
 
     function handleQuickConsumePill() {
-      const available = PILLS.slice().reverse().find(p => (state.pills[p.id] || 0) > 0);
+      const available = PILLS.find(p => (state.pills[p.id] || 0) > 0);
       if (!available) {
         showToast('無丹藥！請先煉丹');
         return;
@@ -1522,7 +1596,12 @@
       } else if (roll < rates.failRate + rates.supremeRate) {
         state.pills[pill.id] = (state.pills[pill.id] || 0) + 2;
         const bonusQi = Math.round(pill.qiGain * 1.5);
-        state.qi += bonusQi;
+        const supRealm = getActiveRealm();
+        if (state.activePath === 'body') {
+          state.bodyQi = Math.min(supRealm.maxQi * 2.0, (state.bodyQi || 0) + bonusQi);
+        } else {
+          state.qi = Math.min(supRealm.maxQi * 2.0, state.qi + bonusQi);
+        }
         playSound('breakthrough');
         addLog(`🌟 煉出【極品・${pill.name} x2】，修為 +${formatNum(bonusQi)}！`, true);
         showToast(`🌟 極品丹 x2！+${formatNum(bonusQi)}`);
@@ -1626,7 +1705,7 @@
       const choicesEl = document.getElementById('event-choices');
       choicesEl.innerHTML = '';
 
-      const eqIds = (state.equippedSkills || []).slice(0, 3);
+      const eqIds = (state.equippedSkills || []).slice(0, 4);
       eqIds.forEach((skId, idx) => {
         const sk = DIVINE_SKILLS.find(s => s.id === skId) || DIVINE_SKILLS[0];
         const btn = document.createElement('button');
@@ -1759,7 +1838,11 @@
       const qiReward = Math.round((45 + loc.minRealm * 150) * dropMult);
       state.stones += stoneReward;
       state.spiritDust = (state.spiritDust || 0) + 10;
-      state.qi = Math.min(getMagicRealm().maxQi * 2.0, state.qi + qiReward);
+      if (state.activePath === 'body') {
+        state.bodyQi = Math.min(getBodyRealm().maxQi * 2.0, (state.bodyQi || 0) + qiReward);
+      } else {
+        state.qi = Math.min(getMagicRealm().maxQi * 2.0, state.qi + qiReward);
+      }
 
       let lootMessages = [`石+${formatNum(stoneReward)}`, `塵+10`];
 
@@ -1842,7 +1925,6 @@
       }
       state.stones -= cost;
       state.artLevels[artId] = lv + 1;
-      state.currentArtId = artId;
       playSound('breakthrough');
       showToast(`📖 ${art.name} 第 ${lv + 1} 層！`);
       renderAll();
@@ -1972,6 +2054,10 @@
           }
           nextStepEl.textContent = `下一步：還差 ${formatNum(remain)} 修為，${eta}後可破境衝 ${nextName}。${warn}`;
         }
+        let extra = '';
+        if (state.pityBonus > 0) extra += ` 保底加成 +${Math.round(state.pityBonus * 100)}%（失敗或服丹累積，成功後歸零）。`;
+        if (state.toxicity >= 70) extra += ` 丹毒 ${state.toxicity}，破境率 -15%，先排毒再破境。`;
+        nextStepEl.textContent += extra;
       }
 
       document.getElementById('pity-bonus-badge').textContent = `破境率 ${breakChance}%`;
@@ -2525,7 +2611,7 @@
           const herb = HERBS.find(h => h.id === plot.herbId) || HERBS[0];
           plot.progress += (100 / herb.growTime) * mult;
           if (plot.progress >= 100) {
-            plot.progress = 0;
+            plot.progress -= 100;
             state.herbs[herb.id] = (state.herbs[herb.id] || 0) + 1;
             harvestedAny = true;
           }
@@ -2549,10 +2635,15 @@
 
     window.addEventListener('load', () => {
       loadState();
+      settleOfflineProgress();
       const speedLabels = { 1: '1x', 2: '2x', 5: '5x' };
       document.getElementById('speed-label').textContent = speedLabels[state.speedMult] || '1x';
       initGardenPlotsDOM(); // Build <select> dropdowns ONCE!
       renderAll();
+      if (pendingOfflineSummary) {
+        addLog(pendingOfflineSummary, true);
+        showToast(pendingOfflineSummary);
+      }
       switchMobileView(state.activeView || 'cultivate');
       initCanvas();
       startIdleLoop();
