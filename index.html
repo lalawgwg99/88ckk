@@ -603,6 +603,7 @@
         <h3 class="text-sm font-black text-[#1e1a16]">選擇命格</h3>
         <button id="btn-close-origin" type="button" class="paper-btn text-xs px-2.5 py-1 rounded font-bold">✕ 關閉</button>
       </div>
+      <div class="text-xs text-[#5c5346]">首次切換免費，之後每次切換需 300 靈石（選當前命格不收費）。</div>
       <div id="origin-options-list" class="space-y-2"></div>
     </div>
   </div>
@@ -612,7 +613,7 @@
     <div class="scroll-border rounded-xl max-w-sm w-full p-4 bg-[#fbf8f1] space-y-3">
       <h3 class="text-base font-black text-[#9e2a22] border-b border-[#dfd3bc] pb-2">確定涅槃重修？</h3>
       <p class="text-xs text-[#5c5346] leading-relaxed">
-        回到練氣一層，保留<strong class="text-[#9e2a22]">「古寶星級與注靈」</strong>並獲<strong class="text-[#236c53]">「吐納+25%、探寶令+3」</strong>！
+        回到練氣一層，靈種回到初始 4 種，保留<strong class="text-[#9e2a22]">「古寶星級與注靈」</strong>並獲<strong class="text-[#236c53]">「吐納+25%、探寶令+3」</strong>！
       </p>
       <div class="flex items-center justify-end gap-2 pt-1">
         <button id="btn-cancel-reset" type="button" class="paper-btn text-xs px-3 py-1.5 rounded font-bold">繼續當前仙途</button>
@@ -828,13 +829,15 @@
         lastSeen: 0,
         lastLoginDate: '',
         loginStreak: 0,
+        originSwitchCount: 0,
+        ageCalibrated: false,
         meditateCombo: 0,
         lastMeditateAt: 0,
         audioMuted: false,
         activeView: 'cultivate',
         currentArtId: 'changchun',
         unlockedArts: ['changchun'],
-        unlockedSeeds: HERBS.map(h => h.id), // All seeds unlocked for smooth selection!
+        unlockedSeeds: HERBS.slice(0, 4).map(h => h.id), // 初始 4 種，其餘靠歷練解鎖
         equippedSkills: ['zhenyuan_shield', 'dingshen_talisman', 'sanmei_fire', 'xiuluo_slash'],
         bloodlineTraits: [
           { traitId: 'w1', locked: false },
@@ -876,7 +879,22 @@
           state.artLevels = Object.assign(def.artLevels, parsed.artLevels || {});
           state.relics = Object.assign({}, parsed.relics || {});
           state.relicInfusion = Object.assign({}, parsed.relicInfusion || {});
-          state.unlockedSeeds = HERBS.map(h => h.id);
+          if (!Array.isArray(parsed.unlockedSeeds) || parsed.unlockedSeeds.length === 0) {
+            state.unlockedSeeds = HERBS.slice(0, 4).map(h => h.id);
+          } else {
+            state.unlockedSeeds = parsed.unlockedSeeds.filter(id => HERBS.some(h => h.id === id));
+            if (state.unlockedSeeds.length === 0) state.unlockedSeeds = HERBS.slice(0, 4).map(h => h.id);
+          }
+          // 舊存檔年齡校正：只在第一次載入舊存檔時跑一次（ageCalibrated 缺省為 false）。
+          // 舊版年齡增速過快，很多人早已超過壽元，校正時留 5 載緩衝；校正後壽元將盡不再靠重開洗掉，必須破境延壽。
+          if (!state.ageCalibrated) {
+            const _ageRealm = state.activePath === 'body' ? getBodyRealm() : getMagicRealm();
+            if (state.ageYears > _ageRealm.lifespan) {
+              state.ageYears = Math.max(14, _ageRealm.lifespan - 5);
+              state.ageMonths = 0;
+            }
+            state.ageCalibrated = true;
+          }
           if (!Array.isArray(state.equippedSkills) || state.equippedSkills.length === 0) state.equippedSkills = def.equippedSkills;
           if (!Array.isArray(state.bloodlineTraits) || state.bloodlineTraits.length !== 3) state.bloodlineTraits = def.bloodlineTraits;
         }
@@ -1098,7 +1116,8 @@
       const nangongBonus = 1 + ((state.companionAffinity.nangong || 0) * 0.01);
       const reincBonus = 1 + (state.reincarnationCount * 0.25);
       const injuryPenalty = state.injuryTimer > 0 ? 0.5 : 1.0;
-      return Math.max(1, Math.round((realm.baseRate + flatTreasure) * origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * injuryPenalty));
+      const lifespanPenalty = state.ageYears > realm.lifespan ? 0.5 : 1.0;
+      return Math.max(1, Math.round((realm.baseRate + flatTreasure) * origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * injuryPenalty * lifespanPenalty));
     }
     function getTotalCombat() {
       const mRealm = getMagicRealm();
@@ -1527,7 +1546,7 @@
         const nextTitle = isBody ? nextRealm.bodyName : nextRealm.name;
         playSound('breakthrough');
         spawnFloatingText(`⚡ ${nextTitle}`, 'text-[#9e2a22]');
-        addLog(`🎉 晉入【${nextTitle}】（探寶令+1）！`, true);
+        addLog(`🎉 晉入【${nextTitle}】（探寶令+1${nextRealm.lifespan > realm.lifespan ? `、壽元延至 ${nextRealm.lifespan}載` : ''}）！`, true);
         showToast(`🎉 晉入【${nextTitle}】！`);
       } else {
         const lostQi = Math.round(curQi * 0.25);
@@ -1592,8 +1611,12 @@
     // Smooth, Bug-Free Seed Change (Never jumps back, never closes dropdown!)
     function changePlotHerb(plotIndex, newHerbId) {
       if (!state.plots[plotIndex]) return;
-      if (!state.unlockedSeeds.includes(newHerbId)) {
-        state.unlockedSeeds.push(newHerbId);
+      if (!(state.unlockedSeeds || []).includes(newHerbId)) {
+        showToast('🔒 尚未解鎖此靈種，請去歷練取得！');
+        const sel = document.getElementById(`plot-select-${plotIndex}`);
+        if (sel) sel.value = state.plots[plotIndex].herbId;
+        updateGardenLiveDOM();
+        return;
       }
       state.plots[plotIndex].herbId = newHerbId;
       state.plots[plotIndex].progress = 0;
@@ -1886,8 +1909,21 @@
 
       const seedHerb = HERBS.find(h => h.id === loc.seedDropId);
       if (seedHerb) {
+        if (!(state.unlockedSeeds || []).includes(seedHerb.id)) {
+          state.unlockedSeeds = [...(state.unlockedSeeds || []), seedHerb.id];
+          addLog(`🔓 解鎖靈種：【${seedHerb.name}】！`, true);
+          lootMessages.push(`🔓解鎖${seedHerb.name}`);
+        }
         state.herbs[seedHerb.id] = (state.herbs[seedHerb.id] || 0) + 2;
         lootMessages.push(`${seedHerb.name}+2`);
+      }
+      if (loc.id === 'beihan') {
+        const chaos = HERBS.find(h => h.id === 'chaos_fruit');
+        if (chaos && !(state.unlockedSeeds || []).includes(chaos.id)) {
+          state.unlockedSeeds = [...(state.unlockedSeeds || []), chaos.id];
+          addLog(`🔓 北寒雙生，解鎖靈種：【${chaos.name}】！`, true);
+          lootMessages.push(`🔓解鎖${chaos.name}`);
+        }
       }
 
       if (loc.relicPool && loc.relicPool.length > 0) {
@@ -2182,6 +2218,7 @@
         let extra = '';
         if (state.pityBonus > 0) extra += ` 保底加成 +${Math.round(state.pityBonus * 100)}%（失敗或服丹累積，成功後歸零）。`;
         if (state.toxicity >= 70) extra += ` 丹毒 ${state.toxicity}，破境率 -15%，先排毒再破境。`;
+        if (state.ageYears > activeRealm.lifespan) extra += ` ⚠️ 壽元將盡（${state.ageYears}/${activeRealm.lifespan}載），修煉效率減半，破境可延壽至 ${nextR.lifespan}載。`;
         nextStepEl.textContent += extra;
       }
 
@@ -2218,7 +2255,8 @@
         const card = document.createElement('div');
         card.className = 'bg-[#f4ede0] border border-[#cbbba0] rounded-xl p-3.5 flex flex-col justify-between gap-3';
 
-        const optionsHtml = HERBS.map(h =>
+        const _unlocked = state.unlockedSeeds || [];
+        const optionsHtml = HERBS.filter(h => _unlocked.includes(h.id) || h.id === herb.id).map(h =>
           `<option value="${h.id}" ${h.id === herb.id ? 'selected' : ''}>${h.icon} ${h.name}（${h.desc}）</option>`
         ).join('');
 
@@ -2276,6 +2314,10 @@
       const summaryEl = document.getElementById('herb-stock-summary');
       if (summaryEl) {
         summaryEl.textContent = '🌿 靈草庫存：' + HERBS.map(h => `${h.name}(${state.herbs[h.id] || 0})`).join(' · ');
+      }
+      const seedHintEl = document.getElementById('seed-unlock-hint');
+      if (seedHintEl) {
+        seedHintEl.textContent = `🌱 掌天藥園（已解鎖 ${(state.unlockedSeeds || []).length}/${HERBS.length} 種｜未解鎖的去歷練取得）`;
       }
     }
 
@@ -2338,6 +2380,12 @@
       const highestIdx = Math.max(state.realmIndex || 0, state.bodyRealmIndex || 0);
       LOCATIONS.forEach(loc => {
         const unlocked = highestIdx >= loc.minRealm;
+        const _seedHerbForLoc = HERBS.find(h => h.id === loc.seedDropId);
+        let _seedNote = '';
+        if (_seedHerbForLoc && !(state.unlockedSeeds || []).includes(_seedHerbForLoc.id)) {
+          _seedNote = ` ｜ 🔒 可解鎖${_seedHerbForLoc.name}`;
+          if (loc.id === 'beihan' && !(state.unlockedSeeds || []).includes('chaos_fruit')) _seedNote += '、混沌果';
+        }
         const reqRealmName = getRealmByIndex(loc.minRealm).name;
         const card = document.createElement('div');
         card.className = `border rounded-xl p-3 flex items-center justify-between gap-2 ${
@@ -2349,7 +2397,7 @@
               <h4 class="font-bold text-sm text-[#1e1a16]">${loc.name}</h4>
               <span class="text-xs text-[#5c5346]">首領：${loc.enemyName} (${formatNum(loc.enemyHp)})</span>
             </div>
-            <div class="text-xs text-[#236c53] font-bold">${loc.desc}</div>
+            <div class="text-xs text-[#236c53] font-bold">${loc.desc}${_seedNote}</div>
           </div>
           <button type="button" data-loc-id="${loc.id}" class="${unlocked ? 'cinnabar-btn' : 'paper-btn'} text-xs py-2 px-3 rounded-lg font-bold shrink-0">
             ${unlocked ? '⚔️ 闖關' : `🔒${reqRealmName}`}
@@ -2630,6 +2678,30 @@
       }
     }
 
+    // 命格重塑：首次免費，之後每次 300 靈石；靈石不足不切換、不扣次數。
+    function switchOrigin(originId) {
+      if (!ORIGINS.some(o => o.id === originId)) return;
+      const modal = document.getElementById('origin-modal');
+      if (originId === state.originId) {
+        showToast('已是當前命格');
+        if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+        return;
+      }
+      const cost = (state.originSwitchCount || 0) === 0 ? 0 : 300;
+      if (state.stones < cost) {
+        showToast(`需 ${cost} 靈石才能重塑命格！`);
+        return;
+      }
+      state.stones -= cost;
+      state.originSwitchCount = (state.originSwitchCount || 0) + 1;
+      state.originId = originId;
+      const o = getOrigin();
+      showToast(cost === 0 ? `已切換：${o.name}（首次免費）` : `已切換：${o.name}（-300靈石）`);
+      if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+      renderAll();
+      saveState();
+    }
+
     function renderOriginModalOptions() {
       const list = document.getElementById('origin-options-list');
       if (!list) return;
@@ -2649,7 +2721,7 @@
             <p class="text-xs text-[#5c5346] mt-1">${o.desc}</p>
           </div>
           <button type="button" data-origin-select="${o.id}" class="${selected ? 'cinnabar-btn' : 'ink-btn'} text-xs px-3 py-1.5 rounded-lg font-bold shrink-0">
-            ${selected ? '✓當前' : '切換'}
+            ${selected ? '✓當前' : ((state.originSwitchCount || 0) === 0 ? '切換（免費）' : '切換（300石）')}
           </button>
         `;
         list.appendChild(div);
@@ -2657,13 +2729,7 @@
 
       list.querySelectorAll('[data-origin-select]').forEach(btn => {
         btn.addEventListener('click', () => {
-          state.originId = btn.getAttribute('data-origin-select');
-          const o = getOrigin();
-          showToast(`已切換：${o.name}`);
-          document.getElementById('origin-modal').classList.add('hidden');
-          document.getElementById('origin-modal').classList.remove('flex');
-          renderAll();
-          saveState();
+          switchOrigin(btn.getAttribute('data-origin-select'));
         });
       });
     }
@@ -2746,7 +2812,7 @@
           }
         });
 
-        state.ageMonths += 1 * mult;
+        state.ageMonths += 0.1 * mult; // 年齡降速：舊版 1 秒長 1 個月，17 分鐘就活過 100 載，壽元形同虛設
         if (state.ageMonths >= 12) {
           state.ageYears += Math.floor(state.ageMonths / 12);
           state.ageMonths = state.ageMonths % 12;
