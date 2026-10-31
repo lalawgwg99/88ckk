@@ -99,6 +99,12 @@
       animation: floatUp 1.1s ease-out forwards;
       pointer-events: none;
     }
+    @keyframes breakPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(158, 42, 34, 0.45); }
+      50% { box-shadow: 0 0 0 5px rgba(158, 42, 34, 0); }
+    }
+    .break-ready { animation: breakPulse 1.4s ease-in-out infinite; }
+    .qi-full { box-shadow: 0 0 8px rgba(158, 42, 34, 0.7); }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -131,7 +137,7 @@
         </button>
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between text-xs leading-none mb-1.5">
-            <span class="font-bold text-[#1e1a16]"><span id="path-progress-label">法修</span>：<span id="stat-qi-current">0</span> / <span id="stat-qi-max">300</span></span>
+            <span class="font-bold text-[#1e1a16]"><span id="path-progress-label">法修</span>：<span id="stat-qi-current">0</span> / <span id="stat-qi-max">300</span><span id="stat-qi-overflow" class="text-[#9e2a22]"></span></span>
             <span id="stat-qi-rate" class="font-bold text-[#236c53]">+4/秒</span>
           </div>
           <div class="w-full bg-[#e2d6be] h-2.5 rounded-full overflow-hidden">
@@ -277,8 +283,9 @@
           <div id="realm-perk-hint" class="text-sm font-bold text-[#1e1a16]">
             下一階：練氣四層
           </div>
+          <div class="text-[11px] text-[#5c5346]">破境一次只升一階，不會連跳</div>
           <div id="tribulation-req-badge" class="inline-block text-xs px-2 py-0.5 bg-emerald-100 rounded text-emerald-900 font-bold">
-            🤖 化身：神手谷
+            🚶 漫遊：神手谷（靈塵+2/8秒）
           </div>
         </div>
 
@@ -311,6 +318,11 @@
         <button id="btn-quick-adventure" type="button" class="gold-btn py-3 px-3 rounded-lg text-sm font-bold flex items-center justify-center gap-1.5">
           <span>🗼 鎮妖塔</span>
         </button>
+      </div>
+
+      <!-- 下一步指引：修為差多少、多久可破境、大關戰力警告 -->
+      <div class="bg-[#fbf8f1] border border-[#d6c7ac] rounded-lg p-3">
+        <div id="next-step-text" class="text-xs leading-relaxed font-bold text-[#1e1a16]">修煉中……</div>
       </div>
 
       <!-- Clean Footer Link to Chronicle -->
@@ -1182,9 +1194,9 @@
       const realm = getActiveRealm();
 
       if (state.activePath === 'body') {
-        state.bodyQi = Math.min(realm.maxQi * 1.5, (state.bodyQi || 0) + gain);
+        state.bodyQi = Math.min(realm.maxQi * 2.0, (state.bodyQi || 0) + gain);
       } else {
-        state.qi = Math.min(realm.maxQi * 1.5, state.qi + gain);
+        state.qi = Math.min(realm.maxQi * 2.0, state.qi + gain);
       }
 
       if (state.toxicity > 0) {
@@ -1892,17 +1904,23 @@
 
       document.getElementById('btn-toggle-path').textContent = isBody ? '💪 主修:體' : '☯️ 主修:法';
       document.getElementById('path-progress-label').textContent = isBody ? '煉體' : '修法';
-      document.getElementById('stat-qi-current').textContent = formatNum(curQi);
+      const qiOverflow = Math.max(0, curQi - activeRealm.maxQi);
+      document.getElementById('stat-qi-current').textContent = formatNum(Math.min(curQi, activeRealm.maxQi));
       document.getElementById('stat-qi-max').textContent = formatNum(activeRealm.maxQi);
+      const overflowEl = document.getElementById('stat-qi-overflow');
+      if (overflowEl) overflowEl.textContent = qiOverflow > 0 ? `（溢出+${formatNum(qiOverflow)}）` : '';
+      const qiBar = document.getElementById('qi-progress-bar');
+      if (qiBar) qiBar.classList.toggle('qi-full', curQi >= activeRealm.maxQi);
       document.getElementById('stat-qi-rate').textContent = `+${formatNum(qiRate * state.speedMult)}/秒`;
 
       const pct = Math.min(100, Math.round((curQi / activeRealm.maxQi) * 100));
       document.getElementById('qi-progress-bar').style.width = `${pct}%`;
 
+      const fmtQi = (q, max) => q > max ? `${formatNum(max)} / ${formatNum(max)}（溢出+${formatNum(q - max)}）` : `${formatNum(q)} / ${formatNum(max)}`;
       document.getElementById('magic-realm-detail').textContent = mRealm.name;
-      document.getElementById('magic-qi-detail').textContent = `${formatNum(state.qi)} / ${formatNum(mRealm.maxQi)}`;
+      document.getElementById('magic-qi-detail').textContent = fmtQi(state.qi, mRealm.maxQi);
       document.getElementById('body-realm-detail').textContent = bRealm.bodyName;
-      document.getElementById('body-qi-detail').textContent = `${formatNum(state.bodyQi || 0)} / ${formatNum(bRealm.maxQi)}`;
+      document.getElementById('body-qi-detail').textContent = fmtQi(state.bodyQi || 0, bRealm.maxQi);
 
       const magicCard = document.getElementById('card-path-magic');
       const bodyCard = document.getElementById('card-path-body');
@@ -1927,8 +1945,34 @@
 
       const totalPills = Object.values(state.pills).reduce((a, b) => a + b, 0);
       document.getElementById('quick-pill-count').textContent = `(${totalPills})`;
+      const qiReady = curQi >= activeRealm.maxQi;
       document.getElementById('breakthrough-rate-label').textContent =
-        curQi >= activeRealm.maxQi ? `(${breakChance}%)` : `(${pct}%)`;
+        qiReady ? `(${breakChance}% · 已滿)` : `(進度 ${pct}%)`;
+      const topBreakBtn = document.getElementById('btn-top-break');
+      if (topBreakBtn) {
+        topBreakBtn.textContent = qiReady ? '⚡ 可破境' : '破境';
+        topBreakBtn.classList.toggle('break-ready', qiReady);
+      }
+      const mainBreakBtn = document.getElementById('btn-breakthrough');
+      if (mainBreakBtn) mainBreakBtn.classList.toggle('break-ready', qiReady);
+      const nextStepEl = document.getElementById('next-step-text');
+      if (nextStepEl) {
+        const nextR = getRealmByIndex((isBody ? state.bodyRealmIndex : state.realmIndex) + 1);
+        const nextName = isBody ? nextR.bodyName : nextR.name;
+        if (qiReady) {
+          nextStepEl.textContent = `✅ 修為已滿，點「破境」衝 ${nextName}！成功率 ${breakChance}%（失敗扣 25% 修為、丹毒 +25；服丹可提高成功率）`;
+        } else {
+          const remain = activeRealm.maxQi - curQi;
+          const perSec = Math.max(1, Math.round(qiRate * state.speedMult));
+          const secs = Math.ceil(remain / perSec);
+          const eta = secs >= 60 ? `約 ${Math.ceil(secs / 60)} 分鐘` : `約 ${secs} 秒`;
+          let warn = '';
+          if (activeRealm.majorGate && activeRealm.reqCombat && combat < activeRealm.reqCombat) {
+            warn = ` ⚠️ 大關戰力不足（現 ${formatNum(combat)} / 需 ${formatNum(activeRealm.reqCombat)}），破境率會打 65 折，先去鎮妖塔／升寶庫再來。`;
+          }
+          nextStepEl.textContent = `下一步：還差 ${formatNum(remain)} 修為，${eta}後可破境衝 ${nextName}。${warn}`;
+        }
+      }
 
       document.getElementById('pity-bonus-badge').textContent = `破境率 ${breakChance}%`;
 
@@ -2363,7 +2407,7 @@
       const mini = document.getElementById('mini-log-preview');
       if (mini) {
         mini.innerHTML = '';
-        state.logs.slice(0, 1).forEach(item => {
+        state.logs.slice(0, 3).forEach(item => {
           const div = document.createElement('div');
           div.innerHTML = `<span class="font-bold text-[#9e2a22]">${item.time}</span> ${item.text}`;
           mini.appendChild(div);
@@ -2462,7 +2506,7 @@
           const roamLoc = unlockedLocs[unlockedLocs.length - 1] || LOCATIONS[0];
           const reqBadge = document.getElementById('tribulation-req-badge');
           if (reqBadge) {
-            reqBadge.textContent = `🤖 化身：${roamLoc.name} (塵+2)`;
+            reqBadge.textContent = `🚶 漫遊：${roamLoc.name}（靈塵+2/8秒）`;
           }
         }
 
