@@ -1044,7 +1044,7 @@
         });
         box.innerHTML = `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
           <div class="font-black text-sm text-[#1e1a16]">🏯 宗門</div>
-          <div class="text-xs text-[#5c5346] leading-relaxed">加入一個宗門，做每日任務攢貢獻、升職位、換寶庫、養大陣。首次加入免費；叛宗需 500 靈石且貢獻、職位、大陣歸零。轉世重修會保留宗門。</div>
+          <div class="text-xs text-[#5c5346] leading-relaxed">加入宗門，做任務攢貢獻、升職位、換寶庫、養大陣。首次免費；叛宗 500 靈石且貢獻歸零；轉世保留宗門。</div>
         </div>` + cards;
         return;
       }
@@ -1065,19 +1065,25 @@
       let shopHtml = '';
       SECT_SHOP.forEach(item => {
         const locked = rankIdx < item.minRank;
-        const bought = item.weekly ? '' : `今日已換 ${((sc.shopBought && sc.shopBought[item.id]) || 0)}/${item.daily}`;
-        const note = item.weekly ? '每 7 天限換 1 次' : bought;
-        shopHtml += `<div class="flex items-center justify-between gap-2 text-xs font-bold">
-          <span class="text-[#1e1a16]">${item.name}<span class="text-[#5c5346]">（${item.cost}貢獻${locked ? `｜需${SECT_RANKS[item.minRank].name}` : ''}｜${note}）</span></span>
+        const bought = item.weekly ? '' : `今日 ${((sc.shopBought && sc.shopBought[item.id]) || 0)}/${item.daily}`;
+        const note = item.weekly ? '每 7 天 1 次' : bought;
+        shopHtml += `<div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-xs font-bold text-[#1e1a16]">${item.name}</div>
+            <div class="text-xs font-bold text-[#5c5346]">${item.cost}貢獻${locked ? `｜需${SECT_RANKS[item.minRank].name}` : ''}｜${note}</div>
+          </div>
           <button type="button" data-sect-action="buy" data-sect-id="${item.id}" class="gold-btn text-xs py-2 px-3 rounded-lg font-bold shrink-0">兌換</button>
         </div>`;
       });
       let switchHtml = '';
       SECTS.filter(s => s.id !== sc.id).forEach(s => {
         const pending = pendingSectSwitchId === s.id;
-        switchHtml += `<div class="flex items-center justify-between gap-2 text-xs font-bold">
-          <span class="text-[#1e1a16]">${s.emoji} ${s.name}（${s.route}：${s.passiveDesc}）</span>
-          <button type="button" data-sect-action="switch" data-sect-id="${s.id}" class="cinnabar-btn text-xs py-2 px-3 rounded-lg font-bold shrink-0">${pending ? '確認叛宗？再點一次' : '叛宗（500石）'}</button>
+        switchHtml += `<div class="space-y-1">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-bold text-[#1e1a16]">${s.emoji} ${s.name}（${s.route}）</span>
+            <button type="button" data-sect-action="switch" data-sect-id="${s.id}" class="cinnabar-btn text-xs py-2 px-3 rounded-lg font-bold shrink-0">${pending ? '確認叛宗？再點一次' : '叛宗（500石）'}</button>
+          </div>
+          <div class="text-xs font-bold text-[#5c5346]">被動：${s.passiveDesc}</div>
         </div>`;
       });
       let histHtml = '';
@@ -1093,36 +1099,39 @@
           <span class="seal-stamp text-xs px-2 py-0.5">${rank.name}</span>
         </div>
         <div class="text-xs text-[#236c53] font-bold">被動：${def.passiveDesc}（目前 +${passivePct}%）</div>
-        <div class="text-xs text-[#1e1a16] font-bold">貢獻 ${sc.contribution}｜累計 ${sc.totalContribution}${next ? `｜下一職位 ${next.name}（累計滿 ${next.req}）` : '｜已是最高職位'}</div>
+        <div class="text-xs text-[#1e1a16] font-bold">貢獻 ${sc.contribution}｜累計 ${sc.totalContribution}</div>
+        <div class="text-xs text-[#5c5346] font-bold">${next ? `下一職位：${next.name}（累計滿 ${next.req}）` : '已是最高職位'}</div>
         ${sc.buffSecondsLeft > 0 ? `<div class="text-xs text-[#9e2a22] font-bold">✨ 宗門增益：修為+10%，剩餘約 ${Math.ceil(sc.buffSecondsLeft / 60)} 分鐘</div>` : ''}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">📋 每日宗門任務（每日重置）</div>
+        <div class="font-black text-sm text-[#1e1a16]">📋 每日任務 <span class="text-xs text-[#5c5346]">每日重置</span></div>
         ${taskHtml || '<div class="text-xs text-[#5c5346]">今日任務已全部完成！</div>'}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">🙏 捐獻（每日上限：靈石 500／靈塵 100）</div>
+        <div class="font-black text-sm text-[#1e1a16]">🙏 捐獻</div>
         <div class="flex gap-2">
-          <button type="button" data-sect-action="donate-stone" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold flex-1">捐靈石 100（+10貢獻，今日 ${sc.donatedStoneToday || 0}/500）</button>
-          <button type="button" data-sect-action="donate-dust" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold flex-1">捐靈塵 10（+10貢獻，今日 ${sc.donatedDustToday || 0}/100）</button>
+          <button type="button" data-sect-action="donate-stone" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold flex-1">🪨 捐靈石 100</button>
+          <button type="button" data-sect-action="donate-dust" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold flex-1">✨ 捐靈塵 10</button>
         </div>
+        <div class="text-xs text-[#5c5346] font-bold">各 +10 貢獻｜今日已捐：靈石 ${sc.donatedStoneToday || 0}/500、靈塵 ${sc.donatedDustToday || 0}/100</div>
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">🎁 宗門寶庫（花貢獻兌換）</div>
+        <div class="font-black text-sm text-[#1e1a16]">🎁 宗門寶庫</div>
         ${shopHtml}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
         <div class="font-black text-sm text-[#1e1a16]">🏯 宗門大陣 ${lv} 級（耐久 ${sc.arrayDurability || 0}/100）</div>
-        <div class="text-xs text-[#5c5346] font-bold">大陣減傷 ${Math.round(getSectArrayReduction() * 100)}%（每級 3%，封頂 30%；耐久歸零時失效）。Boss 襲擊會扣耐久，守住 -30、失守 -60。</div>
+        <div class="text-xs text-[#5c5346] font-bold">大陣減傷 ${Math.round(getSectArrayReduction() * 100)}%（耐久歸零失效）｜襲擊扣耐久：守住 -30、失守 -60。</div>
         <button type="button" data-sect-action="upgrade-array" class="gold-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">${lv >= 10 ? '已滿 10 級' : `升級大陣（${upStone}靈石＋${upContrib}貢獻）`}</button>
         ${(sc.arrayDurability || 0) < 100 ? `<button type="button" data-sect-action="repair-array" class="cinnabar-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">修復大陣（1000靈石＋50靈塵，耐久回滿）</button>` : ''}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">🔀 改投他宗（叛宗：500 靈石，貢獻、職位、大陣歸零）</div>
+        <div class="font-black text-sm text-[#1e1a16]">🔀 改投他宗</div>
+        <div class="text-xs text-[#9e2a22] font-bold">叛宗需 500 靈石，貢獻、職位、大陣歸零</div>
         ${switchHtml}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">⚔️ 宗門戰績（最近 3 次襲擊）</div>
+        <div class="font-black text-sm text-[#1e1a16]">⚔️ 宗門戰績</div>
         ${histHtml || '<div class="text-xs text-[#5c5346]">尚無襲擊紀錄。加入宗門、累計遊玩 90 分鐘後，神級 Boss 可能來襲。</div>'}
       </div>`;
     }
