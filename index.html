@@ -485,6 +485,10 @@
 
     <!-- VIEW: 🏯 宗門 -->
     <section id="view-panel-sect" class="scroll-border rounded-xl p-4 space-y-3.5 hidden">
+      <div id="sect-boss-banner" class="hidden bg-[#f4ede0] border-2 border-[#9e2a22] rounded-xl p-3.5 space-y-2">
+        <div id="sect-boss-banner-text" class="text-xs font-bold text-[#9e2a22] leading-relaxed"></div>
+        <button id="btn-sect-fight-boss" type="button" class="cinnabar-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full hidden">⚔️ 迎戰神級 Boss</button>
+      </div>
       <div id="sect-content" class="space-y-3.5"></div>
     </section>
 
@@ -850,7 +854,7 @@
     }
     function ensureSectState() {
       if (!state.sect || typeof state.sect !== 'object') state.sect = {};
-      const d = { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [] };
+      const d = { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0 };
       Object.keys(d).forEach(k => { if (state.sect[k] === undefined) state.sect[k] = d[k]; });
       if (!Array.isArray(state.sect.tasks)) state.sect.tasks = [];
       if (!state.sect.shopBought || typeof state.sect.shopBought !== 'object') state.sect.shopBought = {};
@@ -933,7 +937,7 @@
       if (!def) return;
       if ((state.stones || 0) < 500) { showToast('叛宗需 500 靈石！'); return; }
       state.stones -= 500;
-      state.sect = { id: sectId, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [] };
+      state.sect = { id: sectId, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0 };
       ensureSectDaily();
       addLog(`🏯 叛宗改投【${def.emoji}${def.name}】（付 500 靈石，貢獻、職位、大陣歸零）！`, true);
       showToast(`🏯 已改投${def.name}，貢獻歸零`);
@@ -1076,6 +1080,10 @@
           <button type="button" data-sect-action="switch" data-sect-id="${s.id}" class="cinnabar-btn text-xs py-2 px-3 rounded-lg font-bold shrink-0">${pending ? '確認叛宗？再點一次' : '叛宗（500石）'}</button>
         </div>`;
       });
+      let histHtml = '';
+      (sc.bossHistory || []).forEach(h => {
+        histHtml += `<div class="flex items-center justify-between gap-2 text-xs font-bold"><span class="text-[#1e1a16]">${h.boss}</span><span class="text-[#5c5346]">${h.result}｜${h.date}</span></div>`;
+      });
       const lv = sc.arrayLv || 1;
       const upStone = 500 * lv;
       const upContrib = 100 * lv;
@@ -1086,6 +1094,7 @@
         </div>
         <div class="text-xs text-[#236c53] font-bold">被動：${def.passiveDesc}（目前 +${passivePct}%）</div>
         <div class="text-xs text-[#1e1a16] font-bold">貢獻 ${sc.contribution}｜累計 ${sc.totalContribution}${next ? `｜下一職位 ${next.name}（累計滿 ${next.req}）` : '｜已是最高職位'}</div>
+        ${sc.buffSecondsLeft > 0 ? `<div class="text-xs text-[#9e2a22] font-bold">✨ 宗門增益：修為+10%，剩餘約 ${Math.ceil(sc.buffSecondsLeft / 60)} 分鐘</div>` : ''}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
         <div class="font-black text-sm text-[#1e1a16]">📋 每日宗門任務（每日重置）</div>
@@ -1104,12 +1113,17 @@
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
         <div class="font-black text-sm text-[#1e1a16]">🏯 宗門大陣 ${lv} 級（耐久 ${sc.arrayDurability || 0}/100）</div>
-        <div class="text-xs text-[#5c5346] font-bold">大陣是日後神級 Boss 襲擊時的防線：等級越高，Boss 攻擊減傷越高。</div>
+        <div class="text-xs text-[#5c5346] font-bold">大陣減傷 ${Math.round(getSectArrayReduction() * 100)}%（每級 3%，封頂 30%；耐久歸零時失效）。Boss 襲擊會扣耐久，守住 -30、失守 -60。</div>
         <button type="button" data-sect-action="upgrade-array" class="gold-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">${lv >= 10 ? '已滿 10 級' : `升級大陣（${upStone}靈石＋${upContrib}貢獻）`}</button>
+        ${(sc.arrayDurability || 0) < 100 ? `<button type="button" data-sect-action="repair-array" class="cinnabar-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">修復大陣（1000靈石＋50靈塵，耐久回滿）</button>` : ''}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
         <div class="font-black text-sm text-[#1e1a16]">🔀 改投他宗（叛宗：500 靈石，貢獻、職位、大陣歸零）</div>
         ${switchHtml}
+      </div>
+      <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+        <div class="font-black text-sm text-[#1e1a16]">⚔️ 宗門戰績（最近 3 次襲擊）</div>
+        ${histHtml || '<div class="text-xs text-[#5c5346]">尚無襲擊紀錄。加入宗門、累計遊玩 90 分鐘後，神級 Boss 可能來襲。</div>'}
       </div>`;
     }
     function handleSectPanelClick(e) {
@@ -1132,6 +1146,193 @@
       else if (action === 'donate-dust') donateSect('dust');
       else if (action === 'buy') buySectItem(id);
       else if (action === 'upgrade-array') upgradeSectArray();
+      else if (action === 'repair-array') repairSectArray();
+    }
+
+
+    // =========================================================================
+    // 1.6 神級 Boss 隨機襲擊宗門（Phase 2）
+    // =========================================================================
+    const SECT_BOSSES = [
+      { id: 'hunmo', name: '混沌古魔', emoji: '👹', desc: '血厚攻高，定身抗性低（定身成功率加倍）' },
+      { id: 'tiandao', name: '天道化身', emoji: '☀️', desc: '攻擊頻率高，每回合反擊兩次' },
+      { id: 'guxian', name: '古仙殘念', emoji: '👻', desc: '反擊吸血（回血 25%）' }
+    ];
+    function getSectArrayReduction() {
+      const sc = state.sect;
+      if (!sc || !sc.id || (sc.arrayDurability || 0) <= 0) return 0;
+      return Math.min(0.30, (sc.arrayLv || 1) * 0.03);
+    }
+    function getSectDefense() {
+      const sc = state.sect;
+      if (!sc || !sc.id) return 0;
+      const rankIdx = sectRankFromTotal(sc.totalContribution || 0);
+      const arrayPart = (sc.arrayDurability || 0) > 0 ? (sc.arrayLv || 1) * 300 : 0;
+      const aff = state.companionAffinity || {};
+      const affTotal = (aff.nangong || 0) + (aff.ziyan || 0) + (aff.yinyue || 0) + (aff.yuanwao || 0);
+      const companionPart = Math.round(getTotalCombat() * 0.001 * affTotal);
+      return getTotalCombat() + rankIdx * 500 + arrayPart + companionPart;
+    }
+    function fmtBossTime(sec) {
+      const m = Math.floor(sec / 60), s = sec % 60;
+      return `${m}分${String(s).padStart(2, '0')}秒`;
+    }
+    function tickSectBoss() {
+      const sc = state.sect;
+      if (!sc || !sc.id) return;
+      if ((sc.buffSecondsLeft || 0) > 0) sc.buffSecondsLeft -= 1;
+      if ((sc.bossCooldownSeconds || 0) > 0) { sc.bossCooldownSeconds -= 1; return; }
+      if (sc.bossState) {
+        if (sc.bossState.inCombat) return;
+        if (!sc.bossState.arrived) {
+          sc.bossState.warnSecondsLeft -= 1;
+          if (sc.bossState.warnSecondsLeft <= 0) {
+            sc.bossState.arrived = true;
+            sc.bossState.graceSecondsLeft = 1800;
+            const boss = SECT_BOSSES.find(b => b.id === sc.bossState.bossId) || SECT_BOSSES[0];
+            showToast(`👹 神級 Boss【${boss.name}】已降臨宗門！`);
+            addLog(`👹 神級 Boss【${boss.emoji}${boss.name}】已降臨宗門！30 分鐘內不迎戰將自動結算。`, true);
+          }
+        } else {
+          sc.bossState.graceSecondsLeft -= 1;
+          if (sc.bossState.graceSecondsLeft <= 0) resolveBossAutoSettle();
+        }
+        return;
+      }
+      sc.bossPlaySeconds = (sc.bossPlaySeconds || 0) + 1;
+      if (sc.bossPlaySeconds >= 5400) {
+        sc.bossPlaySeconds = 0;
+        const guaranteed = (sc.bossMisses || 0) >= 3;
+        if (guaranteed || Math.random() < 0.35) {
+          sc.bossMisses = 0;
+          const boss = SECT_BOSSES[Math.floor(Math.random() * SECT_BOSSES.length)];
+          sc.bossState = { bossId: boss.id, warnSecondsLeft: 600, arrived: false, graceSecondsLeft: 0, inCombat: false };
+          showToast(`⚠️ 神級 Boss【${boss.name}】將在 10 分鐘後襲擊宗門！`);
+          addLog(`⚠️ 宗門探子回報：神級 Boss【${boss.emoji}${boss.name}】將在 10 分鐘後降臨宗門！快去捐獻、升級大陣、準備神通。`, true);
+        } else {
+          sc.bossMisses = (sc.bossMisses || 0) + 1;
+        }
+      }
+    }
+    function updateBossBannerDOM() {
+      const banner = document.getElementById('sect-boss-banner');
+      if (!banner) return;
+      const sc = state.sect;
+      const textEl = document.getElementById('sect-boss-banner-text');
+      const fightBtn = document.getElementById('btn-sect-fight-boss');
+      if (!sc || !sc.id || !sc.bossState) { banner.classList.add('hidden'); return; }
+      const boss = SECT_BOSSES.find(b => b.id === sc.bossState.bossId) || SECT_BOSSES[0];
+      banner.classList.remove('hidden');
+      if (!sc.bossState.arrived) {
+        if (textEl) textEl.textContent = `⚠️ 神級 Boss【${boss.emoji}${boss.name}】將在 ${fmtBossTime(Math.max(0, sc.bossState.warnSecondsLeft))} 後降臨宗門！${boss.desc}。快去捐獻、升級大陣、準備神通。`;
+        if (fightBtn) fightBtn.classList.add('hidden');
+      } else {
+        if (textEl) textEl.textContent = `👹 神級 Boss【${boss.emoji}${boss.name}】已降臨！${boss.desc}。剩餘 ${fmtBossTime(Math.max(0, sc.bossState.graceSecondsLeft))} 未迎戰將自動結算。`;
+        if (fightBtn) fightBtn.classList.remove('hidden');
+      }
+    }
+    function startBossFight() {
+      const sc = state.sect;
+      if (!sc || !sc.id || !sc.bossState || !sc.bossState.arrived) { showToast('目前沒有降臨的 Boss'); return; }
+      if (activeCombat) { showToast('已有進行中的戰鬥，先打完這一場！'); return; }
+      const boss = SECT_BOSSES.find(b => b.id === sc.bossState.bossId) || SECT_BOSSES[0];
+      const combat = getTotalCombat();
+      const reduction = getSectArrayReduction();
+      const enemyHp = Math.round(combat * 25);
+      const enemyAtk = Math.round(combat * 0.6 * (1 - reduction));
+      const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
+      sc.bossState.inCombat = true;
+      activeCombat = {
+        isBoss: true,
+        bossId: boss.id,
+        loc: { name: '宗門防禦戰', enemyName: `神級・${boss.name}` },
+        round: 1,
+        skillIdx: 0,
+        playerHp: playerMaxHp,
+        playerMaxHp,
+        playerShield: 0,
+        enemyHp,
+        enemyMaxHp: enemyHp,
+        enemyAtk,
+        enemyStunned: false
+      };
+      switchMobileView('adventure');
+      renderCombatBox(`👹 神級 Boss【${boss.name}】降臨！${boss.desc}。點神通或【⚡連招】出擊，宗門弟子會每回合助戰：`);
+      playSound('plucked');
+    }
+    function handleBossVictory() {
+      document.getElementById('active-event-box').classList.add('hidden');
+      activeCombat = null;
+      resolveBossFight('kill');
+      renderAll();
+      saveState();
+    }
+    function grantBossRelic() {
+      const high = RELICS.filter(r => (r.tier || '').includes('金') || (r.tier || '').includes('紅'));
+      let pick;
+      if (high.length > 0 && Math.random() < 0.5) pick = high[Math.floor(Math.random() * high.length)];
+      else pick = RELICS[Math.floor(Math.random() * RELICS.length)];
+      state.relics[pick.id] = (state.relics[pick.id] || 0) + 1;
+      return pick;
+    }
+    function resolveBossFight(outcome) {
+      const sc = state.sect;
+      if (!sc || !sc.id || !sc.bossState) return;
+      const boss = SECT_BOSSES.find(b => b.id === sc.bossState.bossId) || SECT_BOSSES[0];
+      const label = { kill: '擊殺', repel: '擊退', hold: '守住', lose: '失守' }[outcome] || outcome;
+      let msg = '';
+      if (outcome === 'kill') {
+        const relic = grantBossRelic();
+        state.gachaTokens = (state.gachaTokens || 0) + 5;
+        addSectContribution(500);
+        sc.buffSecondsLeft = 7200;
+        msg = `🏆 宗門大捷！擊殺神級 Boss【${boss.name}】！貢獻+500、探寶令+5、古寶【${relic.name}】+1、宗門增益（修為+10%，2 小時）！`;
+      } else if (outcome === 'repel') {
+        state.gachaTokens = (state.gachaTokens || 0) + 2;
+        state.stones = (state.stones || 0) + 1000;
+        addSectContribution(300);
+        msg = `⚔️ 擊退神級 Boss【${boss.name}】！貢獻+300、探寶令+2、靈石+1000。`;
+      } else if (outcome === 'hold') {
+        sc.arrayDurability = Math.max(0, (sc.arrayDurability || 0) - 30);
+        addSectContribution(100);
+        msg = `🛡️ 守住宗門！神級 Boss【${boss.name}】退去。貢獻+100、大陣耐久-30。`;
+      } else {
+        sc.arrayDurability = Math.max(0, (sc.arrayDurability || 0) - 60);
+        msg = `💥 宗門失守！神級 Boss【${boss.name}】肆虐而去。大陣耐久-60${sc.arrayDurability <= 0 ? '（大陣已破，加成暫停，請修復）' : ''}。貢獻與職位不受影響。`;
+      }
+      sc.bossHistory = [{ boss: `${boss.emoji}${boss.name}`, result: label, date: localDateStr(new Date()) }, ...(sc.bossHistory || [])].slice(0, 3);
+      sc.bossState = null;
+      sc.bossCooldownSeconds = 7200;
+      sc.bossPlaySeconds = 0;
+      addLog(msg, outcome === 'kill' || outcome === 'repel');
+      showToast(msg);
+      updateBossBannerDOM();
+    }
+    function resolveBossAutoSettle() {
+      const sc = state.sect;
+      if (!sc || !sc.id || !sc.bossState) return;
+      const rankIdx = sectRankFromTotal(sc.totalContribution || 0);
+      const arrayPart = (sc.arrayDurability || 0) > 0 ? (sc.arrayLv || 1) * 250 : 0;
+      const bossAtk = Math.round(getTotalCombat() * 1.8 + rankIdx * 400 + arrayPart);
+      const defense = getSectDefense();
+      const ratio = bossAtk > 0 ? defense / bossAtk : 1;
+      const outcome = ratio >= 0.8 ? 'repel' : (ratio >= 0.5 ? 'hold' : 'lose');
+      resolveBossFight(outcome);
+    }
+    function repairSectArray() {
+      ensureSectState();
+      const sc = state.sect;
+      if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
+      if ((sc.arrayDurability || 0) >= 100) { showToast('大陣耐久已滿！'); return; }
+      if ((state.stones || 0) < 1000) { showToast('靈石不足！修復需 1000'); return; }
+      if ((state.spiritDust || 0) < 50) { showToast('靈塵不足！修復需 50'); return; }
+      state.stones -= 1000;
+      state.spiritDust -= 50;
+      sc.arrayDurability = 100;
+      showToast('🏯 大陣已修復，耐久回滿！');
+      addLog('🏯 宗門大陣已修復（耐久回滿）。', false);
+      renderAll();
+      saveState();
     }
 
     // =========================================================================
@@ -1165,7 +1366,7 @@
         lastLoginDate: '',
         loginStreak: 0,
         originSwitchCount: 0,
-        sect: { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [] },
+        sect: { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0 },
         ageCalibrated: false,
         meditateCombo: 0,
         lastMeditateAt: 0,
@@ -1218,6 +1419,7 @@
           state.sect = Object.assign({}, def.sect, parsed.sect || {});
           if (!Array.isArray(state.sect.tasks)) state.sect.tasks = [];
           if (!state.sect.shopBought || typeof state.sect.shopBought !== 'object') state.sect.shopBought = {};
+          if (state.sect.bossState) state.sect.bossState.inCombat = false;
           if (!Array.isArray(parsed.unlockedSeeds) || parsed.unlockedSeeds.length === 0) {
             state.unlockedSeeds = HERBS.slice(0, 4).map(h => h.id);
           } else {
@@ -1457,7 +1659,8 @@
       const injuryPenalty = state.injuryTimer > 0 ? 0.5 : 1.0;
       const lifespanPenalty = state.ageYears > realm.lifespan ? 0.5 : 1.0;
       const sectQiMult = (state.activePath === 'magic' && state.sect && state.sect.id === 'yanyue') ? (1 + getSectPassive()) : 1;
-      return Math.max(1, Math.round((realm.baseRate + flatTreasure) * origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * injuryPenalty * lifespanPenalty * sectQiMult));
+      const sectBuffMult = (state.sect && state.sect.buffSecondsLeft > 0) ? 1.1 : 1;
+      return Math.max(1, Math.round((realm.baseRate + flatTreasure) * origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * injuryPenalty * lifespanPenalty * sectQiMult * sectBuffMult));
     }
     function getTotalCombat() {
       const mRealm = getMagicRealm();
@@ -2128,6 +2331,7 @@
       const loc = activeCombat.loc;
 
       if (skillId === 'flee') {
+        if (activeCombat.isBoss && state.sect && state.sect.bossState) state.sect.bossState.inCombat = false;
         showToast('🛶 成功遁走！');
         document.getElementById('active-event-box').classList.add('hidden');
         activeCombat = null;
@@ -2150,7 +2354,8 @@
         activeCombat.playerShield += sh;
         notes.push(`盾+${formatNum(sh)}`);
       }
-      if (sk.stunChance && Math.random() <= sk.stunChance) {
+      const stunChance = sk.stunChance ? Math.min(0.95, sk.stunChance * ((activeCombat.isBoss && activeCombat.bossId === 'hunmo') ? 2 : 1)) : 0;
+      if (stunChance && Math.random() <= stunChance) {
         activeCombat.enemyStunned = true;
         notes.push('⚡定身');
       }
@@ -2161,9 +2366,19 @@
       }
 
       activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - dmgToEnemy);
+      if (activeCombat.isBoss) {
+        const _sc = state.sect || {};
+        const assist = sectRankFromTotal(_sc.totalContribution || 0) * 50 + ((_sc.arrayDurability || 0) > 0 ? (_sc.arrayLv || 1) * 30 : 0);
+        if (assist > 0) {
+          activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - assist);
+          notes.push(`宗門助戰-${formatNum(assist)}`);
+        }
+      }
 
       if (activeCombat.enemyHp <= 0) {
-        if (activeCombat.isTower) {
+        if (activeCombat.isBoss) {
+          handleBossVictory();
+        } else if (activeCombat.isTower) {
           handleTowerVictory(activeCombat.floor);
         } else {
           handleCombatVictory(loc);
@@ -2176,20 +2391,40 @@
         activeCombat.enemyStunned = false;
         enemyNote = '敵被定身！';
       } else {
-        let rawEnemyDmg = Math.max(5, Math.round(activeCombat.enemyAtk * (0.85 + Math.random() * 0.25)));
-        if (activeCombat.playerShield > 0) {
-          const absorbed = Math.min(activeCombat.playerShield, rawEnemyDmg);
-          activeCombat.playerShield -= absorbed;
-          rawEnemyDmg -= absorbed;
+        const atkCount = (activeCombat.isBoss && activeCombat.bossId === 'tiandao') ? 2 : 1;
+        let totalEnemyDmg = 0;
+        for (let a = 0; a < atkCount; a++) {
+          let rawEnemyDmg = Math.max(5, Math.round(activeCombat.enemyAtk * (0.85 + Math.random() * 0.25)));
+          if (activeCombat.playerShield > 0) {
+            const absorbed = Math.min(activeCombat.playerShield, rawEnemyDmg);
+            activeCombat.playerShield -= absorbed;
+            rawEnemyDmg -= absorbed;
+          }
+          activeCombat.playerHp = Math.max(0, activeCombat.playerHp - rawEnemyDmg);
+          totalEnemyDmg += rawEnemyDmg;
+          if (activeCombat.playerHp <= 0) break;
         }
-        activeCombat.playerHp = Math.max(0, activeCombat.playerHp - rawEnemyDmg);
-        enemyNote = `敵反擊-${formatNum(rawEnemyDmg)}`;
+        enemyNote = `敵反擊-${formatNum(totalEnemyDmg)}`;
+        if (activeCombat.isBoss && activeCombat.bossId === 'guxian' && totalEnemyDmg > 0) {
+          const leech = Math.round(totalEnemyDmg * 0.25);
+          activeCombat.enemyHp = Math.min(activeCombat.enemyMaxHp, activeCombat.enemyHp + leech);
+          enemyNote += `｜古仙吸血+${formatNum(leech)}`;
+        }
       }
 
       activeCombat.round += 1;
 
       if (activeCombat.playerHp <= 0) {
         playSound('plucked');
+        if (activeCombat.isBoss) {
+          const pct = activeCombat.enemyMaxHp > 0 ? activeCombat.enemyHp / activeCombat.enemyMaxHp : 0;
+          document.getElementById('active-event-box').classList.add('hidden');
+          activeCombat = null;
+          resolveBossFight(pct <= 0.30 ? 'repel' : 'lose');
+          renderAll();
+          saveState();
+          return;
+        }
         if (activeCombat.isTower) {
           showToast(`🗼 挑戰失敗！請提升戰力再戰`);
         } else {
@@ -3179,6 +3414,8 @@
         if (harvestedAny && state.activeView === 'alchemy') {
           renderAlchemyTab();
         }
+        tickSectBoss();
+        updateBossBannerDOM();
         saveState();
       }, 1000);
     }
@@ -3257,6 +3494,7 @@
       document.getElementById('btn-quick-tower').addEventListener('click', handleQuickTower);
       document.getElementById('btn-goto-sect').addEventListener('click', () => switchMobileView('sect'));
       document.getElementById('view-panel-sect').addEventListener('click', handleSectPanelClick);
+      document.getElementById('btn-sect-fight-boss').addEventListener('click', startBossFight);
       document.getElementById('btn-auto-cast-combat').addEventListener('click', () => {
         if (!activeCombat) return;
         const eq = state.equippedSkills || ['zhenyuan_shield'];
