@@ -395,13 +395,18 @@
             <span class="seal-stamp text-xs px-2 py-0.5">鎮妖塔</span>
             <span id="tower-title-text" class="font-black text-sm text-[#1e1a16]">第 1 層 (HP 140)</span>
           </div>
-          <div class="text-xs text-[#236c53] font-bold">
+          <div id="tower-reward-text" class="text-xs text-[#236c53] font-bold">
             首通獎勵：🎟️探寶令 +2 ｜ ✨靈塵 +35
           </div>
         </div>
-        <button id="btn-challenge-tower" type="button" class="gold-btn text-xs py-2.5 px-4 rounded-lg font-bold shrink-0">
-          🗼 挑戰
-        </button>
+        <div class="flex gap-2 shrink-0">
+          <button id="btn-challenge-tower" type="button" class="gold-btn text-xs py-2.5 px-4 rounded-lg font-bold">
+            🗼 挑戰
+          </button>
+          <button id="btn-quick-tower" type="button" class="cinnabar-btn text-xs py-2.5 px-3 rounded-lg font-bold">
+            ⚡ 一鍵速通
+          </button>
+        </div>
       </div>
 
       <!-- Active Combat Box -->
@@ -821,6 +826,8 @@
         reincarnationCount: 0,
         speedMult: 1,
         lastSeen: 0,
+        lastLoginDate: '',
+        loginStreak: 0,
         meditateCombo: 0,
         lastMeditateAt: 0,
         audioMuted: false,
@@ -883,6 +890,27 @@
         state.lastSeen = Date.now();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch (e) {}
+    }
+
+    function localDateStr(d) {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+    let pendingDailySummary = null;
+    // 每日登入獎勵：同一天只領一次；連續登入不斷 streak，滿 7 天多送 1 枚探寶令。
+    function checkDailyLogin() {
+      pendingDailySummary = null;
+      const today = localDateStr(new Date());
+      if (state.lastLoginDate === today) return;
+      const yesterday = localDateStr(new Date(Date.now() - 86400000));
+      state.loginStreak = (state.lastLoginDate === yesterday) ? (state.loginStreak || 0) + 1 : 1;
+      state.lastLoginDate = today;
+      const stoneReward = Math.min(300, 100 + state.loginStreak * 10);
+      const dustReward = 20;
+      const tokenReward = state.loginStreak % 7 === 0 ? 1 : 0;
+      state.stones += stoneReward;
+      state.spiritDust = (state.spiritDust || 0) + dustReward;
+      state.gachaTokens = (state.gachaTokens || 0) + tokenReward;
+      pendingDailySummary = `🎁 每日登入第 ${state.loginStreak} 天：靈石+${stoneReward}、靈塵+${dustReward}${tokenReward ? '、探寶令+1（連續7天）' : ''}`;
     }
 
     let pendingOfflineSummary = null;
@@ -1812,14 +1840,24 @@
       updateStatusUI();
     }
 
-    function handleTowerVictory(floor) {
+    // 通關一層的獎勵（手動、速通共用）：每 5 層里程碑額外 +3 令／+100 塵。
+    function grantTowerVictory(floor) {
+      const milestone = floor % 5 === 0;
+      const tokens = 2 + (milestone ? 3 : 0);
+      const dust = 30 + floor * 5 + (milestone ? 100 : 0);
+      const stones = floor * 60;
       state.towerFloor = floor + 1;
-      state.gachaTokens = (state.gachaTokens || 0) + 2;
-      state.spiritDust = (state.spiritDust || 0) + 30 + floor * 5;
-      state.stones += floor * 60;
+      state.gachaTokens = (state.gachaTokens || 0) + tokens;
+      state.spiritDust = (state.spiritDust || 0) + dust;
+      state.stones += stones;
+      return { tokens, dust, stones, milestone };
+    }
+
+    function handleTowerVictory(floor) {
+      const r = grantTowerVictory(floor);
 
       playSound('breakthrough');
-      const msg = `🗼 鎮妖塔 ${floor} 層通關！探寶令+2、靈塵+${30 + floor * 5}`;
+      const msg = `🗼 鎮妖塔 ${floor} 層通關！探寶令+${r.tokens}、靈塵+${r.dust}${r.milestone ? '（🎉5層里程碑）' : ''}`;
       addLog(msg, true);
       showToast(msg);
 
@@ -1873,6 +1911,93 @@
 
       document.getElementById('active-event-box').classList.add('hidden');
       activeCombat = null;
+      renderAll();
+      saveState();
+    }
+
+    // 與手動戰鬥同公式的瞬間模擬：攻擊、護盾、定身、吸血、鏡花水月耗石皆一致。
+    function simulateTowerFloor(combat, floor, equipped, stonePool) {
+      const enemyMaxHp = Math.round(140 * Math.pow(1.48, floor - 1));
+      const enemyAtk = Math.round(15 * Math.pow(1.42, floor - 1));
+      const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
+      const baseAtk = Math.max(25, Math.round(combat * 0.48));
+      let playerHp = playerMaxHp;
+      let shield = 0;
+      let enemyHp = enemyMaxHp;
+      let stunned = false;
+      let idx = 0;
+      let rounds = 0;
+      while (playerHp > 0 && enemyHp > 0 && rounds < 200) {
+        rounds += 1;
+        const sk = DIVINE_SKILLS.find(s => s.id === equipped[idx % equipped.length]) || DIVINE_SKILLS[0];
+        idx += 1;
+        let dmg = Math.round(baseAtk * sk.mult);
+        if (sk.costStone) {
+          if (stonePool.stones >= sk.costStone) {
+            stonePool.stones -= sk.costStone;
+          } else {
+            dmg = baseAtk;
+          }
+        }
+        if (sk.shieldPct) shield += Math.round(playerMaxHp * sk.shieldPct);
+        if (sk.stunChance && Math.random() <= sk.stunChance) stunned = true;
+        if (sk.lifesteal) playerHp = Math.min(playerMaxHp, playerHp + Math.round(dmg * sk.lifesteal));
+        enemyHp = Math.max(0, enemyHp - dmg);
+        if (enemyHp <= 0) break;
+        if (stunned) {
+          stunned = false;
+        } else {
+          let raw = Math.max(5, Math.round(enemyAtk * (0.85 + Math.random() * 0.25)));
+          if (shield > 0) {
+            const absorbed = Math.min(shield, raw);
+            shield -= absorbed;
+            raw -= absorbed;
+          }
+          playerHp = Math.max(0, playerHp - raw);
+        }
+      }
+      return { win: enemyHp <= 0 && playerHp > 0, rounds };
+    }
+
+    function handleQuickTower() {
+      if (activeCombat) {
+        const box = document.getElementById('active-event-box');
+        if (box) box.classList.add('hidden');
+        activeCombat = null;
+      }
+      const combat = getTotalCombat();
+      const equipped = (state.equippedSkills && state.equippedSkills.length > 0) ? state.equippedSkills : ['zhenyuan_shield'];
+      const startFloor = state.towerFloor || 1;
+      const stonePool = { stones: state.stones };
+      let cleared = 0;
+      let totalTokens = 0;
+      let totalDust = 0;
+      let totalStonesReward = 0;
+      let milestones = 0;
+      let failFloor = null;
+      const MAX_SWEEP = 20;
+      for (let i = 0; i < MAX_SWEEP; i++) {
+        const floor = state.towerFloor || 1;
+        const sim = simulateTowerFloor(combat, floor, equipped, stonePool);
+        if (!sim.win) { failFloor = floor; break; }
+        const r = grantTowerVictory(floor);
+        stonePool.stones += r.stones;
+        cleared += 1;
+        totalTokens += r.tokens;
+        totalDust += r.dust;
+        totalStonesReward += r.stones;
+        if (r.milestone) milestones += 1;
+      }
+      // 結算以靈石池為準：已扣掉速通耗的鏡花水月、已含各層獎勵。
+      state.stones = stonePool.stones;
+      if (cleared > 0) {
+        const msg = `⚡ 一鍵速通：連過 ${cleared} 層（${startFloor}→${state.towerFloor}層），探寶令+${totalTokens}、靈塵+${totalDust}、靈石+${totalStonesReward}${milestones ? `、里程碑x${milestones}` : ''}${failFloor ? `，止於第 ${failFloor} 層` : ''}。`;
+        addLog(msg, true);
+        showToast(`⚡ 速通 ${cleared} 層！現第 ${state.towerFloor} 層`);
+      } else {
+        addLog(`🗼 一鍵速通第 ${failFloor} 層失敗。`, true);
+        showToast(`🗼 第 ${failFloor} 層速通失敗，請提升戰力再戰`);
+      }
       renderAll();
       saveState();
     }
@@ -2200,6 +2325,10 @@
       const towerTitle = document.getElementById('tower-title-text');
       if (towerTitle) {
         towerTitle.textContent = `第 ${floor} 層 (HP ${formatNum(towerHp)})`;
+      }
+      const towerReward = document.getElementById('tower-reward-text');
+      if (towerReward) {
+        towerReward.textContent = `首通獎勵：🎟️探寶令 +2 ｜ ✨靈塵 +${30 + floor * 5} ｜ 💎靈石 +${floor * 60}${floor % 5 === 0 ? ' ｜ 🎉 本層里程碑額外 +3令/100塵' : ''}`;
       }
 
       const grid = document.getElementById('locations-grid');
@@ -2636,6 +2765,7 @@
     window.addEventListener('load', () => {
       loadState();
       settleOfflineProgress();
+      checkDailyLogin();
       const speedLabels = { 1: '1x', 2: '2x', 5: '5x' };
       document.getElementById('speed-label').textContent = speedLabels[state.speedMult] || '1x';
       initGardenPlotsDOM(); // Build <select> dropdowns ONCE!
@@ -2643,6 +2773,10 @@
       if (pendingOfflineSummary) {
         addLog(pendingOfflineSummary, true);
         showToast(pendingOfflineSummary);
+      }
+      if (pendingDailySummary) {
+        addLog(pendingDailySummary, true);
+        showToast(pendingDailySummary);
       }
       switchMobileView(state.activeView || 'cultivate');
       initCanvas();
@@ -2699,6 +2833,7 @@
       });
 
       document.getElementById('btn-challenge-tower').addEventListener('click', startTowerChallenge);
+      document.getElementById('btn-quick-tower').addEventListener('click', handleQuickTower);
       document.getElementById('btn-auto-cast-combat').addEventListener('click', () => {
         if (!activeCombat) return;
         const eq = state.equippedSkills || ['zhenyuan_shield'];
