@@ -388,6 +388,13 @@
 
     <!-- VIEW 5: 🗼 歷練 (Demon-Sealing Tower + Secret Realms) -->
     <section id="tab-panel-adventure" class="scroll-border rounded-xl p-4 space-y-3.5 hidden">
+      <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 flex items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="font-black text-sm text-[#1e1a16]">🏯 宗門</div>
+          <div class="text-xs text-[#236c53] font-bold">職位、每日任務、宗門寶庫、宗門大陣</div>
+        </div>
+        <button id="btn-goto-sect" type="button" class="gold-btn text-xs py-3 px-4 rounded-lg font-bold shrink-0">🏯 進入宗門</button>
+      </div>
 
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 flex items-center justify-between gap-3">
         <div class="space-y-1">
@@ -474,6 +481,11 @@
         <h3 class="font-black text-sm text-[#1e1a16] mb-2">📖 功法升層</h3>
         <div id="arts-list" class="grid grid-cols-1 gap-2.5"></div>
       </div>
+    </section>
+
+    <!-- VIEW: 🏯 宗門 -->
+    <section id="view-panel-sect" class="scroll-border rounded-xl p-4 space-y-3.5 hidden">
+      <div id="sect-content" class="space-y-3.5"></div>
     </section>
 
     <!-- VIEW 7: 🎰 寶庫 (Gacha + Relics + Treasures) -->
@@ -799,6 +811,329 @@
       { id: 'yuanwao', name: '元瑤', affinity: 10, bonusDesc: '掉寶' }
     ];
 
+
+    // =========================================================================
+    // 1.5 宗門 Phase 1（NPC 宗門，單機版：無後端、無真人）
+    // =========================================================================
+    const SECTS = [
+      { id: 'huangfeng', name: '黃楓谷', emoji: '🌿', route: '丹道', passiveDesc: '煉丹極品率＋、靈草生長速度＋' },
+      { id: 'yanyue', name: '掩月宗', emoji: '🌙', route: '法修', passiveDesc: '修法速度＋、破境成功率小幅＋' },
+      { id: 'huadao', name: '化刀塢', emoji: '🔪', route: '煉體戰力', passiveDesc: '戰力＋、鎮妖塔獎勵＋' },
+      { id: 'lingshou', name: '靈獸山', emoji: '🦁', route: '漫遊掉寶', passiveDesc: '漫遊靈塵＋、歷練掉寶＋' },
+      { id: 'xiesha', name: '血煞宗', emoji: '🩸', route: '魔道爆發', passiveDesc: '吐納暴擊率＋、吐納連擊加成＋' }
+    ];
+    const SECT_RANKS = [
+      { name: '外門弟子', req: 0, bonus: 0.05 },
+      { name: '內門弟子', req: 200, bonus: 0.09 },
+      { name: '精英弟子', req: 600, bonus: 0.13 },
+      { name: '核心弟子', req: 1500, bonus: 0.17 },
+      { name: '長老', req: 3500, bonus: 0.21 },
+      { name: '宗主親傳', req: 8000, bonus: 0.25 }
+    ];
+    const SECT_TASK_POOL = [
+      { id: 'meditate20', desc: '吐納 20 次', target: 20, reward: 30 },
+      { id: 'tower2', desc: '鎮妖塔通關 2 層', target: 2, reward: 40 },
+      { id: 'alchemy3', desc: '煉丹 3 顆（成功才算）', target: 3, reward: 30 },
+      { id: 'adventure2', desc: '歷練勝利 2 次', target: 2, reward: 40 },
+      { id: 'donate500', desc: '向宗門捐獻靈石 500', target: 500, reward: 25 }
+    ];
+    const SECT_SHOP = [
+      { id: 'dew', name: '💧 綠液 1 滴', cost: 50, daily: 3, minRank: 0 },
+      { id: 'stones', name: '🪨 靈石 500', cost: 100, daily: 2, minRank: 0 },
+      { id: 'pill', name: '💊 隨機低階丹 1 顆', cost: 80, daily: 2, minRank: 1 },
+      { id: 'token', name: '🎟️ 探寶令 1', cost: 150, daily: 2, minRank: 1 },
+      { id: 'array', name: '🏯 大陣升階符（大陣＋1 級）', cost: 200, daily: 0, minRank: 2, weekly: true }
+    ];
+    function getSectDef() {
+      if (!state.sect || !state.sect.id) return null;
+      return SECTS.find(x => x.id === state.sect.id) || null;
+    }
+    function ensureSectState() {
+      if (!state.sect || typeof state.sect !== 'object') state.sect = {};
+      const d = { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [] };
+      Object.keys(d).forEach(k => { if (state.sect[k] === undefined) state.sect[k] = d[k]; });
+      if (!Array.isArray(state.sect.tasks)) state.sect.tasks = [];
+      if (!state.sect.shopBought || typeof state.sect.shopBought !== 'object') state.sect.shopBought = {};
+    }
+    function sectRankFromTotal(total) {
+      let idx = 0;
+      SECT_RANKS.forEach((r, i) => { if ((total || 0) >= r.req) idx = i; });
+      return idx;
+    }
+    function getSectPassive() {
+      if (!state.sect || !state.sect.id) return 0;
+      return SECT_RANKS[sectRankFromTotal(state.sect.totalContribution || 0)].bonus;
+    }
+    function getSectPassiveFor(sectId) {
+      if (!state.sect || state.sect.id !== sectId) return 0;
+      return getSectPassive();
+    }
+    function getSectGrowthMult() { return 1 + getSectPassiveFor('huangfeng'); }
+    function rollSectTasks() {
+      const pool = SECT_TASK_POOL.slice();
+      const picked = [];
+      while (picked.length < 3 && pool.length > 0) {
+        picked.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+      }
+      return picked.map(p => ({ id: p.id, progress: 0, done: false }));
+    }
+    function ensureSectDaily() {
+      ensureSectState();
+      const today = localDateStr(new Date());
+      const sc = state.sect;
+      if (sc.taskDate !== today) { sc.tasks = rollSectTasks(); sc.taskDate = today; }
+      if (sc.shopDate !== today) { sc.shopBought = {}; sc.shopDate = today; sc.donatedStoneToday = 0; sc.donatedDustToday = 0; }
+    }
+    function addSectContribution(amount) {
+      const sc = state.sect;
+      if (!sc || !sc.id) return;
+      const before = sectRankFromTotal(sc.totalContribution || 0);
+      sc.contribution = (sc.contribution || 0) + amount;
+      sc.totalContribution = (sc.totalContribution || 0) + amount;
+      const after = sectRankFromTotal(sc.totalContribution);
+      if (after > before) {
+        showToast(`🎉 宗門晉升：${SECT_RANKS[after].name}！被動提升至 +${Math.round(SECT_RANKS[after].bonus * 100)}%`);
+        addLog(`🏯 宗門晉升為【${SECT_RANKS[after].name}】，被動提升至 +${Math.round(SECT_RANKS[after].bonus * 100)}%！`, true);
+      }
+    }
+    function progressSectTask(taskId, amount) {
+      const sc = state.sect;
+      if (!sc || !sc.id || !Array.isArray(sc.tasks)) return;
+      const tk = sc.tasks.find(x => x.id === taskId);
+      if (!tk || tk.done) return;
+      const def = SECT_TASK_POOL.find(d => d.id === taskId);
+      if (!def) return;
+      tk.progress = Math.min(def.target, (tk.progress || 0) + amount);
+      if (tk.progress >= def.target) {
+        tk.done = true;
+        addSectContribution(def.reward);
+        showToast(`🏯 宗門任務完成：${def.desc}，貢獻+${def.reward}！`);
+        addLog(`🏯 宗門任務完成【${def.desc}】，貢獻+${def.reward}。`, false);
+      }
+    }
+    function joinSect(sectId) {
+      const def = SECTS.find(x => x.id === sectId);
+      if (!def) return;
+      ensureSectState();
+      if (state.sect.id) { showToast('已加入宗門，換宗請用下方的叛宗按鈕'); return; }
+      state.sect.id = sectId;
+      state.sect.contribution = 0;
+      state.sect.totalContribution = 0;
+      state.sect.arrayLv = 1;
+      state.sect.arrayDurability = 100;
+      ensureSectDaily();
+      addLog(`🏯 加入宗門【${def.emoji}${def.name}】（${def.route}：${def.passiveDesc}）！`, true);
+      showToast(`🏯 已加入${def.name}！每日任務已發佈`);
+      renderAll();
+      saveState();
+    }
+    let pendingSectSwitchId = null;
+    function doSectSwitch(sectId) {
+      const def = SECTS.find(x => x.id === sectId);
+      if (!def) return;
+      if ((state.stones || 0) < 500) { showToast('叛宗需 500 靈石！'); return; }
+      state.stones -= 500;
+      state.sect = { id: sectId, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [] };
+      ensureSectDaily();
+      addLog(`🏯 叛宗改投【${def.emoji}${def.name}】（付 500 靈石，貢獻、職位、大陣歸零）！`, true);
+      showToast(`🏯 已改投${def.name}，貢獻歸零`);
+      renderAll();
+      saveState();
+    }
+    function donateSect(kind) {
+      ensureSectDaily();
+      const sc = state.sect;
+      if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
+      if (kind === 'stone') {
+        if ((sc.donatedStoneToday || 0) >= 500) { showToast('今日靈石捐獻已達上限 500'); return; }
+        if ((state.stones || 0) < 100) { showToast('靈石不足 100！'); return; }
+        state.stones -= 100;
+        sc.donatedStoneToday = (sc.donatedStoneToday || 0) + 100;
+        addSectContribution(10);
+        progressSectTask('donate500', 100);
+        showToast('🏯 捐獻靈石 100，貢獻+10');
+      } else {
+        if ((sc.donatedDustToday || 0) >= 100) { showToast('今日靈塵捐獻已達上限 100'); return; }
+        if ((state.spiritDust || 0) < 10) { showToast('靈塵不足 10！'); return; }
+        state.spiritDust -= 10;
+        sc.donatedDustToday = (sc.donatedDustToday || 0) + 10;
+        addSectContribution(10);
+        showToast('🏯 捐獻靈塵 10，貢獻+10');
+      }
+      renderAll();
+      saveState();
+    }
+    function buySectItem(itemId) {
+      ensureSectDaily();
+      const sc = state.sect;
+      if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
+      const item = SECT_SHOP.find(x => x.id === itemId);
+      if (!item) return;
+      const rankIdx = sectRankFromTotal(sc.totalContribution || 0);
+      if (rankIdx < item.minRank) { showToast(`需${SECT_RANKS[item.minRank].name}以上才能兌換！`); return; }
+      if (item.weekly) {
+        if (sc.lastArrayPackDate) {
+          const days = Math.floor((new Date(localDateStr(new Date())) - new Date(sc.lastArrayPackDate)) / 86400000);
+          if (days < 7) { showToast(`大陣升階符每 7 天限換 1 次（還差 ${7 - days} 天）`); return; }
+        }
+      } else {
+        const bought = (sc.shopBought && sc.shopBought[itemId]) || 0;
+        if (bought >= item.daily) { showToast('今日兌換已達上限！'); return; }
+      }
+      if ((sc.contribution || 0) < item.cost) { showToast(`貢獻不足！需 ${item.cost} 貢獻`); return; }
+      if (itemId === 'array' && (sc.arrayLv || 1) >= 10) { showToast('大陣已滿 10 級！'); return; }
+      sc.contribution -= item.cost;
+      if (item.weekly) {
+        sc.lastArrayPackDate = localDateStr(new Date());
+        sc.arrayLv = Math.min(10, (sc.arrayLv || 1) + 1);
+      } else {
+        sc.shopBought[itemId] = ((sc.shopBought && sc.shopBought[itemId]) || 0) + 1;
+        if (itemId === 'dew') state.dew = (state.dew || 0) + 1;
+        if (itemId === 'stones') state.stones = (state.stones || 0) + 500;
+        if (itemId === 'pill') {
+          const low = ['huanglong', 'jinsui', 'zhuji'];
+          const pick = low[Math.floor(Math.random() * low.length)];
+          state.pills[pick] = (state.pills[pick] || 0) + 1;
+        }
+        if (itemId === 'token') state.gachaTokens = (state.gachaTokens || 0) + 1;
+      }
+      showToast(`🏯 已兌換：${item.name}`);
+      addLog(`🏯 宗門寶庫兌換【${item.name}】（-${item.cost} 貢獻）。`, false);
+      renderAll();
+      saveState();
+    }
+    function upgradeSectArray() {
+      ensureSectState();
+      const sc = state.sect;
+      if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
+      const lv = sc.arrayLv || 1;
+      if (lv >= 10) { showToast('大陣已滿 10 級！'); return; }
+      const stoneCost = 500 * lv;
+      const contribCost = 100 * lv;
+      if ((state.stones || 0) < stoneCost) { showToast('靈石不足！需 ${stoneCost}'); return; }
+      if ((sc.contribution || 0) < contribCost) { showToast(`貢獻不足！需 ${contribCost}`); return; }
+      state.stones -= stoneCost;
+      sc.contribution -= contribCost;
+      sc.arrayLv = lv + 1;
+      sc.arrayDurability = 100;
+      showToast(`🏯 宗門大陣升至 ${sc.arrayLv} 級！`);
+      addLog(`🏯 宗門大陣升至【${sc.arrayLv} 級】（耐久回滿）。`, true);
+      renderAll();
+      saveState();
+    }
+    function renderSectTab() {
+      const box = document.getElementById('sect-content');
+      if (!box) return;
+      ensureSectDaily();
+      const sc = state.sect;
+      if (!sc || !sc.id) {
+        let cards = '';
+        SECTS.forEach(s => {
+          cards += `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-black text-sm text-[#1e1a16]">${s.emoji} ${s.name}</span>
+              <span class="seal-stamp text-xs px-2 py-0.5">${s.route}</span>
+            </div>
+            <div class="text-xs text-[#236c53] font-bold">被動：${s.passiveDesc}</div>
+            <button type="button" data-sect-action="join" data-sect-id="${s.id}" class="gold-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">加入（免費）</button>
+          </div>`;
+        });
+        box.innerHTML = `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+          <div class="font-black text-sm text-[#1e1a16]">🏯 宗門</div>
+          <div class="text-xs text-[#5c5346] leading-relaxed">加入一個宗門，做每日任務攢貢獻、升職位、換寶庫、養大陣。首次加入免費；叛宗需 500 靈石且貢獻、職位、大陣歸零。轉世重修會保留宗門。</div>
+        </div>` + cards;
+        return;
+      }
+      const def = getSectDef();
+      const rankIdx = sectRankFromTotal(sc.totalContribution || 0);
+      const rank = SECT_RANKS[rankIdx];
+      const next = SECT_RANKS[rankIdx + 1];
+      const passivePct = Math.round(getSectPassive() * 100);
+      let taskHtml = '';
+      (sc.tasks || []).forEach(tk => {
+        const d = SECT_TASK_POOL.find(x => x.id === tk.id);
+        if (!d) return;
+        taskHtml += `<div class="flex items-center justify-between gap-2 text-xs font-bold">
+          <span class="${tk.done ? 'text-[#236c53]' : 'text-[#1e1a16]'}">${tk.done ? '✅' : '⏳'} ${d.desc}</span>
+          <span class="text-[#5c5346]">${tk.progress}/${d.target}｜+${d.reward}貢獻</span>
+        </div>`;
+      });
+      let shopHtml = '';
+      SECT_SHOP.forEach(item => {
+        const locked = rankIdx < item.minRank;
+        const bought = item.weekly ? '' : `今日已換 ${((sc.shopBought && sc.shopBought[item.id]) || 0)}/${item.daily}`;
+        const note = item.weekly ? '每 7 天限換 1 次' : bought;
+        shopHtml += `<div class="flex items-center justify-between gap-2 text-xs font-bold">
+          <span class="text-[#1e1a16]">${item.name}<span class="text-[#5c5346]">（${item.cost}貢獻${locked ? `｜需${SECT_RANKS[item.minRank].name}` : ''}｜${note}）</span></span>
+          <button type="button" data-sect-action="buy" data-sect-id="${item.id}" class="gold-btn text-xs py-2 px-3 rounded-lg font-bold shrink-0">兌換</button>
+        </div>`;
+      });
+      let switchHtml = '';
+      SECTS.filter(s => s.id !== sc.id).forEach(s => {
+        const pending = pendingSectSwitchId === s.id;
+        switchHtml += `<div class="flex items-center justify-between gap-2 text-xs font-bold">
+          <span class="text-[#1e1a16]">${s.emoji} ${s.name}（${s.route}：${s.passiveDesc}）</span>
+          <button type="button" data-sect-action="switch" data-sect-id="${s.id}" class="cinnabar-btn text-xs py-2 px-3 rounded-lg font-bold shrink-0">${pending ? '確認叛宗？再點一次' : '叛宗（500石）'}</button>
+        </div>`;
+      });
+      const lv = sc.arrayLv || 1;
+      const upStone = 500 * lv;
+      const upContrib = 100 * lv;
+      box.innerHTML = `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-black text-sm text-[#1e1a16]">${def.emoji} ${def.name}</span>
+          <span class="seal-stamp text-xs px-2 py-0.5">${rank.name}</span>
+        </div>
+        <div class="text-xs text-[#236c53] font-bold">被動：${def.passiveDesc}（目前 +${passivePct}%）</div>
+        <div class="text-xs text-[#1e1a16] font-bold">貢獻 ${sc.contribution}｜累計 ${sc.totalContribution}${next ? `｜下一職位 ${next.name}（累計滿 ${next.req}）` : '｜已是最高職位'}</div>
+      </div>
+      <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+        <div class="font-black text-sm text-[#1e1a16]">📋 每日宗門任務（每日重置）</div>
+        ${taskHtml || '<div class="text-xs text-[#5c5346]">今日任務已全部完成！</div>'}
+      </div>
+      <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+        <div class="font-black text-sm text-[#1e1a16]">🙏 捐獻（每日上限：靈石 500／靈塵 100）</div>
+        <div class="flex gap-2">
+          <button type="button" data-sect-action="donate-stone" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold flex-1">捐靈石 100（+10貢獻，今日 ${sc.donatedStoneToday || 0}/500）</button>
+          <button type="button" data-sect-action="donate-dust" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold flex-1">捐靈塵 10（+10貢獻，今日 ${sc.donatedDustToday || 0}/100）</button>
+        </div>
+      </div>
+      <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+        <div class="font-black text-sm text-[#1e1a16]">🎁 宗門寶庫（花貢獻兌換）</div>
+        ${shopHtml}
+      </div>
+      <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+        <div class="font-black text-sm text-[#1e1a16]">🏯 宗門大陣 ${lv} 級（耐久 ${sc.arrayDurability || 0}/100）</div>
+        <div class="text-xs text-[#5c5346] font-bold">大陣是日後神級 Boss 襲擊時的防線：等級越高，Boss 攻擊減傷越高。</div>
+        <button type="button" data-sect-action="upgrade-array" class="gold-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">${lv >= 10 ? '已滿 10 級' : `升級大陣（${upStone}靈石＋${upContrib}貢獻）`}</button>
+      </div>
+      <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+        <div class="font-black text-sm text-[#1e1a16]">🔀 改投他宗（叛宗：500 靈石，貢獻、職位、大陣歸零）</div>
+        ${switchHtml}
+      </div>`;
+    }
+    function handleSectPanelClick(e) {
+      const btn = e.target && e.target.closest ? e.target.closest('[data-sect-action]') : null;
+      if (!btn) return;
+      const action = btn.getAttribute('data-sect-action');
+      const id = btn.getAttribute('data-sect-id');
+      if (action === 'join') joinSect(id);
+      else if (action === 'switch') {
+        if (pendingSectSwitchId !== id) {
+          pendingSectSwitchId = id;
+          showToast('再點一次確認叛宗（貢獻歸零）！');
+          renderSectTab();
+        } else {
+          pendingSectSwitchId = null;
+          doSectSwitch(id);
+        }
+      }
+      else if (action === 'donate-stone') donateSect('stone');
+      else if (action === 'donate-dust') donateSect('dust');
+      else if (action === 'buy') buySectItem(id);
+      else if (action === 'upgrade-array') upgradeSectArray();
+    }
+
     // =========================================================================
     // 2. State & Persistence
     // =========================================================================
@@ -830,6 +1165,7 @@
         lastLoginDate: '',
         loginStreak: 0,
         originSwitchCount: 0,
+        sect: { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [] },
         ageCalibrated: false,
         meditateCombo: 0,
         lastMeditateAt: 0,
@@ -879,6 +1215,9 @@
           state.artLevels = Object.assign(def.artLevels, parsed.artLevels || {});
           state.relics = Object.assign({}, parsed.relics || {});
           state.relicInfusion = Object.assign({}, parsed.relicInfusion || {});
+          state.sect = Object.assign({}, def.sect, parsed.sect || {});
+          if (!Array.isArray(state.sect.tasks)) state.sect.tasks = [];
+          if (!state.sect.shopBought || typeof state.sect.shopBought !== 'object') state.sect.shopBought = {};
           if (!Array.isArray(parsed.unlockedSeeds) || parsed.unlockedSeeds.length === 0) {
             state.unlockedSeeds = HERBS.slice(0, 4).map(h => h.id);
           } else {
@@ -977,7 +1316,7 @@
       const herbGot = {};
       (state.plots || []).forEach(plot => {
         const herb = HERBS.find(h => h.id === plot.herbId) || HERBS[0];
-        plot.progress += (100 / herb.growTime) * capped * eff;
+        plot.progress += (100 / herb.growTime) * capped * eff * getSectGrowthMult();
         let n = 0;
         while (plot.progress >= 100 && n < 10000) { plot.progress -= 100; n += 1; }
         if (n > 0) {
@@ -1117,7 +1456,8 @@
       const reincBonus = 1 + (state.reincarnationCount * 0.25);
       const injuryPenalty = state.injuryTimer > 0 ? 0.5 : 1.0;
       const lifespanPenalty = state.ageYears > realm.lifespan ? 0.5 : 1.0;
-      return Math.max(1, Math.round((realm.baseRate + flatTreasure) * origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * injuryPenalty * lifespanPenalty));
+      const sectQiMult = (state.activePath === 'magic' && state.sect && state.sect.id === 'yanyue') ? (1 + getSectPassive()) : 1;
+      return Math.max(1, Math.round((realm.baseRate + flatTreasure) * origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * injuryPenalty * lifespanPenalty * sectQiMult));
     }
     function getTotalCombat() {
       const mRealm = getMagicRealm();
@@ -1134,7 +1474,7 @@
       });
       const artCombatMult = 1 + (artLv - 1) * 0.22;
       const baseCombined = mRealm.combat + Math.round(bRealm.combat * 0.85) + treasureCombat;
-      return Math.round(baseCombined * (origin.id === 'thunder' ? 1.45 : 1.0) * artCombatMult * relicB.combatMult * (1 + traitB.combatMult) * resonanceMult);
+      return Math.round(baseCombined * (origin.id === 'thunder' ? 1.45 : 1.0) * artCombatMult * relicB.combatMult * (1 + traitB.combatMult) * resonanceMult * (1 + getSectPassiveFor('huadao')));
     }
     function getTotalSense() {
       const art = getCurrentArt();
@@ -1147,9 +1487,9 @@
       const hasQianlan = ((state.relics && state.relics.qianlan_fire) || 0) > 0;
       const heavenlyBonus = getOrigin().id === 'heavenly' ? 0.08 : 0;
 
-      if (hasShiling) return { failRate: 0.0, supremeRate: 0.32 + heavenlyBonus, highRate: 0.40, flameName: '噬靈天火' };
-      if (hasQianlan) return { failRate: 0.08, supremeRate: 0.18 + heavenlyBonus, highRate: 0.30, flameName: '乾藍冰焰' };
-      return { failRate: 0.22, supremeRate: 0.06 + heavenlyBonus, highRate: 0.22, flameName: '地肺火' };
+      if (hasShiling) return { failRate: 0.0, supremeRate: 0.32 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4, highRate: 0.40, flameName: '噬靈天火' };
+      if (hasQianlan) return { failRate: 0.08, supremeRate: 0.18 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4, highRate: 0.30, flameName: '乾藍冰焰' };
+      return { failRate: 0.22, supremeRate: 0.06 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4, highRate: 0.22, flameName: '地肺火' };
     }
     function getBreakthroughChance() {
       const realm = getActiveRealm();
@@ -1158,6 +1498,7 @@
         base = base * 0.35;
       }
       if (state.toxicity >= 70) base -= 0.15;
+      if (state.sect && state.sect.id === 'yanyue') base += getSectPassive() * 0.2;
       return Math.min(0.98, Math.max(0.05, base));
     }
     function formatNum(n) {
@@ -1207,6 +1548,7 @@
       adventure: 'tab-panel-adventure',
       arts: 'tab-panel-arts',
       treasures: 'view-panel-treasures',
+      sect: 'view-panel-sect',
       chronicle: 'tab-panel-companions'
     };
 
@@ -1220,6 +1562,7 @@
       document.querySelectorAll('.view-cat-btn').forEach(btn => {
         btn.classList.toggle('cat-btn-active', btn.getAttribute('data-view') === viewKey);
       });
+      if (viewKey === 'sect') renderSectTab();
       saveState();
     }
 
@@ -1301,7 +1644,7 @@
 
     function handleMeditateClick() {
       const baseGain = Math.max(4, Math.round(getQiRatePerSec() * 1.2));
-      const isCrit = Math.random() <= 0.22;
+      const isCrit = Math.random() <= 0.22 + getSectPassiveFor('xiesha') * 0.5;
       const nowMs = Date.now();
       if (nowMs - (state.lastMeditateAt || 0) <= 2000) {
         state.meditateCombo = (state.meditateCombo || 0) + 1;
@@ -1309,7 +1652,7 @@
         state.meditateCombo = 1;
       }
       state.lastMeditateAt = nowMs;
-      const comboMult = 1 + Math.min(state.meditateCombo, 20) * 0.02;
+      const comboMult = 1 + Math.min(state.meditateCombo, 20) * 0.02 * (1 + getSectPassiveFor('xiesha'));
       const gain = Math.round((isCrit ? baseGain * 5 : baseGain) * comboMult);
       const comboTxt = state.meditateCombo >= 5 ? ` 連擊x${state.meditateCombo}` : '';
       const realm = getActiveRealm();
@@ -1336,6 +1679,7 @@
         playSound('plucked');
         spawnFloatingText(`+${formatNum(gain)}｜毒-3${comboTxt}`, 'text-[#236c53]');
       }
+      progressSectTask('meditate20', 1);
       updateStatusUI();
       saveState();
     }
@@ -1656,14 +2000,17 @@
         playSound('breakthrough');
         addLog(`🌟 煉出【極品・${pill.name} x2】，修為 +${formatNum(bonusQi)}！`, true);
         showToast(`🌟 極品丹 x2！+${formatNum(bonusQi)}`);
+        progressSectTask('alchemy3', 1);
       } else if (roll < rates.failRate + rates.supremeRate + rates.highRate) {
         state.pills[pill.id] = (state.pills[pill.id] || 0) + 2;
         playSound('breakthrough');
         showToast(`🔥 上品：${pill.name} x2`);
+        progressSectTask('alchemy3', 1);
       } else {
         state.pills[pill.id] = (state.pills[pill.id] || 0) + 1;
         playSound('dew');
         showToast(`煉成：${pill.name} x1`);
+        progressSectTask('alchemy3', 1);
       }
 
       updateGardenLiveDOM();
@@ -1867,12 +2214,14 @@
     function grantTowerVictory(floor) {
       const milestone = floor % 5 === 0;
       const tokens = 2 + (milestone ? 3 : 0);
-      const dust = 30 + floor * 5 + (milestone ? 100 : 0);
-      const stones = floor * 60;
+      const sectTowerMult = 1 + getSectPassiveFor('huadao');
+      const dust = Math.round((30 + floor * 5 + (milestone ? 100 : 0)) * sectTowerMult);
+      const stones = Math.round(floor * 60 * sectTowerMult);
       state.towerFloor = floor + 1;
       state.gachaTokens = (state.gachaTokens || 0) + tokens;
       state.spiritDust = (state.spiritDust || 0) + dust;
       state.stones += stones;
+      progressSectTask('tower2', 1);
       return { tokens, dust, stones, milestone };
     }
 
@@ -1893,12 +2242,13 @@
     function handleCombatVictory(loc) {
       const origin = getOrigin();
       const yuanwaoMult = 1 + ((state.companionAffinity.yuanwao || 0) * 0.015);
-      const dropMult = (origin.dropBonus || 1.0) * yuanwaoMult;
+      const dropMult = (origin.dropBonus || 1.0) * yuanwaoMult * (1 + getSectPassiveFor('lingshou'));
 
       const stoneReward = Math.round((35 + loc.minRealm * 85) * dropMult);
       const qiReward = Math.round((45 + loc.minRealm * 150) * dropMult);
       state.stones += stoneReward;
-      state.spiritDust = (state.spiritDust || 0) + 10;
+      state.spiritDust = (state.spiritDust || 0) + 10 + Math.round(10 * getSectPassiveFor('lingshou'));
+      progressSectTask('adventure2', 1);
       if (state.activePath === 'body') {
         state.bodyQi = Math.min(getBodyRealm().maxQi * 2.0, (state.bodyQi || 0) + qiReward);
       } else {
@@ -2220,6 +2570,10 @@
         if (state.toxicity >= 70) extra += ` 丹毒 ${state.toxicity}，破境率 -15%，先排毒再破境。`;
         if (state.ageYears > activeRealm.lifespan) extra += ` ⚠️ 壽元將盡（${state.ageYears}/${activeRealm.lifespan}載），修煉效率減半，破境可延壽至 ${nextR.lifespan}載。`;
         nextStepEl.textContent += extra;
+      if (state.sect && state.sect.id && Array.isArray(state.sect.tasks)) {
+        const _undone = state.sect.tasks.filter(tk => !tk.done).length;
+        if (_undone > 0) nextStepEl.textContent += ` 🏯 宗門任務還有 ${_undone} 個未完成，去歷練頁找宗門。`;
+      }
       }
 
       document.getElementById('pity-bonus-badge').textContent = `破境率 ${breakChance}%`;
@@ -2741,6 +3095,7 @@
       renderAdventureTab();
       renderArtsAndTreasuresTab();
       renderCompanionsTab();
+      renderSectTab();
       renderPillBag();
       renderLogs();
     }
@@ -2781,7 +3136,7 @@
         roamTickCounter += 1;
         if (roamTickCounter >= 8) {
           roamTickCounter = 0;
-          state.spiritDust = (state.spiritDust || 0) + 2 * mult;
+          state.spiritDust = (state.spiritDust || 0) + Math.round(2 * mult * (1 + getSectPassiveFor('lingshou')));
           const highestIdx = Math.max(state.realmIndex || 0, state.bodyRealmIndex || 0);
           const unlockedLocs = LOCATIONS.filter(l => highestIdx >= l.minRealm);
           const roamLoc = unlockedLocs[unlockedLocs.length - 1] || LOCATIONS[0];
@@ -2804,7 +3159,7 @@
         let harvestedAny = false;
         state.plots.forEach(plot => {
           const herb = HERBS.find(h => h.id === plot.herbId) || HERBS[0];
-          plot.progress += (100 / herb.growTime) * mult;
+          plot.progress += (100 / herb.growTime) * mult * getSectGrowthMult();
           if (plot.progress >= 100) {
             plot.progress -= 100;
             state.herbs[herb.id] = (state.herbs[herb.id] || 0) + 1;
@@ -2900,6 +3255,8 @@
 
       document.getElementById('btn-challenge-tower').addEventListener('click', startTowerChallenge);
       document.getElementById('btn-quick-tower').addEventListener('click', handleQuickTower);
+      document.getElementById('btn-goto-sect').addEventListener('click', () => switchMobileView('sect'));
+      document.getElementById('view-panel-sect').addEventListener('click', handleSectPanelClick);
       document.getElementById('btn-auto-cast-combat').addEventListener('click', () => {
         if (!activeCombat) return;
         const eq = state.equippedSkills || ['zhenyuan_shield'];
@@ -2975,11 +3332,13 @@
       document.getElementById('btn-confirm-reset').addEventListener('click', () => {
         const nextReinc = (state.reincarnationCount || 0) + 1;
         const savedRelics = Object.assign({}, state.relics || {});
+        const savedSect = JSON.parse(JSON.stringify(state.sect || {}));
         const savedInfusion = Object.assign({}, state.relicInfusion || {});
         state = createDefaultState();
         state.reincarnationCount = nextReinc;
         state.relics = savedRelics;
         state.relicInfusion = savedInfusion;
+        if (savedSect && savedSect.id) { state.sect = savedSect; ensureSectState(); }
         state.gachaTokens = 3 + nextReinc;
         addLog(`【涅槃重修】第 ${nextReinc} 世（吐納+${nextReinc * 25}%、探寶令+${3 + nextReinc}）！`, true);
         resetModal.classList.add('hidden');
