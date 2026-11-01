@@ -2483,10 +2483,6 @@
         state.qi = Math.min(realm.maxQi * 2.0, state.qi + gain);
       }
 
-      if (state.toxicity > 0) {
-        state.toxicity = Math.max(0, state.toxicity - 3);
-      }
-
       if (isCrit) {
         state.spiritDust = (state.spiritDust || 0) + 5;
         playSound('breakthrough');
@@ -2497,7 +2493,7 @@
         }
       } else {
         playSound('plucked');
-        spawnFloatingText(`+${formatNum(gain)}｜毒-3${comboTxt}`, 'text-[#236c53]');
+        spawnFloatingText(`+${formatNum(gain)}${comboTxt}`, 'text-[#236c53]');
       }
       progressSectTask('meditate20', 1);
       updateStatusUI();
@@ -2645,9 +2641,10 @@
         return;
       }
       state.stones -= 60;
-      state.toxicity = Math.max(0, state.toxicity - 45);
+      const clearAmt = getOrigin().id === 'heavenly' ? 90 : 45;
+      state.toxicity = Math.max(0, state.toxicity - clearAmt);
       playSound('dew');
-      showToast('🍵 丹毒 -45！');
+      showToast(`🍵 丹毒 -${clearAmt}！`);
       renderAll();
       saveState();
     }
@@ -3925,6 +3922,11 @@
 
       const cultTox = document.getElementById('cultivate-tox-label');
       if (cultTox) cultTox.textContent = state.toxicity >= 80 ? `丹毒 ${state.toxicity}/100（已滿，無法服丹）` : `丹毒 ${state.toxicity}/100`;
+      const detoxAmt = getOrigin().id === 'heavenly' ? 90 : 45;
+      const dbCult = document.getElementById('btn-detox-cultivate');
+      if (dbCult) dbCult.textContent = `排毒（60靈石，毒-${detoxAmt}）`;
+      const dbTea = document.getElementById('btn-detox-tea');
+      if (dbTea) dbTea.textContent = `排毒（60靈石，毒-${detoxAmt}）`;
       const bag = document.getElementById('pill-bag-list');
       if (!bag) return;
       bag.innerHTML = '';
@@ -4076,11 +4078,6 @@
 
         if (state.moonCooldown > 0) state.moonCooldown = Math.max(0, state.moonCooldown - 1);
         if (state.injuryTimer > 0) state.injuryTimer = Math.max(0, state.injuryTimer - 1);
-        if (state.toxicity > 0) {
-          const detoxRate = getOrigin().id === 'heavenly' ? 2 : 1;
-          state.toxicity = Math.max(0, state.toxicity - detoxRate);
-        }
-
         const ziyanMult = 1 + ((state.companionAffinity.ziyan || 0) * 0.01);
         const stoneGain = Math.max(1, Math.round((1 + state.realmIndex * 2 + (state.treasureLevels.shenfeng || 1)) * mult * ziyanMult * (1 + getCastleBonuses().stoneMult)));
         state.stones += stoneGain;
