@@ -198,14 +198,14 @@
     <div class="max-w-3xl mx-auto px-3.5 py-2.5 space-y-2">
 
       <!-- Row 1: Core Realm, Combat, Primary Resources & Settings -->
-      <div class="flex items-center justify-between gap-2 text-sm">
+      <div class="flex items-center justify-between gap-2 text-sm flex-wrap">
         <div class="flex items-center gap-2 min-w-0">
-          <span id="stat-title" class="seal-stamp text-[11px] px-2 py-0.5 rounded-md">人界</span>
-          <span id="stat-realm" class="font-bold text-base text-[#1d1a16] truncate">法・練氣一層</span>
-          <span id="stat-combat" class="font-semibold text-xs px-2 py-0.5 rounded-md bg-[#f3ede0] border border-[#d4c6ad] text-[#942922]">戰力 80</span>
+          <span id="stat-title" class="seal-stamp text-[11px] px-2 py-0.5 rounded-md shrink-0">人界</span>
+          <span id="stat-realm" class="font-bold text-base text-[#1d1a16] truncate min-w-0">法・練氣一層</span>
+          <span id="stat-combat" class="font-semibold text-xs px-2 py-0.5 rounded-md bg-[#f3ede0] border border-[#d4c6ad] text-[#942922] whitespace-nowrap shrink-0">戰力 80</span>
         </div>
 
-        <div class="flex items-center gap-1.5 shrink-0">
+        <div class="flex items-center gap-1.5 shrink-0 ml-auto">
           <span id="stat-dew" class="font-semibold text-xs px-2.5 py-1 rounded-lg bg-[#ebf3ef] border border-[#c2dad0] text-[#1f5c46]">綠液 1</span>
           <span id="stat-stones" class="font-semibold text-xs px-2.5 py-1 rounded-lg bg-[#f6efe0] border border-[#dfd0b4] text-[#8c5e1a]">靈石 100</span>
           <button id="btn-open-settings" type="button" class="paper-btn text-xs px-2.5 py-1 rounded-lg font-semibold" aria-label="設定">
@@ -245,9 +245,9 @@
           主修・法
         </button>
         <div class="flex-1 min-w-0">
-          <div class="flex items-center justify-between text-xs leading-none mb-1.5">
-            <span class="font-semibold text-[#1d1a16] truncate"><span id="path-progress-label">修法</span> <span id="stat-qi-current">0</span> / <span id="stat-qi-max">300</span><span id="stat-qi-overflow" class="text-[#942922] text-[11px]"></span></span>
-            <span id="stat-qi-rate" class="font-semibold text-[#1f5c46] shrink-0 ml-1">+4/s</span>
+          <div class="flex items-center justify-between text-xs leading-none mb-1.5 flex-wrap gap-1">
+            <span class="font-semibold text-[#1d1a16]"><span id="path-progress-label">修法</span> <span id="stat-qi-current">0</span> / <span id="stat-qi-max">300</span><span id="stat-qi-overflow" class="text-[#942922] text-[11px]"></span></span>
+            <span id="stat-qi-rate" class="font-semibold text-[#1f5c46] shrink-0 ml-auto">+4/s</span>
           </div>
           <div class="w-full bg-[#e6dcc8] h-2.5 rounded-full overflow-hidden">
             <div id="qi-progress-bar" class="bg-[#1f5c46] h-full rounded-full transition-all duration-300" style="width: 0%"></div>
@@ -470,7 +470,7 @@
             <div id="cultivate-tox-bar" class="bg-[#236c53] h-full transition-all duration-300" style="width: 0%"></div>
           </div>
         </div>
-        <button id="btn-detox-cultivate" type="button" class="jade-btn text-xs px-3.5 py-2 rounded-lg font-bold shrink-0">運功化毒（60靈石）</button>
+        <button id="btn-detox-cultivate" type="button" class="jade-btn text-xs px-3.5 py-2 rounded-lg font-bold shrink-0">運功化毒</button>
       </div>
 
       <!-- Cave Mansion Spirit Gathering Array & Tribulation Shield -->
@@ -620,7 +620,7 @@
             一鍵服丹
           </button>
           <button id="btn-detox-tea" type="button" class="jade-btn text-xs px-3 py-2 rounded-lg font-bold">
-            運功化毒（60靈石）
+            運功化毒
           </button>
           <button id="btn-bag-craft-more" type="button" class="paper-btn text-xs px-3 py-2 rounded-lg font-bold">
             返回丹房
@@ -834,14 +834,14 @@
           <button id="btn-market-sell-herbs" type="button" class="gold-btn text-xs py-2.5 px-2 rounded-lg font-bold text-center">
             售出餘草
           </button>
-          <button id="btn-market-stone-to-dust" type="button" class="cinnabar-btn text-xs py-2.5 px-2 rounded-lg font-bold text-center">
-            500石 換 60塵
+          <button id="btn-market-stone-to-dust" type="button" class="cinnabar-btn text-xs py-2 px-2 rounded-lg font-bold text-center">
+            <span class="block">換靈塵</span><span class="block text-[10px] leading-tight opacity-80">500石→60塵</span>
           </button>
-          <button id="btn-market-dust-to-stone" type="button" class="jade-btn text-xs py-2.5 px-2 rounded-lg font-bold text-center">
-            50塵 換 600石
+          <button id="btn-market-dust-to-stone" type="button" class="jade-btn text-xs py-2 px-2 rounded-lg font-bold text-center">
+            <span class="block">換靈石</span><span class="block text-[10px] leading-tight opacity-80">50塵→600石</span>
           </button>
-          <button id="btn-market-dew-exchange" type="button" class="ink-btn text-xs py-2.5 px-2 rounded-lg font-bold text-center">
-            1滴綠液換寶
+          <button id="btn-market-dew-exchange" type="button" class="ink-btn text-xs py-2 px-2 rounded-lg font-bold text-center">
+            <span class="block">換寶</span><span class="block text-[10px] leading-tight opacity-80">1滴綠液</span>
           </button>
         </div>
       </div>
@@ -852,17 +852,17 @@
           <span id="gacha-token-display" class="text-xs font-black text-[#9e2a22]">探寶令 2 ｜ 靈塵 20</span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <button id="btn-gacha-1" type="button" class="ink-btn text-xs py-2.5 rounded-lg font-bold text-center">
-            尋寶一次 (1令)
+          <button id="btn-gacha-1" type="button" class="ink-btn text-xs py-2 rounded-lg font-bold text-center">
+            <span class="block">尋寶</span><span class="block text-[10px] leading-tight opacity-80">1令</span>
           </button>
-          <button id="btn-gacha-5" type="button" class="gold-btn text-xs py-2.5 rounded-lg font-bold text-center">
-            五連尋寶 (5令)
+          <button id="btn-gacha-5" type="button" class="gold-btn text-xs py-2 rounded-lg font-bold text-center">
+            <span class="block">五連尋寶</span><span class="block text-[10px] leading-tight opacity-80">5令</span>
           </button>
-          <button id="btn-buy-token" type="button" class="paper-btn text-xs py-2.5 rounded-lg font-bold text-center">
-            購1令 (120石)
+          <button id="btn-buy-token" type="button" class="paper-btn text-xs py-2 rounded-lg font-bold text-center">
+            <span class="block">購1令</span><span class="block text-[10px] leading-tight opacity-80">120石</span>
           </button>
-          <button id="btn-buy-token-5" type="button" class="paper-btn text-xs py-2.5 rounded-lg font-bold text-center">
-            購5令 (600石)
+          <button id="btn-buy-token-5" type="button" class="paper-btn text-xs py-2 rounded-lg font-bold text-center">
+            <span class="block">購5令</span><span class="block text-[10px] leading-tight opacity-80">600石</span>
           </button>
         </div>
       </div>
@@ -873,9 +873,14 @@
             <h3 class="font-black text-sm text-[#9e2a22] inline">古寶圖鑑</h3>
             <span id="relic-set-bonus-label" class="text-xs font-bold text-[#236c53] ml-1.5">共鳴 +0%</span>
           </div>
-          <button id="btn-batch-infuse" type="button" class="jade-btn text-xs px-3 py-1.5 rounded-lg font-bold">
-            一鍵注靈
-          </button>
+          <div class="flex items-center gap-2 shrink-0">
+            <button id="btn-collapse-relics" type="button" class="paper-btn text-xs px-3 py-1.5 rounded-lg font-bold">
+              收合 ▾
+            </button>
+            <button id="btn-batch-infuse" type="button" class="jade-btn text-xs px-3 py-1.5 rounded-lg font-bold">
+              一鍵注靈
+            </button>
+          </div>
         </div>
         <div id="relic-collection-grid" class="grid grid-cols-1 gap-2"></div>
       </div>
@@ -1849,7 +1854,7 @@
               <span class="seal-stamp text-xs px-2 py-0.5">${s.route}</span>
             </div>
             <div class="text-xs text-[#236c53] font-bold">被動：${s.passiveDesc}</div>
-            <button type="button" data-sect-action="join" data-sect-id="${s.id}" class="gold-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">加入（免費）</button>
+            <button type="button" data-sect-action="join" data-sect-id="${s.id}" class="gold-btn text-xs py-2 px-4 rounded-lg font-bold w-full"><span class="block">加入</span><span class="block text-[10px] leading-tight opacity-80">免費</span></button>
           </div>`;
         });
         box.innerHTML = `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
@@ -1891,7 +1896,7 @@
         switchHtml += `<div class="space-y-1">
           <div class="flex items-center justify-between gap-2">
             <span class="text-sm font-bold text-[#1e1a16]">${s.name}（${s.route}）</span>
-            <button type="button" data-sect-action="switch" data-sect-id="${s.id}" class="cinnabar-btn text-xs py-2 px-3 rounded-lg font-bold shrink-0">${pending ? '確認叛宗？再點一次' : '叛宗（500石）'}</button>
+            <button type="button" data-sect-action="switch" data-sect-id="${s.id}" class="cinnabar-btn text-xs py-2 px-3 rounded-lg font-bold shrink-0">${pending ? '確認叛宗' : '<span class="block">叛宗</span><span class="block text-[10px] leading-tight opacity-80">500石</span>'}</button>
           </div>
           <div class="text-xs font-bold text-[#5c5346]">被動：${s.passiveDesc}</div>
         </div>`;
@@ -1930,9 +1935,9 @@
           <span class="text-xs font-bold text-[#236c53]">靈石 ${sc.donatedStoneToday || 0}/1000 ｜ 靈塵 ${sc.donatedDustToday || 0}/200</span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <button type="button" data-sect-action="donate-stone" class="gold-btn text-xs py-2.5 px-2.5 rounded-lg font-bold">捐靈石 100</button>
+          <button type="button" data-sect-action="donate-stone" class="gold-btn text-xs py-2 px-2.5 rounded-lg font-bold"><span class="block">捐靈石</span><span class="block text-[10px] leading-tight opacity-80">100石</span></button>
           <button type="button" data-sect-action="donate-stone-max" class="cinnabar-btn text-xs py-2.5 px-2.5 rounded-lg font-bold">一鍵捐石</button>
-          <button type="button" data-sect-action="donate-dust" class="gold-btn text-xs py-2.5 px-2.5 rounded-lg font-bold">捐靈塵 10</button>
+          <button type="button" data-sect-action="donate-dust" class="gold-btn text-xs py-2 px-2.5 rounded-lg font-bold"><span class="block">捐靈塵</span><span class="block text-[10px] leading-tight opacity-80">10塵</span></button>
           <button type="button" data-sect-action="donate-dust-max" class="jade-btn text-xs py-2.5 px-2.5 rounded-lg font-bold">一鍵捐塵</button>
         </div>
       </div>
@@ -1948,8 +1953,8 @@
         <div class="w-full bg-[#dfd3bc] h-1.5 rounded-full overflow-hidden">
           <div class="${durPct > 30 ? 'bg-[#236c53]' : 'bg-[#9e2a22]'} h-full transition-all" style="width:${durPct}%"></div>
         </div>
-        <button type="button" data-sect-action="upgrade-array" ${lv >= 10 ? 'disabled' : ''} class="gold-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">${lv >= 10 ? '已滿 10 級' : `升階大陣（${upStone}靈石＋${upContrib}貢獻）`}</button>
-        ${(sc.arrayDurability || 0) < 100 ? `<button type="button" data-sect-action="repair-array" class="cinnabar-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">修復大陣（1000靈石＋50靈塵）</button>` : ''}
+        <button type="button" data-sect-action="upgrade-array" ${lv >= 10 ? 'disabled' : ''} class="gold-btn text-xs py-2 px-4 rounded-lg font-bold w-full">${lv >= 10 ? '已滿級' : `<span class="block">升階大陣</span><span class="block text-[10px] leading-tight opacity-80">${upStone}靈石＋${upContrib}貢獻</span>`}</button>
+        ${(sc.arrayDurability || 0) < 100 ? `<button type="button" data-sect-action="repair-array" class="cinnabar-btn text-xs py-2 px-4 rounded-lg font-bold w-full"><span class="block">修復大陣</span><span class="block text-[10px] leading-tight opacity-80">1000靈石＋50靈塵</span></button>` : ''}
       </div>
       ${renderWarCard()}
       ${renderCastleCard()}
@@ -1965,6 +1970,15 @@
       </div>`;
     }
     function handleSectPanelClick(e) {
+      const col = e.target && e.target.closest ? e.target.closest('[data-collapse]') : null;
+      if (col) {
+        const key = col.getAttribute('data-collapse');
+        uiCollapsed[key] = !uiCollapsed[key];
+        const body = document.getElementById('collapse-' + key);
+        if (body) body.classList.toggle('hidden', !!uiCollapsed[key]);
+        col.textContent = uiCollapsed[key] ? '展開 ▸' : '收合 ▾';
+        return;
+      }
       const cbtn = e.target && e.target.closest ? e.target.closest('[data-castle-action]') : null;
       if (cbtn) { handleCastleAction(cbtn.getAttribute('data-castle-action'), cbtn.getAttribute('data-castle-id')); return; }
       const btn = e.target && e.target.closest ? e.target.closest('[data-sect-action]') : null;
@@ -2013,6 +2027,7 @@
       { id: 'tiandao', name: '天道化身', emoji: '☀️', desc: '攻擊頻率高，每回合反擊兩次' },
       { id: 'guxian', name: '古仙殘念', emoji: '👻', desc: '反擊吸血（回血 25%）' }
     ];
+    const BOSS_INTERVAL = 1800; // 神級 Boss 擲骰間隔（2026-11-01 改短：原 5400 秒＝90 分鐘）
     function getSectArrayReduction() {
       const sc = state.sect;
       if (!sc || !sc.id || (sc.arrayDurability || 0) <= 0) return 0;
@@ -2055,7 +2070,7 @@
         return;
       }
       sc.bossPlaySeconds = (sc.bossPlaySeconds || 0) + 1;
-      if (sc.bossPlaySeconds >= 5400) {
+      if (sc.bossPlaySeconds >= BOSS_INTERVAL) {
         sc.bossPlaySeconds = 0;
         const guaranteed = (sc.bossMisses || 0) >= 3;
         if (guaranteed || Math.random() < 0.35) {
@@ -2157,7 +2172,7 @@
       }
       sc.bossHistory = [{ boss: `${boss.emoji}${boss.name}`, result: label, date: localDateStr(new Date()) }, ...(sc.bossHistory || [])].slice(0, 3);
       sc.bossState = null;
-      sc.bossCooldownSeconds = 7200;
+      sc.bossCooldownSeconds = 3600; // Boss 冷卻（2026-11-01 改短：原 7200 秒＝2 小時）
       sc.bossPlaySeconds = 0;
       addLog(msg, outcome === 'kill' || outcome === 'repel');
       showToast(msg);
@@ -2280,8 +2295,8 @@
     const PEACE_COOLDOWN = 7200;     // 求和後再宣戰冷卻
     const SIEGE_COOLDOWN = 1800;     // 攻城失敗冷卻
     const CASTLE_PROTECT = 1800;     // 佔領／守住後保護期
-    const DECLARE_INTERVAL = 5400;   // NPC 宣戰擲骰間隔
-    const NPC_SIEGE_INTERVAL = 1800; // NPC 攻城擲骰間隔
+    const DECLARE_INTERVAL = 1800;   // NPC 宣戰擲骰間隔（2026-11-01 改短：原 5400 秒＝90 分鐘）
+    const NPC_SIEGE_INTERVAL = 900;  // NPC 攻城擲骰間隔（2026-11-01 改短：原 1800 秒＝30 分鐘）
     const DEFENSE_GRACE = 1800;      // 守城寬限
     const CASTLES = [
       { id: 'huangfeng_city', name: '黃楓城', emoji: '🌿', type: 'home', homeSect: 'huangfeng', bonusText: '靈草生長＋10%、極品率＋2%', bonus: { herbMult: 0.10, alchemySupreme: 0.02 } },
@@ -2350,6 +2365,7 @@
       return def ? def.name : '無主';
     }
     let pendingWarDeclareId = null;
+    const uiCollapsed = {}; // 卡片收合狀態（城池等，僅本頁會話，不進存檔）
     function declareWar(enemyId) {
       const sc = state.sect;
       if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
@@ -2654,6 +2670,51 @@
       if (action === 'siege') startSiegeFight(castleId);
       else if (action === 'upgrade-def') upgradeCastleDef(castleId);
     }
+    // 來襲倒數（2026-11-01 新增）：宗門戰爭卡下方顯示下次擲骰倒數，閒置迴圈每秒更新
+    function attackForecastBossText() {
+      const sc = state.sect;
+      if (!sc || !sc.id) return '';
+      if (sc.bossState) {
+        if (sc.bossState.inCombat) return '神級 Boss：戰鬥中';
+        if (!sc.bossState.arrived) return `神級 Boss：${fmtWarTime(Math.max(0, sc.bossState.warnSecondsLeft))} 後降臨`;
+        return `神級 Boss：已降臨，${fmtWarTime(Math.max(0, sc.bossState.graceSecondsLeft))} 後自動結算`;
+      }
+      if ((sc.bossCooldownSeconds || 0) > 0) return `神級 Boss：冷卻中，${fmtWarTime(sc.bossCooldownSeconds)} 後開始累計`;
+      return `神級 Boss：約 ${fmtWarTime(Math.max(0, BOSS_INTERVAL - (sc.bossPlaySeconds || 0)))} 後擲骰（35%，連空 3 次必中）`;
+    }
+    function attackForecastWarText() {
+      const sc = state.sect;
+      if (!sc || !sc.id) return '';
+      if (sc.war) return 'NPC 宣戰：交戰中';
+      if (sc.warWarn) return `NPC 宣戰：預警中，${fmtWarTime(Math.max(0, sc.warWarn.secondsLeft))} 後開戰`;
+      ensureCastles();
+      const neutralOwned = CASTLES.filter(c => c.type === 'neutral' && state.castles[c.id].owner === sc.id).length;
+      const chance = Math.min(0.40, 0.20 + neutralOwned * 0.05);
+      return `NPC 宣戰：約 ${fmtWarTime(Math.max(0, DECLARE_INTERVAL - (sc.warPlaySeconds || 0)))} 後擲骰（機率 ${Math.round(chance * 100)}%）`;
+    }
+    function attackForecastSiegeText() {
+      const sc = state.sect;
+      if (!sc || !sc.id || !sc.war) return '';
+      if (sc.defenseWarn) return 'NPC 攻城：來襲進行中（見上方橫幅）';
+      return `NPC 攻城：約 ${fmtWarTime(Math.max(0, NPC_SIEGE_INTERVAL - (sc.siegePlaySeconds || 0)))} 後擲骰（25%）`;
+    }
+    function updateAttackForecastDOM() {
+      const b = document.getElementById('forecast-boss');
+      if (b) b.textContent = attackForecastBossText();
+      const w = document.getElementById('forecast-war');
+      if (w) w.textContent = attackForecastWarText();
+      const s = document.getElementById('forecast-siege');
+      if (s) s.textContent = attackForecastSiegeText();
+    }
+    function renderAttackForecast() {
+      const sc = state.sect;
+      if (!sc || !sc.id) return '';
+      return `<div class="text-xs font-bold text-[#5c5346] space-y-0.5">
+    <div id="forecast-boss">${attackForecastBossText()}</div>
+    <div id="forecast-war">${attackForecastWarText()}</div>
+    <div id="forecast-siege">${attackForecastSiegeText()}</div>
+  </div>`;
+    }
     function renderWarCard() {
       const sc = state.sect;
       if (!sc || !sc.id) return '';
@@ -2661,7 +2722,7 @@
       if (sc.war) {
         const enemy = SECTS.find(x => x.id === sc.war.enemyId);
         inner = `<div class="text-sm text-[#9e2a22] font-bold">交戰中：vs ${enemy ? enemy.emoji + enemy.name : ''}（剩餘約 ${fmtWarTime(sc.war.secondsLeft)}）</div>
-      <button type="button" data-sect-action="peace" class="cinnabar-btn text-sm py-3 px-4 rounded-lg font-bold w-full">求和（300貢獻，立即停戰）</button>`;
+      <button type="button" data-sect-action="peace" class="cinnabar-btn text-sm py-2.5 px-4 rounded-lg font-bold w-full"><span class="block">求和</span><span class="block text-[10px] leading-tight opacity-80">300貢獻</span></button>`;
       } else {
         const truceLines = Object.keys(sc.truce || {}).filter(k => (sc.truce[k] || 0) > 0).map(k => {
           const d = SECTS.find(x => x.id === k);
@@ -2671,14 +2732,15 @@
         SECTS.filter(x => x.id !== sc.id).forEach(x => {
           const inTruce = (sc.truce || {})[x.id] > 0;
           const pending = pendingWarDeclareId === x.id;
-          btns += `<button type="button" data-sect-action="declare" data-sect-id="${x.id}" class="${inTruce ? 'paper-btn' : 'cinnabar-btn'} text-sm py-2.5 px-3 rounded-lg font-bold flex-1">${pending ? '確認宣戰？再點一次' : `向${x.name}宣戰${inTruce ? '（休戰中）' : '（500石）'}`}</button>`;
+          btns += `<button type="button" data-sect-action="declare" data-sect-id="${x.id}" class="${inTruce ? 'paper-btn' : 'cinnabar-btn'} text-sm py-2.5 px-3 rounded-lg font-bold">${pending ? '確認宣戰' : (inTruce ? `${x.name.slice(0, 2)}休戰` : `<span class="block">${x.name.slice(0, 2)}宣戰</span><span class="block text-[10px] leading-tight opacity-80">500石</span>`)}</button>`;
         });
         inner = `<div class="text-sm text-[#236c53] font-bold">目前和平${truceLines ? `｜${truceLines}` : ''}</div>
-      <div class="flex gap-2 flex-wrap">${btns}</div>`;
+      <div class="grid grid-cols-2 gap-2">${btns}</div>`;
       }
       return `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
     <div class="font-black text-base text-[#1e1a16]">宗門戰爭</div>
     ${inner}
+    ${renderAttackForecast()}
   </div>`;
     }
     function renderCastleCard() {
@@ -2694,27 +2756,31 @@
         if (own) {
           action = (cur.defLv || 1) >= 10
             ? `<span class="text-sm font-bold text-[#5c5346]">已滿 10 級</span>`
-            : `<button type="button" data-castle-action="upgrade-def" data-castle-id="${c.id}" class="gold-btn text-sm py-2.5 px-3 rounded-lg font-bold shrink-0">升級城防（${500 * (cur.defLv || 1)}石＋${100 * (cur.defLv || 1)}貢獻）</button>`;
+            : `<button type="button" data-castle-action="upgrade-def" data-castle-id="${c.id}" class="gold-btn text-sm py-2 px-3 rounded-lg font-bold shrink-0"><span class="block">升級城防</span><span class="block text-[10px] leading-tight opacity-80">${500 * (cur.defLv || 1)}石＋${100 * (cur.defLv || 1)}貢獻</span></button>`;
         } else if ((cur.protectSecondsLeft || 0) > 0) {
           action = `<span class="text-sm font-bold text-[#5c5346]">保護中（${fmtWarTime(cur.protectSecondsLeft)}）</span>`;
         } else if ((cur.siegeCooldownSeconds || 0) > 0) {
           action = `<span class="text-sm font-bold text-[#5c5346]">冷卻中（${fmtWarTime(cur.siegeCooldownSeconds)}）</span>`;
         } else if (c.type === 'home' && !(sc.war && sc.war.enemyId === cur.owner)) {
-          action = `<span class="text-sm font-bold text-[#5c5346]">需先宣戰${ownerName}</span>`;
+          action = `<span class="text-sm font-bold text-[#5c5346]">需先宣戰</span>`;
         } else {
           action = `<button type="button" data-castle-action="siege" data-castle-id="${c.id}" class="cinnabar-btn text-sm py-2.5 px-3 rounded-lg font-bold shrink-0">攻城</button>`;
         }
-        rows += `<div class="flex items-center justify-between gap-2">
-      <div class="min-w-0">
+        rows += `<div class="flex items-center justify-between gap-2 flex-wrap">
+      <div class="min-w-0 flex-1 basis-[170px]">
         <div class="text-sm font-bold text-[#1e1a16]">${c.name}（${ownerName}｜城防 ${cur.defLv || 1} 級）</div>
         <div class="text-sm font-bold text-[#5c5346]">${c.bonusText}</div>
       </div>
       ${action}
     </div>`;
       });
+      const castlesCollapsed = !!uiCollapsed.castles;
       return `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-    <div class="font-black text-base text-[#1e1a16]">城池（佔領拿加成）</div>
-    ${rows}
+    <div class="flex items-center justify-between gap-2">
+      <div class="font-black text-base text-[#1e1a16]">城池（佔領拿加成）</div>
+      <button type="button" data-collapse="castles" class="paper-btn text-xs px-2.5 py-1 rounded-lg font-bold shrink-0">${castlesCollapsed ? '展開 ▸' : '收合 ▾'}</button>
+    </div>
+    <div id="collapse-castles" class="space-y-2 ${castlesCollapsed ? 'hidden' : ''}">${rows}</div>
   </div>`;
     }
     function updateWarBannerDOM() {
@@ -2785,7 +2851,7 @@
     </div>
     <div class="text-xs text-[#5c5346] font-bold">助戰傷害 +${cur * 10} ｜ 守城防禦 +${cur * 20} ｜ 每日貢獻 +${cur}</div>
     <div class="grid grid-cols-2 gap-2">
-      <button type="button" data-sect-action="recruit" ${full ? 'disabled' : ''} class="${full ? 'paper-btn' : 'cinnabar-btn'} text-xs py-2.5 px-3 rounded-lg font-bold">${full ? '已滿員' : '招募弟子 (300石)'}</button>
+      <button type="button" data-sect-action="recruit" ${full ? 'disabled' : ''} class="${full ? 'paper-btn' : 'cinnabar-btn'} text-xs py-2.5 px-3 rounded-lg font-bold">${full ? '已滿員' : '<span class="block">招募弟子</span><span class="block text-[10px] leading-tight opacity-80">300石</span>'}</button>
       <button type="button" data-sect-action="recruit-max" ${full ? 'disabled' : ''} class="${full ? 'paper-btn' : 'gold-btn'} text-xs py-2.5 px-3 rounded-lg font-bold">${full ? '已滿員' : '一鍵招滿'}</button>
     </div>
   </div>`;
@@ -5594,14 +5660,15 @@
       const cultTox = document.getElementById('cultivate-tox-label');
       if (cultTox) cultTox.textContent = state.toxicity >= 80 ? `丹毒 ${state.toxicity}/100（已滿）` : `丹毒 ${state.toxicity}/100`;
       const detoxAmt = getOrigin().id === 'heavenly' ? 90 : 45;
+      const detoxHtml = state.toxicity <= 0 ? '無丹毒' : `<span class="block">運功化毒</span><span class="block text-[10px] leading-tight opacity-80">60石・-${detoxAmt}</span>`;
       const dbCult = document.getElementById('btn-detox-cultivate');
       if (dbCult) {
-        dbCult.textContent = state.toxicity <= 0 ? '無丹毒' : `運功化毒（60石，-${detoxAmt}）`;
+        dbCult.innerHTML = detoxHtml;
         dbCult.disabled = state.toxicity <= 0;
       }
       const dbTea = document.getElementById('btn-detox-tea');
       if (dbTea) {
-        dbTea.textContent = state.toxicity <= 0 ? '無丹毒' : `運功化毒（60石，-${detoxAmt}）`;
+        dbTea.innerHTML = detoxHtml;
         dbTea.disabled = state.toxicity <= 0;
       }
       const bag = document.getElementById('pill-bag-list');
@@ -5812,6 +5879,7 @@
         if (typeof tickNpcWorld === 'function') tickNpcWorld();
         updateBossBannerDOM();
         updateWarBannerDOM();
+        updateAttackForecastDOM();
         saveState();
       }, 1000);
     }
@@ -7042,6 +7110,14 @@
       const batchInfuseBtn = document.getElementById('btn-batch-infuse');
       if (batchInfuseBtn) {
         batchInfuseBtn.addEventListener('click', batchInfuseRelics);
+      }
+      const collapseRelicsBtn = document.getElementById('btn-collapse-relics');
+      if (collapseRelicsBtn) {
+        collapseRelicsBtn.addEventListener('click', () => {
+          const grid = document.getElementById('relic-collection-grid');
+          const hidden = grid ? grid.classList.toggle('hidden') : false;
+          collapseRelicsBtn.textContent = hidden ? '展開 ▸' : '收合 ▾';
+        });
       }
       const autoFinishBtn = document.getElementById('btn-auto-finish-combat');
       if (autoFinishBtn) {
