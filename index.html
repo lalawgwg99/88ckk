@@ -3712,6 +3712,19 @@
       renderAll();
       saveState();
     }
+    function meltPillById(pillId) {
+      const pill = PILLS.find(p => p.id === pillId);
+      const count = state.pills[pillId] || 0;
+      if (!pill || count <= 0) return;
+      const gain = count * 100;
+      state.pills[pillId] = 0;
+      state.stones += gain;
+      playSound('dew');
+      addLog(`♻️ 熔丹：${pill.name} x${count} → 靈石 ＋${formatNum(gain)}。`, true);
+      showToast(`♻️ 熔丹：${pill.name} x${count}，靈石 ＋${formatNum(gain)}`);
+      renderAll();
+      saveState();
+    }
     function handleBatchConsumePill() {
       const available = PILLS.some(p => (state.pills[p.id] || 0) > 0);
       if (!available) { showToast('無丹藥！請先煉丹'); return; }
@@ -5694,20 +5707,23 @@
       PILLS.forEach(pill => {
         const count = state.pills[pill.id] || 0;
         const card = document.createElement('div');
-        card.className = `p-3 rounded-xl border flex items-center justify-between gap-2 ${
+        card.className = `p-3 rounded-xl border space-y-1.5 ${
           count > 0 ? 'bg-[#f4ede0] border-[#b8a483]' : 'bg-[#f5f0e6] border-[#e2d8c5] opacity-60'
         }`;
         card.innerHTML = `
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-bold text-[#1e1a16]">${pill.name}</span>
-              <span class="text-xs font-black ${count > 0 ? 'text-[#9e2a22]' : 'text-[#8c7e6a]'}">x${count}</span>
-              <span class="text-xs text-[#236c53]">${pill.desc}</span>
-            </div>
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="text-sm font-bold text-[#1e1a16] shrink-0">${pill.name}</span>
+            <span class="text-xs font-black ${count > 0 ? 'text-[#9e2a22]' : 'text-[#8c7e6a]'} shrink-0 whitespace-nowrap">x${count}</span>
+            <span class="text-xs text-[#236c53] truncate min-w-0">${pill.desc}</span>
           </div>
-          <button type="button" data-consume-pill="${pill.id}" ${count <= 0 ? 'disabled' : ''} class="${count > 0 ? 'jade-btn' : 'paper-btn'} text-xs px-3 py-1.5 rounded-lg font-bold shrink-0">
-            服用
-          </button>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button type="button" data-consume-pill="${pill.id}" ${count <= 0 ? 'disabled' : ''} class="${count > 0 ? 'jade-btn' : 'paper-btn'} text-xs px-3 py-1.5 rounded-lg font-bold">
+              服用
+            </button>
+            <button type="button" data-melt-pill="${pill.id}" ${count <= 0 ? 'disabled' : ''} class="gold-btn text-xs px-3 py-1.5 rounded-lg font-bold">
+              熔丹＋${formatNum(count * 100)}石
+            </button>
+          </div>
         `;
         bag.appendChild(card);
       });
@@ -5715,6 +5731,12 @@
       bag.querySelectorAll('[data-consume-pill]').forEach(btn => {
         btn.addEventListener('click', () => {
           consumePillById(btn.getAttribute('data-consume-pill'));
+        });
+      });
+
+      bag.querySelectorAll('[data-melt-pill]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          meltPillById(btn.getAttribute('data-melt-pill'));
         });
       });
     }
