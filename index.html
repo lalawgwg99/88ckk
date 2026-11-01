@@ -303,23 +303,29 @@
       <!-- 4 Large, Comfortable Action Buttons -->
       <div class="grid grid-cols-2 gap-3">
         <button id="btn-meditate" type="button" class="ink-btn py-3 px-3 rounded-lg text-sm font-bold flex items-center justify-center gap-1.5">
-          <span>🧘 吐納</span>
+          <span>吐納</span>
           <span id="meditate-gain-label" class="text-amber-300">(+6)</span>
         </button>
 
         <button id="btn-quick-pill" type="button" class="jade-btn py-3 px-3 rounded-lg text-sm font-bold flex items-center justify-center gap-1.5">
-          <span>💊 一鍵服丹</span>
+          <span>一鍵服丹</span>
           <span id="quick-pill-count" class="text-emerald-200">(1)</span>
         </button>
 
         <button id="btn-breakthrough" type="button" class="cinnabar-btn py-4 px-4 rounded-lg text-base font-bold flex items-center justify-center gap-1.5">
-          <span>⚡ 破境</span>
+          <span>破境</span>
           <span id="breakthrough-rate-label" class="text-amber-200">(80%)</span>
         </button>
 
         <button id="btn-quick-adventure" type="button" class="gold-btn py-3 px-3 rounded-lg text-sm font-bold flex items-center justify-center gap-1.5">
-          <span>🗼 鎮妖塔</span>
+          <span>鎮妖塔</span>
         </button>
+      </div>
+
+      <!-- 排毒：丹毒滿 80 時無法服丹，在此直接排毒 -->
+      <div class="flex items-center justify-between gap-2 bg-[#fbf8f1] border border-[#d6c7ac] rounded-lg px-3 py-2.5">
+        <span id="cultivate-tox-label" class="text-sm font-bold text-[#1e1a16]">丹毒 0/100</span>
+        <button id="btn-detox-cultivate" type="button" class="jade-btn text-sm px-4 py-2.5 rounded-lg font-bold">排毒（60靈石，毒-45）</button>
       </div>
 
       <!-- 下一步指引：修為差多少、多久可破境、大關戰力警告 -->
@@ -330,7 +336,7 @@
       <!-- Clean Footer Link to Chronicle -->
       <div class="bg-[#f4ede0] border border-[#d6c7ac] rounded-lg p-3 space-y-1.5">
         <div class="flex items-center justify-between text-xs">
-          <span id="roadmap-status-text" class="font-bold text-[#1e1a16]">🌱 靈草 10 種 ｜ 🗡️ 古寶 0/10</span>
+          <span id="roadmap-status-text" class="font-bold text-[#1e1a16]">🌱 靈草 10 種 ｜ 🗡️ 古寶 0/20</span>
           <button id="btn-goto-chronicle" type="button" class="text-xs text-[#236c53] font-bold">修真古卷 ➔</button>
         </div>
         <div id="mini-log-preview" class="space-y-1 text-xs text-[#5c5346] pt-1 border-t border-[#dfd3bc]"></div>
@@ -375,8 +381,8 @@
       <div class="flex items-center justify-between border-b border-[#dfd3bc] pb-2.5">
         <span id="toxicity-effect-desc" class="text-sm font-black text-[#236c53]">☠️ 丹毒 0/100</span>
         <div class="flex gap-2">
-          <button id="btn-detox-tea" type="button" class="jade-btn text-xs px-3 py-1.5 rounded-lg font-bold">
-            🍵 排毒(60)
+          <button id="btn-detox-tea" type="button" class="jade-btn text-sm px-4 py-2.5 rounded-lg font-bold">
+            排毒（60靈石，毒-45）
           </button>
           <button id="btn-bag-craft-more" type="button" class="paper-btn text-xs px-3 py-1.5 rounded-lg font-bold">
             🔥 煉丹
@@ -723,7 +729,13 @@
       { id: 'sanmei_fire', name: '🔥 三昧真火', mult: 1.85, desc: '1.85倍法傷' },
       { id: 'fengxue_art', name: '❄️ 風雪之術', mult: 2.10, desc: '2.1倍群傷' },
       { id: 'xiuluo_slash', name: '🩸 修羅斬', mult: 1.75, lifesteal: 0.45, desc: '吸血45%' },
-      { id: 'jinghua_shuiyue', name: '🌸 鏡花水月', mult: 2.65, costStone: 15, desc: '2.65倍絕殺（耗15靈石）' }
+      { id: 'jinghua_shuiyue', name: '🌸 鏡花水月', mult: 2.65, costStone: 15, desc: '2.65倍絕殺（耗15靈石）' },
+      { id: 'hunyuan_shenlei', name: '混沌神雷', mult: 2.90, costStone: 30, desc: '2.9倍絕殺（耗30靈石）' },
+      { id: 'xuehai_kuangtao', name: '血海狂濤', mult: 1.60, lifesteal: 0.70, desc: '吸血70%' },
+      { id: 'hanshuang_dongjie', name: '寒霜凍結', mult: 1.15, stunChance: 0.65, desc: '65%定身' },
+      { id: 'xuanwu_huti', name: '玄武護體', mult: 0.80, shieldPct: 0.65, desc: '護盾+65%' },
+      { id: 'jifeng_lianzhan', name: '疾風連斬', mult: 1.95, desc: '1.95倍法傷' },
+      { id: 'shihun_zhou', name: '噬魂咒', mult: 1.30, lifesteal: 0.30, stunChance: 0.25, desc: '吸血30%＋25%定身' }
     ];
 
     const BLOODLINE_POOL = [
@@ -733,7 +745,15 @@
       { id: 'o1', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '浩然正氣', qiBonus: 0.40, combatBonus: 0.55, desc: '修+40% 戰+55%' },
       { id: 'o2', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '青元劍骨', qiBonus: 0.35, combatBonus: 0.70, desc: '修+35% 戰+70%' },
       { id: 'r1', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '不滅血體', qiBonus: 0.80, combatBonus: 1.35, desc: '修+80% 戰+135%' },
-      { id: 'r2', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '言出法隨', qiBonus: 1.10, combatBonus: 1.60, desc: '修+110% 戰+160%' }
+      { id: 'r2', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '言出法隨', qiBonus: 1.10, combatBonus: 1.60, desc: '修+110% 戰+160%' },
+      { id: 'panshi', tier: '⚪凡', color: 'bg-stone-200 text-stone-800', name: '磐石體', qiBonus: 0.03, combatBonus: 0.12, desc: '修+3% 戰+12%' },
+      { id: 'fengxing', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '風行體', qiBonus: 0.16, combatBonus: 0.06, desc: '修+16% 戰+6%' },
+      { id: 'tiegut', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '鐵骨錚錚', qiBonus: 0.07, combatBonus: 0.17, desc: '修+7% 戰+17%' },
+      { id: 'bingpo', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '冰魄寒體', qiBonus: 0.14, combatBonus: 0.36, desc: '修+14% 戰+36%' },
+      { id: 'leigang', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '雷罡體', qiBonus: 0.26, combatBonus: 0.18, desc: '修+26% 戰+18%' },
+      { id: 'jiuyang', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '九陽聖體', qiBonus: 0.50, combatBonus: 0.45, desc: '修+50% 戰+45%' },
+      { id: 'hundun', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '混沌道體', qiBonus: 1.40, combatBonus: 1.20, desc: '修+140% 戰+120%' },
+      { id: 'wangu', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '萬古長青體', qiBonus: 0.85, combatBonus: 2.10, desc: '修+85% 戰+210%' }
     ];
 
     const ORIGINS = [
@@ -779,7 +799,17 @@
       { id: 'fenglei_wings', name: '⚡風雷翅', tier: '🟡金', color: 'bg-amber-100 text-amber-900', dropRate: 0.05, qiMult: 0.65, combatMult: 1.10, desc: '修+65%｜戰+110%' },
       { id: 'baling_ruler', name: '八靈尺', tier: '🟡金', color: 'bg-amber-100 text-amber-900', dropRate: 0.04, qiMult: 0.80, combatMult: 1.40, desc: '修+80%｜戰+140%' },
       { id: 'shiling_fire', name: '🔥噬靈天火', tier: '🔴紅', color: 'bg-rose-200 text-rose-950', dropRate: 0.02, qiMult: 1.50, combatMult: 2.50, isFire: true, desc: '0廢丹｜戰+250%' },
-      { id: 'wanling_scroll', name: '萬靈榜', tier: '🔴紅', color: 'bg-rose-200 text-rose-950', dropRate: 0.012, qiMult: 2.20, combatMult: 4.00, desc: '修+220%｜戰+400%' }
+      { id: 'wanling_scroll', name: '萬靈榜', tier: '🔴紅', color: 'bg-rose-200 text-rose-950', dropRate: 0.012, qiMult: 2.20, combatMult: 4.00, desc: '修+220%｜戰+400%' },
+      { id: 'qingxin_yupei', name: '清心玉佩', tier: '⚪白', color: 'bg-stone-200 text-stone-800', dropRate: 0.32, qiMult: 0.10, combatMult: 0.12, desc: '修+10%｜戰+12%' },
+      { id: 'huxin_jing', name: '護心鏡', tier: '⚪白', color: 'bg-stone-200 text-stone-800', dropRate: 0.28, qiMult: 0.12, combatMult: 0.15, desc: '修+12%｜戰+15%' },
+      { id: 'zhuifeng_xue', name: '追風靴', tier: '🔵藍', color: 'bg-sky-100 text-sky-900', dropRate: 0.18, qiMult: 0.20, combatMult: 0.25, desc: '修+20%｜戰+25%' },
+      { id: 'zijin_hulu', name: '紫金葫蘆', tier: '🟣紫', color: 'bg-purple-100 text-purple-900', dropRate: 0.09, qiMult: 0.40, combatMult: 0.60, desc: '修+40%｜戰+60%' },
+      { id: 'xuantie_jian', name: '玄鐵重劍', tier: '🟣紫', color: 'bg-purple-100 text-purple-900', dropRate: 0.08, qiMult: 0.45, combatMult: 0.50, desc: '修+45%｜戰+50%' },
+      { id: 'jiulong_zhao', name: '九龍神火罩', tier: '🟡金', color: 'bg-amber-100 text-amber-900', dropRate: 0.045, qiMult: 0.70, combatMult: 1.00, desc: '修+70%｜戰+100%' },
+      { id: 'fantian_yin', name: '翻天印', tier: '🟡金', color: 'bg-amber-100 text-amber-900', dropRate: 0.035, qiMult: 0.90, combatMult: 1.20, desc: '修+90%｜戰+120%' },
+      { id: 'yinyang_jing', name: '陰陽鏡', tier: '🟡金', color: 'bg-amber-100 text-amber-900', dropRate: 0.05, qiMult: 0.60, combatMult: 0.90, desc: '修+60%｜戰+90%' },
+      { id: 'kaitian_fu', name: '開天斧', tier: '🔴紅', color: 'bg-rose-200 text-rose-950', dropRate: 0.015, qiMult: 1.80, combatMult: 3.00, desc: '修+180%｜戰+300%' },
+      { id: 'hundun_zhong', name: '混沌鍾', tier: '🔴紅', color: 'bg-rose-200 text-rose-950', dropRate: 0.008, qiMult: 2.60, combatMult: 4.50, desc: '修+260%｜戰+450%' }
     ];
 
     const CULTIVATION_ARTS = [
@@ -789,7 +819,11 @@
       { id: 'yuanci', name: '《元磁神光》', cost: 2800, rateBonus: 3.4, senseBonus: 900 },
       { id: 'fansheng', name: '《梵聖真魔功》', cost: 9500, rateBonus: 5.5, senseBonus: 2600 },
       { id: 'baimai', name: '《百脈煉寶決》', cost: 42000, rateBonus: 9.5, senseBonus: 8000 },
-      { id: 'dawuxing', name: '《大五行幻世決》', cost: 200000, rateBonus: 18.0, senseBonus: 35000 }
+      { id: 'dawuxing', name: '《大五行幻世決》', cost: 200000, rateBonus: 18.0, senseBonus: 35000 },
+      { id: 'jiuzhuan', name: '《九轉玄功》', cost: 800000, rateBonus: 34.0, senseBonus: 120000 },
+      { id: 'xingchen', name: '《星辰變》', cost: 3000000, rateBonus: 65.0, senseBonus: 400000 },
+      { id: 'hundun_kaitian', name: '《混沌開天訣》', cost: 12000000, rateBonus: 125.0, senseBonus: 1500000 },
+      { id: 'hongmeng', name: '《鴻蒙造化經》', cost: 50000000, rateBonus: 240.0, senseBonus: 6000000 }
     ];
 
     const TREASURES = [
@@ -802,15 +836,15 @@
     ];
 
     const LOCATIONS = [
-      { id: 'qixuan', name: '⛰️ 神手谷', minRealm: 0, enemyName: '墨居仁', enemyHp: 180, enemyAtk: 18, seedDropId: 'huanglong_grass', seedDropRate: 0.45, relicPool: ['qingning_mirror'], desc: '掉：黃龍草、青凝鏡' },
-      { id: 'tainan', name: '🏮 太南小會', minRealm: 1, enemyName: '王蟬', enemyHp: 520, enemyAtk: 48, seedDropId: 'jinsui_mushroom', seedDropRate: 0.28, relicPool: ['qingning_mirror', 'jinguang_brick'], desc: '掉：金髓芝、金光磚' },
-      { id: 'xuese', name: '🩸 血色禁地', minRealm: 3, enemyName: '千年墨蛟', enemyHp: 2200, enemyAtk: 165, seedDropId: 'blood_ginseng', seedDropRate: 0.18, relicPool: ['jinguang_brick', 'feijian_fubao', 'huangling_armor'], desc: '掉：血色靈參、皇鱗甲' },
-      { id: 'huangfeng', name: '🍁 黃楓谷', minRealm: 5, enemyName: '雲露老魔', enemyHp: 12000, enemyAtk: 850, seedDropId: 'snow_lotus', seedDropRate: 0.14, relicPool: ['feijian_fubao', 'huangling_armor', 'qiyan_fan'], desc: '掉：天靈雪蓮、七焰扇' },
-      { id: 'luanxing', name: '🌊 虛天殿', minRealm: 8, enemyName: '玄骨上人', enemyHp: 140000, enemyAtk: 9200, seedDropId: 'jiuqu_ginseng', seedDropRate: 0.10, relicPool: ['huangling_armor', 'qiyan_fan', 'qianlan_fire'], desc: '掉：九曲靈參、乾藍冰焰' },
-      { id: 'dajin', name: '🐉 崑吾山', minRealm: 11, enemyName: '元剎分身', enemyHp: 1800000, enemyAtk: 110000, seedDropId: 'thunder_bamboo', seedDropRate: 0.08, relicPool: ['qianlan_fire', 'fenglei_wings', 'baling_ruler'], desc: '掉：金雷竹、風雷翅' },
-      { id: 'tianyuan', name: '☁️ 天淵城', minRealm: 16, enemyName: '血光聖祖', enemyHp: 160000000, enemyAtk: 8500000, seedDropId: 'panlong_fruit', seedDropRate: 0.06, relicPool: ['fenglei_wings', 'baling_ruler', 'shiling_fire'], desc: '掉：蟠瓏果、噬靈天火' },
-      { id: 'guanghan_realm', name: '⚡ 廣寒界', minRealm: 20, enemyName: '真仙馬良', enemyHp: 9500000000, enemyAtk: 420000000, seedDropId: 'moluo_lotus', seedDropRate: 0.05, relicPool: ['baling_ruler', 'shiling_fire', 'wanling_scroll'], desc: '掉：摩羅蓮、萬靈榜' },
-      { id: 'beihan', name: '🌌 北寒仙域', minRealm: 28, enemyName: '古或今', enemyHp: 12000000000000, enemyAtk: 550000000000, seedDropId: 'hongmeng_herb', seedDropRate: 0.03, relicPool: ['shiling_fire', 'wanling_scroll'], desc: '掉：鴻蒙芝、玄天聖器' }
+      { id: 'qixuan', name: '⛰️ 神手谷', minRealm: 0, enemyName: '墨居仁', enemyHp: 180, enemyAtk: 18, seedDropId: 'huanglong_grass', seedDropRate: 0.45, relicPool: ['qingning_mirror', 'qingxin_yupei'], desc: '掉：黃龍草、青凝鏡' },
+      { id: 'tainan', name: '🏮 太南小會', minRealm: 1, enemyName: '王蟬', enemyHp: 520, enemyAtk: 48, seedDropId: 'jinsui_mushroom', seedDropRate: 0.28, relicPool: ['qingning_mirror', 'jinguang_brick', 'huxin_jing'], desc: '掉：金髓芝、金光磚' },
+      { id: 'xuese', name: '🩸 血色禁地', minRealm: 3, enemyName: '千年墨蛟', enemyHp: 2200, enemyAtk: 165, seedDropId: 'blood_ginseng', seedDropRate: 0.18, relicPool: ['jinguang_brick', 'feijian_fubao', 'huangling_armor', 'zhuifeng_xue'], desc: '掉：血色靈參、皇鱗甲' },
+      { id: 'huangfeng', name: '🍁 黃楓谷', minRealm: 5, enemyName: '雲露老魔', enemyHp: 12000, enemyAtk: 850, seedDropId: 'snow_lotus', seedDropRate: 0.14, relicPool: ['feijian_fubao', 'huangling_armor', 'qiyan_fan', 'zijin_hulu'], desc: '掉：天靈雪蓮、七焰扇' },
+      { id: 'luanxing', name: '🌊 虛天殿', minRealm: 8, enemyName: '玄骨上人', enemyHp: 140000, enemyAtk: 9200, seedDropId: 'jiuqu_ginseng', seedDropRate: 0.10, relicPool: ['huangling_armor', 'qiyan_fan', 'qianlan_fire', 'xuantie_jian'], desc: '掉：九曲靈參、乾藍冰焰' },
+      { id: 'dajin', name: '🐉 崑吾山', minRealm: 11, enemyName: '元剎分身', enemyHp: 1800000, enemyAtk: 110000, seedDropId: 'thunder_bamboo', seedDropRate: 0.08, relicPool: ['qianlan_fire', 'fenglei_wings', 'baling_ruler', 'jiulong_zhao'], desc: '掉：金雷竹、風雷翅' },
+      { id: 'tianyuan', name: '☁️ 天淵城', minRealm: 16, enemyName: '血光聖祖', enemyHp: 160000000, enemyAtk: 8500000, seedDropId: 'panlong_fruit', seedDropRate: 0.06, relicPool: ['fenglei_wings', 'baling_ruler', 'shiling_fire', 'fantian_yin'], desc: '掉：蟠瓏果、噬靈天火' },
+      { id: 'guanghan_realm', name: '⚡ 廣寒界', minRealm: 20, enemyName: '真仙馬良', enemyHp: 9500000000, enemyAtk: 420000000, seedDropId: 'moluo_lotus', seedDropRate: 0.05, relicPool: ['baling_ruler', 'shiling_fire', 'wanling_scroll', 'yinyang_jing'], desc: '掉：摩羅蓮、萬靈榜' },
+      { id: 'beihan', name: '🌌 北寒仙域', minRealm: 28, enemyName: '古或今', enemyHp: 12000000000000, enemyAtk: 550000000000, seedDropId: 'hongmeng_herb', seedDropRate: 0.03, relicPool: ['shiling_fire', 'wanling_scroll', 'kaitian_fu', 'hundun_zhong'], desc: '掉：鴻蒙芝、玄天聖器' }
     ];
 
     const COMPANIONS = [
@@ -844,7 +878,14 @@
       { id: 'tower2', desc: '鎮妖塔通關 2 層', target: 2, reward: 40 },
       { id: 'alchemy3', desc: '煉丹 3 顆（成功才算）', target: 3, reward: 30 },
       { id: 'adventure2', desc: '歷練勝利 2 次', target: 2, reward: 40 },
-      { id: 'donate500', desc: '向宗門捐獻靈石 500', target: 500, reward: 25 }
+      { id: 'donate500', desc: '向宗門捐獻靈石 500', target: 500, reward: 25 },
+      { id: 'consume5', desc: '服丹 5 顆', target: 5, reward: 30 },
+      { id: 'gacha3', desc: '探寶 3 次', target: 3, reward: 35 },
+      { id: 'breakthrough1', desc: '破境成功 1 次', target: 1, reward: 50 },
+      { id: 'gift3', desc: '贈禮道侶 3 次', target: 3, reward: 30 },
+      { id: 'shop1', desc: '宗門寶庫購物 1 次', target: 1, reward: 30 },
+      { id: 'recruit1', desc: '招募弟子 1 名', target: 1, reward: 40 },
+      { id: 'siege1', desc: '攻城／守城勝利 1 次', target: 1, reward: 60 }
     ];
     const SECT_SHOP = [
       { id: 'dew', name: '💧 綠液 1 滴', cost: 50, daily: 3, minRank: 0 },
@@ -859,7 +900,7 @@
     }
     function ensureSectState() {
       if (!state.sect || typeof state.sect !== 'object') state.sect = {};
-      const d = { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0, war: null, warWarn: null, defenseWarn: null, warPlaySeconds: 0, warMisses: 0, siegePlaySeconds: 0, truce: {}, disciples: 0 };
+      const d = { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0, war: null, warWarn: null, defenseWarn: null, warPlaySeconds: 0, warMisses: 0, siegePlaySeconds: 0, truce: {}, disciples: 0, milestones: {} };
       Object.keys(d).forEach(k => { if (state.sect[k] === undefined) state.sect[k] = d[k]; });
       if (!Array.isArray(state.sect.tasks)) state.sect.tasks = [];
       if (!state.sect.shopBought || typeof state.sect.shopBought !== 'object') state.sect.shopBought = {};
@@ -926,6 +967,35 @@
         addLog(`🏯 宗門任務完成【${def.desc}】，貢獻+${def.reward}。`, false);
       }
     }
+    const SECT_MILESTONES = [
+      { id: 'tower25', desc: '鎮妖塔 25 層', reward: 150, check: () => (state.towerFloor || 1) >= 26 },
+      { id: 'tower50', desc: '鎮妖塔 50 層', reward: 300, check: () => (state.towerFloor || 1) >= 51 },
+      { id: 'tower100', desc: '鎮妖塔 100 層', reward: 600, check: () => (state.towerFloor || 1) >= 101 },
+      { id: 'relic5', desc: '古寶 5 件', reward: 150, check: () => Object.keys(state.relics || {}).filter(k => state.relics[k] > 0).length >= 5 },
+      { id: 'relic10', desc: '古寶 10 件', reward: 300, check: () => Object.keys(state.relics || {}).filter(k => state.relics[k] > 0).length >= 10 },
+      { id: 'relic20', desc: '古寶 20 件', reward: 600, check: () => Object.keys(state.relics || {}).filter(k => state.relics[k] > 0).length >= 20 },
+      { id: 'disciple10', desc: '弟子 10 名', reward: 150, check: () => (state.sect.disciples || 0) >= 10 },
+      { id: 'disciple30', desc: '弟子 30 名', reward: 300, check: () => (state.sect.disciples || 0) >= 30 },
+      { id: 'disciple60', desc: '弟子 60 名', reward: 600, check: () => (state.sect.disciples || 0) >= 60 },
+      { id: 'adv50', desc: '歷練 50 勝', reward: 150, check: () => (state.adventureWins || 0) >= 50 },
+      { id: 'adv200', desc: '歷練 200 勝', reward: 400, check: () => (state.adventureWins || 0) >= 200 }
+    ];
+    function checkSectMilestones() {
+      const sc = state.sect;
+      if (!sc || !sc.id) return;
+      if (!sc.milestones || typeof sc.milestones !== 'object') sc.milestones = {};
+      SECT_MILESTONES.forEach(m => {
+        if (sc.milestones[m.id]) return;
+        let ok = false;
+        try { ok = m.check(); } catch (e) { ok = false; }
+        if (ok) {
+          sc.milestones[m.id] = true;
+          addSectContribution(m.reward);
+          showToast(`🏯 宗門里程碑：${m.desc}，貢獻+${m.reward}！`);
+          addLog(`🏯 宗門里程碑【${m.desc}】，貢獻+${m.reward}。`, true);
+        }
+      });
+    }
     function joinSect(sectId) {
       const def = SECTS.find(x => x.id === sectId);
       if (!def) return;
@@ -948,7 +1018,7 @@
       if (!def) return;
       if ((state.stones || 0) < 500) { showToast('叛宗需 500 靈石！'); return; }
       state.stones -= 500;
-      state.sect = { id: sectId, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0, war: null, warWarn: null, defenseWarn: null, warPlaySeconds: 0, warMisses: 0, siegePlaySeconds: 0, truce: {}, disciples: 0 };
+      state.sect = { id: sectId, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0, war: null, warWarn: null, defenseWarn: null, warPlaySeconds: 0, warMisses: 0, siegePlaySeconds: 0, truce: {}, disciples: 0, milestones: {} };
       ensureSectDaily();
       addLog(`🏯 叛宗改投【${def.emoji}${def.name}】（付 500 靈石，貢獻、職位、大陣歸零）！`, true);
       showToast(`🏯 已改投${def.name}，貢獻歸零`);
@@ -960,7 +1030,7 @@
       const sc = state.sect;
       if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
       if (kind === 'stone') {
-        if ((sc.donatedStoneToday || 0) >= 500) { showToast('今日靈石捐獻已達上限 500'); return; }
+        if ((sc.donatedStoneToday || 0) >= 1000) { showToast('今日靈石捐獻已達上限 1000'); return; }
         if ((state.stones || 0) < 100) { showToast('靈石不足 100！'); return; }
         state.stones -= 100;
         sc.donatedStoneToday = (sc.donatedStoneToday || 0) + 100;
@@ -968,7 +1038,7 @@
         progressSectTask('donate500', 100);
         showToast('🏯 捐獻靈石 100，貢獻+10');
       } else {
-        if ((sc.donatedDustToday || 0) >= 100) { showToast('今日靈塵捐獻已達上限 100'); return; }
+        if ((sc.donatedDustToday || 0) >= 200) { showToast('今日靈塵捐獻已達上限 200'); return; }
         if ((state.spiritDust || 0) < 10) { showToast('靈塵不足 10！'); return; }
         state.spiritDust -= 10;
         sc.donatedDustToday = (sc.donatedDustToday || 0) + 10;
@@ -998,6 +1068,7 @@
       if ((sc.contribution || 0) < item.cost) { showToast(`貢獻不足！需 ${item.cost} 貢獻`); return; }
       if (itemId === 'array' && (sc.arrayLv || 1) >= 10) { showToast('大陣已滿 10 級！'); return; }
       sc.contribution -= item.cost;
+      progressSectTask('shop1', 1);
       if (item.weekly) {
         sc.lastArrayPackDate = localDateStr(new Date());
         sc.arrayLv = Math.min(10, (sc.arrayLv || 1) + 1);
@@ -1124,7 +1195,8 @@
           <button type="button" data-sect-action="donate-stone" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold flex-1">🪨 捐靈石 100</button>
           <button type="button" data-sect-action="donate-dust" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold flex-1">✨ 捐靈塵 10</button>
         </div>
-        <div class="text-sm text-[#5c5346] font-bold">各 +10 貢獻｜今日已捐：靈石 ${sc.donatedStoneToday || 0}/500、靈塵 ${sc.donatedDustToday || 0}/100</div>
+        <div class="text-sm text-[#5c5346] font-bold">各 +10 貢獻｜今日已捐：靈石 ${sc.donatedStoneToday || 0}/1000、靈塵 ${sc.donatedDustToday || 0}/200</div>
+        <div class="text-sm text-[#5c5346] font-bold">平時也有：歷練勝利+3、塔每層+5、探寶+2、煉丹+2、服丹+1、破境+20，另有塔／古寶／弟子／歷練里程碑獎勵</div>
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
         <div class="font-black text-base text-[#1e1a16]">宗門寶庫</div>
@@ -1403,7 +1475,7 @@
         lastLoginDate: '',
         loginStreak: 0,
         originSwitchCount: 0,
-        sect: { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0, war: null, warWarn: null, defenseWarn: null, warPlaySeconds: 0, warMisses: 0, siegePlaySeconds: 0, truce: {}, disciples: 0 },
+        sect: { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0, war: null, warWarn: null, defenseWarn: null, warPlaySeconds: 0, warMisses: 0, siegePlaySeconds: 0, truce: {}, disciples: 0, milestones: {} },
         castles: defaultCastles(),
         ageCalibrated: false,
         meditateCombo: 0,
@@ -1618,6 +1690,7 @@
       let msg = `🏯 攻下【${castle.emoji}${castle.name}】！`;
       if (castle.type === 'neutral') { addSectContribution(50); msg += '貢獻＋50。'; }
       if (castle.type === 'neutral' && Math.random() < 0.30) { const wr = grantBossRelic(); msg += `古寶【${wr.name}】+1！`; }
+      progressSectTask('siege1', 1);
       addLog(msg, true); showToast(msg);
       if (isHome) { endWar('victory'); return; }
       renderAll(); saveState();
@@ -1653,6 +1726,7 @@
       if (castle && cur) {
         cur.protectSecondsLeft = CASTLE_PROTECT;
         addSectContribution(100);
+        progressSectTask('siege1', 1);
         let msg = `🛡️ 守住【${castle.emoji}${castle.name}】！貢獻＋100。`;
         if (Math.random() < 0.30) { const wr = grantBossRelic(); msg += `古寶【${wr.name}】+1！`; }
         addLog(msg, true);
@@ -1697,6 +1771,7 @@
       if (ratio >= 1.0) {
         cur.protectSecondsLeft = CASTLE_PROTECT;
         addSectContribution(100);
+        progressSectTask('siege1', 1);
         addLog(`🛡️ 自動結算：擊退攻城軍，【${castle.emoji}${castle.name}】守住了！貢獻＋100。`, true);
         showToast(`🛡️ 擊退攻城軍，${castle.name}守住了！貢獻＋100。`);
       } else if (ratio >= 0.7) {
@@ -1915,6 +1990,8 @@
       if ((state.stones || 0) < 300) { showToast('招募弟子需 300 靈石！'); return; }
       state.stones -= 300;
       sc.disciples = cur + 1;
+      progressSectTask('recruit1', 1);
+      checkSectMilestones();
       showToast(`招募弟子＋1（現有 ${sc.disciples}/${cap} 名）！`);
       renderAll(); saveState();
     }
@@ -2444,16 +2521,20 @@
       state.bloodlineTraits.forEach(slot => {
         if (slot.locked) return;
         const r = Math.random();
-        let picked = BLOODLINE_POOL[0];
+        const poolByTier = (k) => BLOODLINE_POOL.filter(x => (x.tier || '').includes(k));
+        const pickFrom = (arr) => arr[Math.floor(Math.random() * arr.length)] || BLOODLINE_POOL[0];
+        let picked;
         if (r < 0.06) {
-          picked = Math.random() < 0.5 ? BLOODLINE_POOL[5] : BLOODLINE_POOL[6];
+          picked = pickFrom(poolByTier('神'));
           gotMythic = true;
         } else if (r < 0.22) {
-          picked = Math.random() < 0.5 ? BLOODLINE_POOL[3] : BLOODLINE_POOL[4];
+          picked = pickFrom(poolByTier('仙'));
         } else if (r < 0.50) {
-          picked = BLOODLINE_POOL[2];
+          picked = pickFrom(poolByTier('玄'));
         } else if (r < 0.80) {
-          picked = BLOODLINE_POOL[1];
+          picked = pickFrom(poolByTier('靈'));
+        } else {
+          picked = pickFrom(poolByTier('凡'));
         }
         slot.traitId = picked.id;
       });
@@ -2494,10 +2575,13 @@
         }
         const chosen = pool[Math.floor(Math.random() * pool.length)] || RELICS[0];
         state.relics[chosen.id] = (state.relics[chosen.id] || 0) + 1;
+        progressSectTask('gacha3', 1);
+        addSectContribution(2);
         results.push(`${chosen.name}(★${state.relics[chosen.id]})`);
       }
 
       playSound('breakthrough');
+      checkSectMilestones();
       const msg = `🎰 獲得：${results.join('、')}`;
       addLog(msg, true);
       showToast(msg);
@@ -2583,6 +2667,8 @@
         state.qi = Math.min(realm.maxQi * 2.0, state.qi + actualQi);
       }
       state.toxicity = Math.min(100, state.toxicity + pill.tox);
+      progressSectTask('consume5', 1);
+      addSectContribution(1);
       return { pill, actualQi, tox: pill.tox };
     }
     function consumePillById(pillId) {
@@ -2590,7 +2676,7 @@
       const count = state.pills[pillId] || 0;
       if (!pill || count <= 0) return;
       if (state.toxicity >= 80) {
-        showToast('☠️ 丹毒已滿(80)！請先排毒');
+        showToast('☠️ 丹毒已滿(80)！請按排毒鈕（修煉頁就有）');
         return;
       }
       const r = consumePillCore(pillId);
@@ -2604,7 +2690,7 @@
     function handleBatchConsumePill() {
       const available = PILLS.some(p => (state.pills[p.id] || 0) > 0);
       if (!available) { showToast('無丹藥！請先煉丹'); return; }
-      if (state.toxicity >= 80) { showToast('☠️ 丹毒已滿(80)！請先排毒'); return; }
+      if (state.toxicity >= 80) { showToast('☠️ 丹毒已滿(80)！請按排毒鈕（修煉頁就有）'); return; }
       const ordered = PILLS.slice().sort((a, b) => b.qiGain - a.qiGain);
       let eaten = 0, totalQi = 0;
       const startTox = state.toxicity;
@@ -2615,7 +2701,7 @@
         if (!r) break;
         eaten += 1; totalQi += r.actualQi;
       }
-      if (eaten === 0) { showToast('☠️ 丹毒已滿(80)！請先排毒'); return; }
+      if (eaten === 0) { showToast('☠️ 丹毒已滿(80)！請按排毒鈕（修煉頁就有）'); return; }
       playSound('dew');
       const msg = `💊 一鍵服丹：吃了 ${eaten} 顆，修為 ＋${formatNum(totalQi)}，毒性 ${startTox}→${state.toxicity}。`;
       addLog(msg, true);
@@ -2646,6 +2732,8 @@
         state.pityBonus = 0;
         state.toxicity = Math.max(0, state.toxicity - 30);
         state.gachaTokens = (state.gachaTokens || 0) + 1;
+        progressSectTask('breakthrough1', 1);
+        addSectContribution(20);
         const nextRealm = getActiveRealm();
         const nextTitle = isBody ? nextRealm.bodyName : nextRealm.name;
         playSound('breakthrough');
@@ -2751,15 +2839,18 @@
           state.qi = Math.min(supRealm.maxQi * 2.0, state.qi + bonusQi);
         }
         progressSectTask('alchemy3', 1);
+        addSectContribution(2);
         return { pill, result: 'supreme', bonusQi };
       }
       if (roll < rates.failRate + rates.supremeRate + rates.highRate) {
         state.pills[pill.id] = (state.pills[pill.id] || 0) + 2;
         progressSectTask('alchemy3', 1);
+        addSectContribution(2);
         return { pill, result: 'high', bonusQi: 0 };
       }
       state.pills[pill.id] = (state.pills[pill.id] || 0) + 1;
       progressSectTask('alchemy3', 1);
+      addSectContribution(2);
       return { pill, result: 'normal', bonusQi: 0 };
     }
     function craftPill(pillId) {
@@ -3074,6 +3165,8 @@
       state.spiritDust = (state.spiritDust || 0) + dust;
       state.stones += stones;
       progressSectTask('tower2', 1);
+      addSectContribution(5);
+      checkSectMilestones();
       return { tokens, dust, stones, milestone };
     }
 
@@ -3101,6 +3194,8 @@
       state.stones += stoneReward;
       state.spiritDust = (state.spiritDust || 0) + 10 + Math.round(10 * getSectPassiveFor('lingshou'));
       progressSectTask('adventure2', 1);
+      state.adventureWins = (state.adventureWins || 0) + 1;
+      addSectContribution(3);
       if (state.activePath === 'body') {
         state.bodyQi = Math.min(getBodyRealm().maxQi * 2.0, (state.bodyQi || 0) + qiReward);
       } else {
@@ -3321,6 +3416,7 @@
       }
       state.stones -= 80;
       state.companionAffinity[compId] = (state.companionAffinity[compId] || 0) + 5;
+      progressSectTask('gift3', 1);
       playSound('dew');
       showToast(`🏮 ${comp.name} 仙緣 +5！`);
       renderAll();
@@ -3449,6 +3545,7 @@
       if (roadmapEl) {
         roadmapEl.textContent = `🌱 靈草 ${HERBS.length} 種 ｜ 🗡️ 古寶 ${unlockedRelicCount}/${RELICS.length}`;
       }
+      checkSectMilestones();
     }
 
     // Build Garden DOM ONCE so <select> is NEVER destroyed during setInterval!
@@ -3826,6 +3923,8 @@
         }
       }
 
+      const cultTox = document.getElementById('cultivate-tox-label');
+      if (cultTox) cultTox.textContent = state.toxicity >= 80 ? `丹毒 ${state.toxicity}/100（已滿，無法服丹）` : `丹毒 ${state.toxicity}/100`;
       const bag = document.getElementById('pill-bag-list');
       if (!bag) return;
       bag.innerHTML = '';
@@ -4128,6 +4227,7 @@
       document.getElementById('btn-goto-pillbag').addEventListener('click', () => switchMobileView('pillbag'));
       document.getElementById('btn-bag-craft-more').addEventListener('click', () => switchMobileView('alchemy'));
       document.getElementById('btn-detox-tea').addEventListener('click', handleDetoxTea);
+      document.getElementById('btn-detox-cultivate').addEventListener('click', handleDetoxTea);
       document.getElementById('btn-goto-chronicle').addEventListener('click', () => {
         switchMobileView('chronicle');
         switchCompanionSubView('chronicle');
