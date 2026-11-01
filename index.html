@@ -113,40 +113,40 @@
 
   <!-- Slim, Uncluttered 2-Row Sticky Top Header -->
   <header class="sticky top-0 z-30 border-b border-[#cbbba0] bg-[#ece3d0]/95 backdrop-blur-sm">
-    <div class="max-w-xl mx-auto px-3.5 py-2.5 space-y-2">
+    <div class="max-w-3xl mx-auto px-3.5 py-2.5 space-y-2">
 
       <!-- Row 1: Core Status + Settings Button -->
-      <div class="flex items-center justify-between gap-2 text-xs">
+      <div class="flex items-center justify-between gap-2 text-sm">
         <div class="flex items-center gap-2">
-          <span id="stat-title" class="seal-stamp text-[11px] px-2 py-0.5 rounded-sm">人界</span>
-          <span id="stat-realm" class="font-black text-sm text-[#236c53]">法:練氣一層</span>
+          <span id="stat-title" class="seal-stamp text-xs px-2.5 py-1 rounded-sm">人界</span>
+          <span id="stat-realm" class="font-black text-base text-[#236c53]">法:練氣一層</span>
           <span id="stat-combat" class="font-bold text-[#9e2a22]">戰80</span>
         </div>
 
         <div class="flex items-center gap-2">
           <span id="stat-dew" class="font-bold text-[#236c53]">💧1滴</span>
           <span id="stat-stones" class="font-bold text-[#9c6b21]">💎100</span>
-          <button id="btn-open-settings" type="button" class="paper-btn text-xs px-2.5 py-1 rounded-md font-bold">
-            ⚙️ 設定
+          <button id="btn-open-settings" type="button" class="paper-btn text-sm px-3 py-1.5 rounded-md font-bold">
+            設定
           </button>
         </div>
       </div>
 
       <!-- Row 2: Active Path Switch + Spacious Qi Progress Bar + Breakthrough -->
       <div class="flex items-center gap-2 bg-[#fbf8f1] border border-[#d8cbb3] rounded-lg px-2.5 py-1.5">
-        <button id="btn-toggle-path" type="button" class="ink-btn text-xs px-2.5 py-1 rounded font-bold shrink-0">
-          ☯️ 主修:法
+        <button id="btn-toggle-path" type="button" class="ink-btn text-sm px-3 py-1.5 rounded font-bold shrink-0">
+          主修:法
         </button>
         <div class="flex-1 min-w-0">
-          <div class="flex items-center justify-between text-xs leading-none mb-1.5">
+          <div class="flex items-center justify-between text-sm leading-none mb-1.5">
             <span class="font-bold text-[#1e1a16]"><span id="path-progress-label">法修</span>：<span id="stat-qi-current">0</span> / <span id="stat-qi-max">300</span><span id="stat-qi-overflow" class="text-[#9e2a22]"></span></span>
             <span id="stat-qi-rate" class="font-bold text-[#236c53]">+4/秒</span>
           </div>
-          <div class="w-full bg-[#e2d6be] h-2.5 rounded-full overflow-hidden">
+          <div class="w-full bg-[#e2d6be] h-4 rounded-full overflow-hidden">
             <div id="qi-progress-bar" class="bg-gradient-to-r from-[#2b6e56] to-[#9e2a22] h-full rounded-full transition-all duration-300" style="width: 0%"></div>
           </div>
         </div>
-        <button id="btn-top-break" type="button" class="cinnabar-btn text-xs px-3 py-1 rounded font-bold shrink-0">
+        <button id="btn-top-break" type="button" class="cinnabar-btn text-sm px-4 py-2 rounded font-bold shrink-0">
           破境
         </button>
       </div>
@@ -245,7 +245,7 @@
   </header>
 
   <!-- Spacious Main Content Area -->
-  <main class="max-w-xl w-full mx-auto px-3.5 py-4 flex-1">
+  <main class="max-w-3xl w-full mx-auto px-3.5 py-4 flex-1">
 
     <!-- VIEW 1: 🧘 修煉 (Airy, Spacious Layout with Generous Padding) -->
     <section id="view-panel-cultivate" class="scroll-border rounded-xl p-4 space-y-4">
@@ -308,11 +308,11 @@
         </button>
 
         <button id="btn-quick-pill" type="button" class="jade-btn py-3 px-3 rounded-lg text-sm font-bold flex items-center justify-center gap-1.5">
-          <span>💊 服丹</span>
+          <span>💊 一鍵服丹</span>
           <span id="quick-pill-count" class="text-emerald-200">(1)</span>
         </button>
 
-        <button id="btn-breakthrough" type="button" class="cinnabar-btn py-3 px-3 rounded-lg text-sm font-bold flex items-center justify-center gap-1.5">
+        <button id="btn-breakthrough" type="button" class="cinnabar-btn py-4 px-4 rounded-lg text-base font-bold flex items-center justify-center gap-1.5">
           <span>⚡ 破境</span>
           <span id="breakthrough-rate-label" class="text-amber-200">(80%)</span>
         </button>
@@ -346,7 +346,7 @@
             💧 全熟(2滴)
           </button>
           <button id="btn-goto-alchemy" type="button" class="cinnabar-btn text-xs px-3 py-1.5 rounded-lg font-bold">
-            🔥 丹房
+            丹房
           </button>
         </div>
       </div>
@@ -366,6 +366,7 @@
 
       <div id="herb-stock-summary" class="text-xs bg-[#efe7d6] px-3 py-2 rounded-lg border border-[#d3c4a8] text-[#4a4138] leading-relaxed"></div>
 
+      <button id="btn-batch-craft" type="button" class="cinnabar-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">⚡ 一鍵全煉（由高階開始，草藥耗盡為止）</button>
       <div id="alchemy-recipes-grid" class="grid grid-cols-1 gap-2.5"></div>
     </section>
 
@@ -391,7 +392,7 @@
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 flex items-center justify-between gap-3">
         <div class="space-y-1">
           <div class="font-black text-sm text-[#1e1a16]">🏯 宗門</div>
-          <div class="text-xs text-[#236c53] font-bold">職位、每日任務、宗門寶庫、宗門大陣</div>
+          <div class="text-sm text-[#236c53] font-bold">職位、每日任務、宗門寶庫、宗門大陣</div>
         </div>
         <button id="btn-goto-sect" type="button" class="gold-btn text-xs py-3 px-4 rounded-lg font-bold shrink-0">🏯 進入宗門</button>
       </div>
@@ -487,7 +488,11 @@
     <section id="view-panel-sect" class="scroll-border rounded-xl p-4 space-y-3.5 hidden">
       <div id="sect-boss-banner" class="hidden bg-[#f4ede0] border-2 border-[#9e2a22] rounded-xl p-3.5 space-y-2">
         <div id="sect-boss-banner-text" class="text-xs font-bold text-[#9e2a22] leading-relaxed"></div>
-        <button id="btn-sect-fight-boss" type="button" class="cinnabar-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full hidden">⚔️ 迎戰神級 Boss</button>
+        <button id="btn-sect-fight-boss" type="button" class="cinnabar-btn text-sm py-3 px-4 rounded-lg font-bold w-full hidden">迎戰神級 Boss</button>
+      </div>
+      <div id="sect-war-banner" class="hidden bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+        <div id="sect-war-banner-text" class="text-xs font-bold text-[#9e2a22] leading-relaxed"></div>
+        <button id="btn-sect-fight-defense" type="button" class="cinnabar-btn text-sm py-3 px-4 rounded-lg font-bold w-full hidden">迎戰守城</button>
       </div>
       <div id="sect-content" class="space-y-3.5"></div>
     </section>
@@ -558,30 +563,30 @@
 
   <!-- Fixed Bottom Navigation Bar (Spacious, Authentic Mobile Game Feel!) -->
   <nav id="category-buttons-bar" class="fixed bottom-0 left-0 right-0 z-40 bg-[#ece3d0]/95 backdrop-blur-md border-t border-[#cbbba0] shadow-lg">
-    <div class="max-w-xl mx-auto px-3 py-2 grid grid-cols-6 gap-2">
-      <button type="button" data-view="cultivate" class="view-cat-btn bottom-nav-btn cat-btn-active paper-btn py-3 rounded-lg text-sm leading-tight font-bold text-center">
-        🧘 修煉
+    <div class="max-w-3xl mx-auto px-3 py-2 grid grid-cols-6 gap-2">
+      <button type="button" data-view="cultivate" class="view-cat-btn bottom-nav-btn cat-btn-active paper-btn py-4 rounded-lg text-base leading-tight font-bold text-center">
+        修煉
       </button>
-      <button type="button" data-view="garden" class="view-cat-btn bottom-nav-btn paper-btn py-3 rounded-lg text-sm leading-tight font-bold text-center">
-        🌿 藥園
+      <button type="button" data-view="garden" class="view-cat-btn bottom-nav-btn paper-btn py-4 rounded-lg text-base leading-tight font-bold text-center">
+        藥園
       </button>
-      <button type="button" data-view="alchemy" class="view-cat-btn bottom-nav-btn paper-btn py-3 rounded-lg text-sm leading-tight font-bold text-center">
-        🔥 丹房
+      <button type="button" data-view="alchemy" class="view-cat-btn bottom-nav-btn paper-btn py-4 rounded-lg text-base leading-tight font-bold text-center">
+        丹房
       </button>
-      <button type="button" data-view="adventure" class="view-cat-btn bottom-nav-btn paper-btn py-3 rounded-lg text-sm leading-tight font-bold text-center">
-        🗼 歷練
+      <button type="button" data-view="adventure" class="view-cat-btn bottom-nav-btn paper-btn py-4 rounded-lg text-base leading-tight font-bold text-center">
+        歷練
       </button>
-      <button type="button" data-view="arts" class="view-cat-btn bottom-nav-btn paper-btn py-3 rounded-lg text-sm leading-tight font-bold text-center">
-        ⚡ 神通
+      <button type="button" data-view="arts" class="view-cat-btn bottom-nav-btn paper-btn py-4 rounded-lg text-base leading-tight font-bold text-center">
+        神通
       </button>
-      <button type="button" data-view="treasures" class="view-cat-btn bottom-nav-btn paper-btn py-3 rounded-lg text-sm leading-tight font-bold text-center">
-        🎰 寶庫
+      <button type="button" data-view="treasures" class="view-cat-btn bottom-nav-btn paper-btn py-4 rounded-lg text-base leading-tight font-bold text-center">
+        寶庫
       </button>
     </div>
     <!-- Hidden extra view triggers for pillbag & chronicle -->
     <div class="hidden">
-      <button type="button" data-view="pillbag" class="view-cat-btn bottom-nav-btn">💊 丹袋</button>
-      <button type="button" data-view="chronicle" class="view-cat-btn bottom-nav-btn">📜 仙緣</button>
+      <button type="button" data-view="pillbag" class="view-cat-btn bottom-nav-btn">丹袋</button>
+      <button type="button" data-view="chronicle" class="view-cat-btn bottom-nav-btn">仙緣</button>
     </div>
   </nav>
 
@@ -854,7 +859,7 @@
     }
     function ensureSectState() {
       if (!state.sect || typeof state.sect !== 'object') state.sect = {};
-      const d = { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0 };
+      const d = { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0, war: null, warWarn: null, defenseWarn: null, warPlaySeconds: 0, warMisses: 0, siegePlaySeconds: 0, truce: {}, disciples: 0 };
       Object.keys(d).forEach(k => { if (state.sect[k] === undefined) state.sect[k] = d[k]; });
       if (!Array.isArray(state.sect.tasks)) state.sect.tasks = [];
       if (!state.sect.shopBought || typeof state.sect.shopBought !== 'object') state.sect.shopBought = {};
@@ -885,7 +890,13 @@
       ensureSectState();
       const today = localDateStr(new Date());
       const sc = state.sect;
-      if (sc.taskDate !== today) { sc.tasks = rollSectTasks(); sc.taskDate = today; }
+      if (sc.taskDate !== today) {
+        sc.tasks = rollSectTasks(); sc.taskDate = today;
+        if ((sc.disciples || 0) > 0 && sc.id) {
+          addSectContribution(sc.disciples);
+          addLog(`🏯 宗門弟子上繳 ${sc.disciples} 貢獻（弟子 ${sc.disciples} 名）。`, false);
+        }
+      }
       if (sc.shopDate !== today) { sc.shopBought = {}; sc.shopDate = today; sc.donatedStoneToday = 0; sc.donatedDustToday = 0; }
     }
     function addSectContribution(amount) {
@@ -937,7 +948,7 @@
       if (!def) return;
       if ((state.stones || 0) < 500) { showToast('叛宗需 500 靈石！'); return; }
       state.stones -= 500;
-      state.sect = { id: sectId, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0 };
+      state.sect = { id: sectId, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0, war: null, warWarn: null, defenseWarn: null, warPlaySeconds: 0, warMisses: 0, siegePlaySeconds: 0, truce: {}, disciples: 0 };
       ensureSectDaily();
       addLog(`🏯 叛宗改投【${def.emoji}${def.name}】（付 500 靈石，貢獻、職位、大陣歸零）！`, true);
       showToast(`🏯 已改投${def.name}，貢獻歸零`);
@@ -1035,7 +1046,7 @@
         SECTS.forEach(s => {
           cards += `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
             <div class="flex items-center justify-between gap-2">
-              <span class="font-black text-sm text-[#1e1a16]">${s.emoji} ${s.name}</span>
+              <span class="font-black text-base text-[#1e1a16]">${s.name}</span>
               <span class="seal-stamp text-xs px-2 py-0.5">${s.route}</span>
             </div>
             <div class="text-xs text-[#236c53] font-bold">被動：${s.passiveDesc}</div>
@@ -1044,7 +1055,7 @@
         });
         box.innerHTML = `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
           <div class="font-black text-sm text-[#1e1a16]">🏯 宗門</div>
-          <div class="text-xs text-[#5c5346] leading-relaxed">加入宗門，做任務攢貢獻、升職位、換寶庫、養大陣。首次免費；叛宗 500 靈石且貢獻歸零；轉世保留宗門。</div>
+          <div class="text-sm text-[#5c5346] leading-relaxed">加入宗門，做任務攢貢獻、升職位、換寶庫、養大陣。首次免費；叛宗 500 靈石且貢獻歸零；轉世保留宗門。</div>
         </div>` + cards;
         return;
       }
@@ -1080,7 +1091,7 @@
         const pending = pendingSectSwitchId === s.id;
         switchHtml += `<div class="space-y-1">
           <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-bold text-[#1e1a16]">${s.emoji} ${s.name}（${s.route}）</span>
+            <span class="text-sm font-bold text-[#1e1a16]">${s.name}（${s.route}）</span>
             <button type="button" data-sect-action="switch" data-sect-id="${s.id}" class="cinnabar-btn text-xs py-2 px-3 rounded-lg font-bold shrink-0">${pending ? '確認叛宗？再點一次' : '叛宗（500石）'}</button>
           </div>
           <div class="text-xs font-bold text-[#5c5346]">被動：${s.passiveDesc}</div>
@@ -1095,47 +1106,52 @@
       const upContrib = 100 * lv;
       box.innerHTML = `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
         <div class="flex items-center justify-between gap-2">
-          <span class="font-black text-sm text-[#1e1a16]">${def.emoji} ${def.name}</span>
-          <span class="seal-stamp text-xs px-2 py-0.5">${rank.name}</span>
+          <span class="font-black text-base text-[#1e1a16]">${def.name}</span>
+          <span class="seal-stamp text-sm px-2.5 py-1">${rank.name}</span>
         </div>
-        <div class="text-xs text-[#236c53] font-bold">被動：${def.passiveDesc}（目前 +${passivePct}%）</div>
-        <div class="text-xs text-[#1e1a16] font-bold">貢獻 ${sc.contribution}｜累計 ${sc.totalContribution}</div>
-        <div class="text-xs text-[#5c5346] font-bold">${next ? `下一職位：${next.name}（累計滿 ${next.req}）` : '已是最高職位'}</div>
-        ${sc.buffSecondsLeft > 0 ? `<div class="text-xs text-[#9e2a22] font-bold">✨ 宗門增益：修為+10%，剩餘約 ${Math.ceil(sc.buffSecondsLeft / 60)} 分鐘</div>` : ''}
+        <div class="text-sm text-[#236c53] font-bold">被動：${def.passiveDesc}（目前 +${passivePct}%）</div>
+        <div class="text-sm text-[#1e1a16] font-bold">貢獻 ${sc.contribution}｜累計 ${sc.totalContribution}</div>
+        <div class="text-sm text-[#5c5346] font-bold">${next ? `下一職位：${next.name}（累計滿 ${next.req}）` : '已是最高職位'}</div>
+        ${sc.buffSecondsLeft > 0 ? `<div class="text-sm text-[#9e2a22] font-bold">宗門增益：修為+10%，剩餘約 ${Math.ceil(sc.buffSecondsLeft / 60)} 分鐘</div>` : ''}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">📋 每日任務 <span class="text-xs text-[#5c5346]">每日重置</span></div>
-        ${taskHtml || '<div class="text-xs text-[#5c5346]">今日任務已全部完成！</div>'}
+        <div class="font-black text-base text-[#1e1a16]">每日任務 <span class="text-sm text-[#5c5346]">每日重置</span></div>
+        ${taskHtml || '<div class="text-sm text-[#5c5346]">今日任務已全部完成！</div>'}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">🙏 捐獻</div>
+        <div class="font-black text-base text-[#1e1a16]">捐獻</div>
         <div class="flex gap-2">
           <button type="button" data-sect-action="donate-stone" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold flex-1">🪨 捐靈石 100</button>
           <button type="button" data-sect-action="donate-dust" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold flex-1">✨ 捐靈塵 10</button>
         </div>
-        <div class="text-xs text-[#5c5346] font-bold">各 +10 貢獻｜今日已捐：靈石 ${sc.donatedStoneToday || 0}/500、靈塵 ${sc.donatedDustToday || 0}/100</div>
+        <div class="text-sm text-[#5c5346] font-bold">各 +10 貢獻｜今日已捐：靈石 ${sc.donatedStoneToday || 0}/500、靈塵 ${sc.donatedDustToday || 0}/100</div>
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">🎁 宗門寶庫</div>
+        <div class="font-black text-base text-[#1e1a16]">宗門寶庫</div>
         ${shopHtml}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">🏯 宗門大陣 ${lv} 級（耐久 ${sc.arrayDurability || 0}/100）</div>
-        <div class="text-xs text-[#5c5346] font-bold">大陣減傷 ${Math.round(getSectArrayReduction() * 100)}%（耐久歸零失效）｜襲擊扣耐久：守住 -30、失守 -60。</div>
-        <button type="button" data-sect-action="upgrade-array" class="gold-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">${lv >= 10 ? '已滿 10 級' : `升級大陣（${upStone}靈石＋${upContrib}貢獻）`}</button>
-        ${(sc.arrayDurability || 0) < 100 ? `<button type="button" data-sect-action="repair-array" class="cinnabar-btn text-xs py-2.5 px-4 rounded-lg font-bold w-full">修復大陣（1000靈石＋50靈塵，耐久回滿）</button>` : ''}
+        <div class="font-black text-base text-[#1e1a16]">宗門大陣 ${lv} 級（耐久 ${sc.arrayDurability || 0}/100）</div>
+        <div class="text-sm text-[#5c5346] font-bold">大陣減傷 ${Math.round(getSectArrayReduction() * 100)}%（耐久歸零失效）｜襲擊扣耐久：守住 -30、失守 -60。</div>
+        <button type="button" data-sect-action="upgrade-array" class="gold-btn text-sm py-3 px-4 rounded-lg font-bold w-full">${lv >= 10 ? '已滿 10 級' : `升級大陣（${upStone}靈石＋${upContrib}貢獻）`}</button>
+        ${(sc.arrayDurability || 0) < 100 ? `<button type="button" data-sect-action="repair-array" class="cinnabar-btn text-sm py-3 px-4 rounded-lg font-bold w-full">修復大陣（1000靈石＋50靈塵，耐久回滿）</button>` : ''}
       </div>
+      ${renderWarCard()}
+      ${renderCastleCard()}
+      ${renderDiscipleCard()}
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">🔀 改投他宗</div>
-        <div class="text-xs text-[#9e2a22] font-bold">叛宗需 500 靈石，貢獻、職位、大陣歸零</div>
+        <div class="font-black text-base text-[#1e1a16]">改投他宗</div>
+        <div class="text-sm text-[#9e2a22] font-bold">叛宗需 500 靈石，貢獻、職位、大陣歸零</div>
         ${switchHtml}
       </div>
       <div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
-        <div class="font-black text-sm text-[#1e1a16]">⚔️ 宗門戰績</div>
-        ${histHtml || '<div class="text-xs text-[#5c5346]">尚無襲擊紀錄。加入宗門、累計遊玩 90 分鐘後，神級 Boss 可能來襲。</div>'}
+        <div class="font-black text-base text-[#1e1a16]">宗門戰績</div>
+        ${histHtml || '<div class="text-sm text-[#5c5346]">尚無襲擊紀錄。加入宗門、累計遊玩 90 分鐘後，神級 Boss 可能來襲。</div>'}
       </div>`;
     }
     function handleSectPanelClick(e) {
+      const cbtn = e.target && e.target.closest ? e.target.closest('[data-castle-action]') : null;
+      if (cbtn) { handleCastleAction(cbtn.getAttribute('data-castle-action'), cbtn.getAttribute('data-castle-id')); return; }
       const btn = e.target && e.target.closest ? e.target.closest('[data-sect-action]') : null;
       if (!btn) return;
       const action = btn.getAttribute('data-sect-action');
@@ -1156,6 +1172,18 @@
       else if (action === 'buy') buySectItem(id);
       else if (action === 'upgrade-array') upgradeSectArray();
       else if (action === 'repair-array') repairSectArray();
+      else if (action === 'declare') {
+        if (pendingWarDeclareId !== id) {
+          pendingWarDeclareId = id;
+          showToast('再點一次確認宣戰（500 靈石）！');
+          renderSectTab();
+        } else {
+          pendingWarDeclareId = null;
+          declareWar(id);
+        }
+      }
+      else if (action === 'peace') requestPeace();
+      else if (action === 'recruit') recruitDisciples();
     }
 
 
@@ -1180,7 +1208,7 @@
       const aff = state.companionAffinity || {};
       const affTotal = (aff.nangong || 0) + (aff.ziyan || 0) + (aff.yinyue || 0) + (aff.yuanwao || 0);
       const companionPart = Math.round(getTotalCombat() * 0.001 * affTotal);
-      return getTotalCombat() + rankIdx * 500 + arrayPart + companionPart;
+      return getTotalCombat() + rankIdx * 500 + arrayPart + companionPart + ((state.sect && state.sect.disciples) || 0) * 20;
     }
     function fmtBossTime(sec) {
       const m = Math.floor(sec / 60), s = sec % 60;
@@ -1375,7 +1403,8 @@
         lastLoginDate: '',
         loginStreak: 0,
         originSwitchCount: 0,
-        sect: { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0 },
+        sect: { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0, war: null, warWarn: null, defenseWarn: null, warPlaySeconds: 0, warMisses: 0, siegePlaySeconds: 0, truce: {}, disciples: 0 },
+        castles: defaultCastles(),
         ageCalibrated: false,
         meditateCombo: 0,
         lastMeditateAt: 0,
@@ -1409,6 +1438,499 @@
       };
     }
 
+    // =========================================================================
+    // 1.7 宗門戰爭＋城池（Phase 3）
+    // 時間一律用頁面開啟秒數（與 Boss 同模型）；交戰期／休戰期／冷卻皆為會話級，
+    // 24 小時頁面開啟時間對 casual 玩家等於數週，故不採用設計書初版的 24 小時／4 小時。
+    // =========================================================================
+    const WAR_DURATION = 7200;       // 交戰期
+    const WAR_WARN = 600;            // NPC 宣戰／攻城預警
+    const TRUCE_SECONDS = 1800;      // 停戰休戰期
+    const PEACE_COOLDOWN = 7200;     // 求和後再宣戰冷卻
+    const SIEGE_COOLDOWN = 1800;     // 攻城失敗冷卻
+    const CASTLE_PROTECT = 1800;     // 佔領／守住後保護期
+    const DECLARE_INTERVAL = 5400;   // NPC 宣戰擲骰間隔
+    const NPC_SIEGE_INTERVAL = 1800; // NPC 攻城擲骰間隔
+    const DEFENSE_GRACE = 1800;      // 守城寬限
+    const CASTLES = [
+      { id: 'huangfeng_city', name: '黃楓城', emoji: '🌿', type: 'home', homeSect: 'huangfeng', bonusText: '靈草生長＋10%、極品率＋2%', bonus: { herbMult: 0.10, alchemySupreme: 0.02 } },
+      { id: 'yanyue_city', name: '掩月城', emoji: '🌙', type: 'home', homeSect: 'yanyue', bonusText: '修法＋5%、破境＋2%', bonus: { qiMult: 0.05, breakBonus: 0.02 } },
+      { id: 'huadao_city', name: '化刀城', emoji: '🔪', type: 'home', homeSect: 'huadao', bonusText: '戰力＋5%、塔獎勵＋10%', bonus: { combatMult: 0.05, towerStoneMult: 0.10, towerDustMult: 0.10 } },
+      { id: 'lingshou_city', name: '靈獸城', emoji: '🦁', type: 'home', homeSect: 'lingshou', bonusText: '漫遊靈塵＋10%、歷練掉落＋10%', bonus: { roamDustMult: 0.10, dropMult: 0.10 } },
+      { id: 'xiesha_city', name: '血煞城', emoji: '🩸', type: 'home', homeSect: 'xiesha', bonusText: '吐納暴擊＋3%、連擊＋5%', bonus: { critRate: 0.03, comboMult: 0.05 } },
+      { id: 'stone_mine', name: '靈石礦城', emoji: '⛏️', type: 'neutral', homeSect: null, bonusText: '靈石產出＋30%、塔靈石＋20%', bonus: { stoneMult: 0.30, towerStoneMult: 0.20 } },
+      { id: 'herb_city', name: '靈草仙城', emoji: '🌸', type: 'neutral', homeSect: null, bonusText: '靈草生長＋30%、極品率＋5%', bonus: { herbMult: 0.30, alchemySupreme: 0.05 } },
+      { id: 'battlefield', name: '古戰場', emoji: '⚔️', type: 'neutral', homeSect: null, bonusText: '戰力＋10%、歷練掉落＋20%', bonus: { combatMult: 0.10, dropMult: 0.20 } }
+    ];
+    function defaultCastles() {
+      const o = {};
+      CASTLES.forEach(c => { o[c.id] = { owner: c.homeSect || null, defLv: 1, protectSecondsLeft: 0, siegeCooldownSeconds: 0 }; });
+      return o;
+    }
+    function ensureCastles() {
+      if (!state.castles || typeof state.castles !== 'object') state.castles = {};
+      CASTLES.forEach(c => {
+        const cur = state.castles[c.id];
+        if (!cur || typeof cur !== 'object') { state.castles[c.id] = { owner: c.homeSect || null, defLv: 1, protectSecondsLeft: 0, siegeCooldownSeconds: 0 }; }
+        else {
+          if (cur.owner === undefined) cur.owner = c.homeSect || null;
+          if (cur.defLv === undefined) cur.defLv = 1;
+          if (cur.protectSecondsLeft === undefined) cur.protectSecondsLeft = 0;
+          if (cur.siegeCooldownSeconds === undefined) cur.siegeCooldownSeconds = 0;
+        }
+      });
+    }
+    function getCastleBonuses() {
+      ensureCastles();
+      const b = { stoneMult: 0, herbMult: 0, alchemySupreme: 0, combatMult: 0, dropMult: 0, qiMult: 0, breakBonus: 0, roamDustMult: 0, towerStoneMult: 0, towerDustMult: 0, critRate: 0, comboMult: 0 };
+      const mySect = state.sect && state.sect.id;
+      if (!mySect) return b;
+      CASTLES.forEach(c => {
+        const cur = state.castles[c.id];
+        if (cur && cur.owner === mySect) {
+          Object.keys(c.bonus).forEach(k => { b[k] = (b[k] || 0) + c.bonus[k]; });
+        }
+      });
+      b.stoneMult = Math.min(1.0, b.stoneMult);
+      b.herbMult = Math.min(1.0, b.herbMult);
+      b.combatMult = Math.min(0.30, b.combatMult);
+      b.alchemySupreme = Math.min(0.15, b.alchemySupreme);
+      b.dropMult = Math.min(0.50, b.dropMult);
+      b.qiMult = Math.min(0.15, b.qiMult);
+      b.breakBonus = Math.min(0.05, b.breakBonus);
+      b.roamDustMult = Math.min(0.50, b.roamDustMult);
+      b.towerStoneMult = Math.min(0.50, b.towerStoneMult);
+      b.towerDustMult = Math.min(0.50, b.towerDustMult);
+      b.critRate = Math.min(0.10, b.critRate);
+      b.comboMult = Math.min(0.20, b.comboMult);
+      return b;
+    }
+    function fmtWarTime(sec) {
+      sec = Math.max(0, Math.floor(sec || 0));
+      if (sec >= 3600) return `${Math.floor(sec / 3600)}小時${Math.floor((sec % 3600) / 60)}分`;
+      const m = Math.floor(sec / 60), s = sec % 60;
+      return `${m}分${String(s).padStart(2, '0')}秒`;
+    }
+    function castleOwnerName(castleId) {
+      ensureCastles();
+      const cur = state.castles[castleId];
+      if (!cur || !cur.owner) return '無主';
+      const def = SECTS.find(x => x.id === cur.owner);
+      return def ? def.name : '無主';
+    }
+    let pendingWarDeclareId = null;
+    function declareWar(enemyId) {
+      const sc = state.sect;
+      if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
+      const def = SECTS.find(x => x.id === enemyId);
+      if (!def || enemyId === sc.id) return;
+      if (sc.war) { showToast('交戰中，先停戰才能宣戰別人！'); return; }
+      if (sc.warWarn) { showToast('已有宗門即將宣戰你，先應付這一場！'); return; }
+      if ((sc.truce || {})[enemyId] > 0) { showToast(`休戰中，${fmtWarTime(sc.truce[enemyId])}後才能再宣戰${def.name}！`); return; }
+      if ((state.stones || 0) < 500) { showToast('宣戰需 500 靈石！'); return; }
+      state.stones -= 500;
+      sc.war = { enemyId, secondsLeft: WAR_DURATION, declaredBy: 'player' };
+      const mine = SECTS.find(x => x.id === sc.id);
+      addLog(`⚔️ 【${mine ? mine.name : ''}】向【${def.name}】宣戰！交戰期約 2 小時（頁面開啟時間計）。`, true);
+      showToast(`⚔️ 已向${def.name}宣戰！`);
+      renderAll(); saveState();
+    }
+    function requestPeace() {
+      const sc = state.sect;
+      if (!sc || !sc.id || !sc.war) { showToast('目前沒有交戰'); return; }
+      if ((sc.contribution || 0) < 300) { showToast('求和需 300 貢獻！'); return; }
+      sc.contribution -= 300;
+      endWar('peace', { peace: true });
+    }
+    function endWar(result, opts) {
+      const sc = state.sect;
+      if (!sc || !sc.war) return;
+      const enemyId = sc.war.enemyId;
+      const enemy = SECTS.find(x => x.id === enemyId);
+      const wasPeace = opts && opts.peace;
+      sc.war = null; sc.warWarn = null; sc.defenseWarn = null;
+      ensureCastles();
+      CASTLES.filter(c => c.type === 'home').forEach(c => { state.castles[c.id].owner = c.homeSect; });
+      if (!sc.truce) sc.truce = {};
+      sc.truce[enemyId] = wasPeace ? PEACE_COOLDOWN : TRUCE_SECONDS;
+      let msg = '';
+      if (result === 'victory') { addSectContribution(500); state.gachaTokens = (state.gachaTokens || 0) + 3; state.stones = (state.stones || 0) + 2000; msg = `🏆 大勝！${enemy ? enemy.name : ''}主城被佔，戰爭結束。貢獻＋500、探寶令＋3、靈石＋2000。主城已歸還。`; const wr = grantBossRelic(); msg += `古寶【${wr.name}】+1！`; }
+      else if (result === 'win') { addSectContribution(200); state.gachaTokens = (state.gachaTokens || 0) + 1; msg = `⚔️ 交戰期滿，我方城數較多，小勝！貢獻＋200、探寶令＋1。主城已歸還。`; if (Math.random() < 0.5) { const wr = grantBossRelic(); msg += `古寶【${wr.name}】+1！`; } }
+      else if (result === 'defeat') { msg = `💥 主城失守，大敗。戰爭結束，主城已歸還，休戰 ${fmtWarTime(TRUCE_SECONDS)}。`; }
+      else if (result === 'lose') { msg = `⚔️ 交戰期滿，我方城數較少，落敗。主城已歸還，休戰 ${fmtWarTime(TRUCE_SECONDS)}。`; }
+      else if (result === 'draw') { msg = `⚔️ 交戰期滿，雙方城數相同，平手。主城已歸還。`; }
+      else if (result === 'peace') { msg = `🤝 求和成功，戰爭結束。主城已歸還。`; }
+      else { msg = `⚔️ 戰爭結束。主城已歸還。`; }
+      addLog(msg, result === 'victory' || result === 'win');
+      showToast(msg);
+      renderAll(); saveState();
+    }
+    function endWarByCastles() {
+      const sc = state.sect;
+      if (!sc || !sc.war) return;
+      ensureCastles();
+      let mine = 0, theirs = 0;
+      CASTLES.forEach(c => {
+        const o = state.castles[c.id].owner;
+        if (o === sc.id) mine += 1; else if (o === sc.war.enemyId) theirs += 1;
+      });
+      if (mine > theirs) endWar('win');
+      else if (mine < theirs) endWar('lose');
+      else endWar('draw');
+    }
+    function startSiegeFight(castleId) {
+      const sc = state.sect;
+      if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
+      const castle = CASTLES.find(c => c.id === castleId);
+      if (!castle) return;
+      ensureCastles();
+      const cur = state.castles[castleId];
+      if (cur.owner === sc.id) { showToast('這是自家城池！'); return; }
+      if ((cur.protectSecondsLeft || 0) > 0) { showToast(`保護中，${fmtWarTime(cur.protectSecondsLeft)}後才能攻打！`); return; }
+      if ((cur.siegeCooldownSeconds || 0) > 0) { showToast(`攻城冷卻中，${fmtWarTime(cur.siegeCooldownSeconds)}後才能再打！`); return; }
+      if (castle.type === 'home' && !(sc.war && sc.war.enemyId === cur.owner)) { showToast('打主城要先宣戰該宗門！'); return; }
+      if (activeCombat) { showToast('已有進行中的戰鬥，先打完這一場！'); return; }
+      const combat = getTotalCombat();
+      const reduction = getSectArrayReduction();
+      const enemyHp = Math.round(combat * (10 + (cur.defLv || 1)));
+      const enemyAtk = Math.round(combat * 0.5 * (1 - reduction));
+      const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
+      activeCombat = { isSiege: true, castleId, loc: { name: '攻城戰', enemyName: `${castle.name}守軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, enemyStunned: false };
+      switchMobileView('adventure');
+      renderCombatBox(`🏯 攻城戰：進攻【${castle.emoji}${castle.name}】（城防 ${cur.defLv || 1} 級）！點神通或【⚡連招】出擊，宗門弟子會每回合助戰：`);
+      playSound('plucked');
+    }
+    function handleSiegeVictory() {
+      const castleId = activeCombat ? activeCombat.castleId : null;
+      document.getElementById('active-event-box').classList.add('hidden');
+      activeCombat = null;
+      const sc = state.sect;
+      const castle = CASTLES.find(c => c.id === castleId);
+      if (!castle || !sc || !sc.id) { renderAll(); saveState(); return; }
+      ensureCastles();
+      const cur = state.castles[castleId];
+      const isHome = castle.type === 'home';
+      if (isHome && !sc.war) { showToast('戰爭已結束，主城歸還，不計佔領。'); renderAll(); saveState(); return; }
+      cur.owner = sc.id;
+      cur.defLv = Math.max(1, (cur.defLv || 1) - 2);
+      cur.protectSecondsLeft = CASTLE_PROTECT;
+      cur.siegeCooldownSeconds = 0;
+      let msg = `🏯 攻下【${castle.emoji}${castle.name}】！`;
+      if (castle.type === 'neutral') { addSectContribution(50); msg += '貢獻＋50。'; }
+      if (castle.type === 'neutral' && Math.random() < 0.30) { const wr = grantBossRelic(); msg += `古寶【${wr.name}】+1！`; }
+      addLog(msg, true); showToast(msg);
+      if (isHome) { endWar('victory'); return; }
+      renderAll(); saveState();
+    }
+    function startDefenseFight() {
+      const sc = state.sect;
+      if (!sc || !sc.id || !sc.defenseWarn || !sc.defenseWarn.arrived) { showToast('目前沒有需要迎戰的攻城'); return; }
+      if (activeCombat) { showToast('已有進行中的戰鬥，先打完這一場！'); return; }
+      const castle = CASTLES.find(c => c.id === sc.defenseWarn.castleId);
+      if (!castle) return;
+      const combat = getTotalCombat();
+      const reduction = getSectArrayReduction();
+      const enemyHp = Math.round(combat * 10);
+      const enemyAtk = Math.round(combat * 0.45 * (1 - reduction));
+      const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
+      sc.defenseWarn.inCombat = true;
+      activeCombat = { isDefense: true, castleId: castle.id, loc: { name: '守城戰', enemyName: `${castle.name}攻城軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, enemyStunned: false };
+      switchMobileView('adventure');
+      renderCombatBox(`🛡️ 守城戰：【${castle.emoji}${castle.name}】遭到攻擊！點神通或【⚡連招】出擊，宗門弟子會每回合助戰：`);
+      playSound('plucked');
+    }
+    function handleDefenseVictory() {
+      const dw = state.sect && state.sect.defenseWarn;
+      document.getElementById('active-event-box').classList.add('hidden');
+      activeCombat = null;
+      const sc = state.sect;
+      if (!sc || !dw) { renderAll(); saveState(); return; }
+      const castleId = dw.castleId;
+      sc.defenseWarn = null;
+      ensureCastles();
+      const cur = state.castles[castleId];
+      const castle = CASTLES.find(c => c.id === castleId);
+      if (castle && cur) {
+        cur.protectSecondsLeft = CASTLE_PROTECT;
+        addSectContribution(100);
+        let msg = `🛡️ 守住【${castle.emoji}${castle.name}】！貢獻＋100。`;
+        if (Math.random() < 0.30) { const wr = grantBossRelic(); msg += `古寶【${wr.name}】+1！`; }
+        addLog(msg, true);
+        showToast(msg);
+      }
+      renderAll(); saveState();
+    }
+    function handleDefenseDefeat() {
+      const sc = state.sect;
+      const dw = sc && sc.defenseWarn;
+      if (!sc || !dw) return;
+      const castleId = dw.castleId;
+      sc.defenseWarn = null;
+      ensureCastles();
+      const cur = state.castles[castleId];
+      const castle = CASTLES.find(c => c.id === castleId);
+      if (!castle || !cur) return;
+      const enemyId = sc.war ? sc.war.enemyId : null;
+      if (!enemyId) return;
+      cur.owner = enemyId;
+      cur.defLv = Math.max(1, (cur.defLv || 1) - 2);
+      const enemy = SECTS.find(x => x.id === enemyId);
+      addLog(`💥 守城失敗！【${castle.emoji}${castle.name}】被${enemy ? enemy.name : '敵宗'}佔領。`, true);
+      showToast(`💥 守城失敗，${castle.name}失守！`);
+      if (castle.type === 'home') endWar('defeat');
+    }
+    function resolveDefenseAutoSettle() {
+      const sc = state.sect;
+      const dw = sc && sc.defenseWarn;
+      if (!sc || !dw) return;
+      const castleId = dw.castleId;
+      sc.defenseWarn = null;
+      ensureCastles();
+      const cur = state.castles[castleId];
+      const castle = CASTLES.find(c => c.id === castleId);
+      if (!castle || !cur) return;
+      const rankIdx = sectRankFromTotal(sc.totalContribution || 0);
+      const arrayPart = (sc.arrayDurability || 0) > 0 ? (sc.arrayLv || 1) * 200 : 0;
+      const enemyAtk = Math.round(getTotalCombat() * 1.5 + rankIdx * 300 + arrayPart);
+      const defense = getSectDefense();
+      const ratio = enemyAtk > 0 ? defense / enemyAtk : 1;
+      if (ratio >= 1.0) {
+        cur.protectSecondsLeft = CASTLE_PROTECT;
+        addSectContribution(100);
+        addLog(`🛡️ 自動結算：擊退攻城軍，【${castle.emoji}${castle.name}】守住了！貢獻＋100。`, true);
+        showToast(`🛡️ 擊退攻城軍，${castle.name}守住了！貢獻＋100。`);
+      } else if (ratio >= 0.7) {
+        cur.protectSecondsLeft = CASTLE_PROTECT;
+        addLog(`🛡️ 自動結算：【${castle.emoji}${castle.name}】守住了。`, false);
+        showToast(`🛡️ ${castle.name}守住了。`);
+      } else {
+        const enemyId = sc.war ? sc.war.enemyId : null;
+        if (enemyId) {
+          cur.owner = enemyId;
+          cur.defLv = Math.max(1, (cur.defLv || 1) - 2);
+          const enemy = SECTS.find(x => x.id === enemyId);
+          addLog(`💥 自動結算：【${castle.emoji}${castle.name}】失守，被${enemy ? enemy.name : '敵宗'}佔領。`, true);
+          showToast(`💥 ${castle.name}失守！`);
+          if (castle.type === 'home') { endWar('defeat'); return; }
+        }
+      }
+      updateWarBannerDOM();
+    }
+    function tryNpcSiege() {
+      const sc = state.sect;
+      if (!sc || !sc.id || !sc.war || sc.defenseWarn) return;
+      ensureCastles();
+      const targets = CASTLES.filter(c => {
+        const cur = state.castles[c.id];
+        return cur.owner === sc.id && (cur.protectSecondsLeft || 0) <= 0;
+      });
+      if (targets.length === 0) return;
+      if (Math.random() >= 0.25) return;
+      const castle = targets[Math.floor(Math.random() * targets.length)];
+      sc.defenseWarn = { castleId: castle.id, warnSecondsLeft: WAR_WARN, arrived: false, graceSecondsLeft: 0, inCombat: false };
+      addLog(`⚠️ 【${castle.emoji}${castle.name}】即將遭到攻擊！10 分鐘後開打。`, true);
+      showToast(`⚠️ ${castle.name}即將被攻打！10 分鐘後開打。`);
+    }
+    function tickSectWar() {
+      const sc = state.sect;
+      if (!sc || !sc.id) return;
+      ensureCastles();
+      Object.values(state.castles).forEach(c => {
+        if (c.protectSecondsLeft > 0) c.protectSecondsLeft -= 1;
+        if (c.siegeCooldownSeconds > 0) c.siegeCooldownSeconds -= 1;
+      });
+      if (sc.truce) Object.keys(sc.truce).forEach(k => { sc.truce[k] -= 1; if (sc.truce[k] <= 0) delete sc.truce[k]; });
+      if (sc.warWarn) {
+        sc.warWarn.secondsLeft -= 1;
+        if (sc.warWarn.secondsLeft <= 0) {
+          const enemyId = sc.warWarn.enemyId;
+          sc.warWarn = null;
+          sc.war = { enemyId, secondsLeft: WAR_DURATION, declaredBy: 'npc' };
+          const enemy = SECTS.find(x => x.id === enemyId);
+          addLog(`⚔️ 【${enemy ? enemy.name : ''}】向你宗門宣戰！交戰期約 2 小時。`, true);
+          showToast(`⚔️ ${enemy ? enemy.name : ''}宣戰！交戰開始。`);
+        }
+        return;
+      }
+      if (sc.war) {
+        const inWarBattle = activeCombat && (activeCombat.isSiege || activeCombat.isDefense);
+        if (!inWarBattle) {
+          sc.war.secondsLeft -= 1;
+          if (sc.war.secondsLeft <= 0) { endWarByCastles(); return; }
+        }
+        if (sc.defenseWarn) {
+          if (!sc.defenseWarn.inCombat) {
+            if (!sc.defenseWarn.arrived) {
+              sc.defenseWarn.warnSecondsLeft -= 1;
+              if (sc.defenseWarn.warnSecondsLeft <= 0) {
+                sc.defenseWarn.arrived = true;
+                sc.defenseWarn.graceSecondsLeft = DEFENSE_GRACE;
+                showToast('🛡️ 敵軍開始攻城！快迎戰或等自動結算。');
+              }
+            } else {
+              sc.defenseWarn.graceSecondsLeft -= 1;
+              if (sc.defenseWarn.graceSecondsLeft <= 0) resolveDefenseAutoSettle();
+            }
+          }
+        } else if (!activeCombat) {
+          sc.siegePlaySeconds = (sc.siegePlaySeconds || 0) + 1;
+          if (sc.siegePlaySeconds >= NPC_SIEGE_INTERVAL) {
+            sc.siegePlaySeconds = 0;
+            tryNpcSiege();
+          }
+        }
+        return;
+      }
+      sc.warPlaySeconds = (sc.warPlaySeconds || 0) + 1;
+      if (sc.warPlaySeconds >= DECLARE_INTERVAL) {
+        sc.warPlaySeconds = 0;
+        const neutralOwned = CASTLES.filter(c => c.type === 'neutral' && state.castles[c.id].owner === sc.id).length;
+        const chance = Math.min(0.40, 0.20 + neutralOwned * 0.05);
+        if (Math.random() < chance || (sc.warMisses || 0) >= 3) {
+          sc.warMisses = 0;
+          const enemies = SECTS.filter(x => x.id !== sc.id && !((sc.truce || {})[x.id] > 0));
+          if (enemies.length > 0) {
+            const enemy = enemies[Math.floor(Math.random() * enemies.length)];
+            sc.warWarn = { enemyId: enemy.id, secondsLeft: WAR_WARN };
+            addLog(`⚠️ 【${enemy.emoji}${enemy.name}】即將向你宗門宣戰！10 分鐘後開戰。`, true);
+            showToast(`⚠️ ${enemy.name}即將宣戰！10 分鐘後開戰。`);
+          }
+        } else {
+          sc.warMisses = (sc.warMisses || 0) + 1;
+        }
+      }
+    }
+    function upgradeCastleDef(castleId) {
+      const sc = state.sect;
+      if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
+      ensureCastles();
+      const cur = state.castles[castleId];
+      const castle = CASTLES.find(c => c.id === castleId);
+      if (!castle || !cur || cur.owner !== sc.id) { showToast('只能升級自家城池！'); return; }
+      const lv = cur.defLv || 1;
+      if (lv >= 10) { showToast('城防已滿 10 級！'); return; }
+      const costStone = 500 * lv, costContrib = 100 * lv;
+      if ((state.stones || 0) < costStone || (sc.contribution || 0) < costContrib) { showToast(`需 ${costStone}靈石＋${costContrib}貢獻！`); return; }
+      state.stones -= costStone; sc.contribution -= costContrib;
+      cur.defLv = lv + 1;
+      showToast(`🏯 ${castle.name}城防升至 ${lv + 1} 級！`);
+      renderAll(); saveState();
+    }
+    function handleCastleAction(action, castleId) {
+      if (action === 'siege') startSiegeFight(castleId);
+      else if (action === 'upgrade-def') upgradeCastleDef(castleId);
+    }
+    function renderWarCard() {
+      const sc = state.sect;
+      if (!sc || !sc.id) return '';
+      let inner = '';
+      if (sc.war) {
+        const enemy = SECTS.find(x => x.id === sc.war.enemyId);
+        inner = `<div class="text-sm text-[#9e2a22] font-bold">交戰中：vs ${enemy ? enemy.emoji + enemy.name : ''}（剩餘約 ${fmtWarTime(sc.war.secondsLeft)}）</div>
+      <button type="button" data-sect-action="peace" class="cinnabar-btn text-sm py-3 px-4 rounded-lg font-bold w-full">求和（300貢獻，立即停戰）</button>`;
+      } else {
+        const truceLines = Object.keys(sc.truce || {}).filter(k => (sc.truce[k] || 0) > 0).map(k => {
+          const d = SECTS.find(x => x.id === k);
+          return `${d ? d.name : k}休戰 ${fmtWarTime(sc.truce[k])}`;
+        }).join('、');
+        let btns = '';
+        SECTS.filter(x => x.id !== sc.id).forEach(x => {
+          const inTruce = (sc.truce || {})[x.id] > 0;
+          const pending = pendingWarDeclareId === x.id;
+          btns += `<button type="button" data-sect-action="declare" data-sect-id="${x.id}" class="${inTruce ? 'paper-btn' : 'cinnabar-btn'} text-sm py-2.5 px-3 rounded-lg font-bold flex-1">${pending ? '確認宣戰？再點一次' : `向${x.name}宣戰${inTruce ? '（休戰中）' : '（500石）'}`}</button>`;
+        });
+        inner = `<div class="text-sm text-[#236c53] font-bold">目前和平${truceLines ? `｜${truceLines}` : ''}</div>
+      <div class="flex gap-2 flex-wrap">${btns}</div>`;
+      }
+      return `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+    <div class="font-black text-base text-[#1e1a16]">宗門戰爭</div>
+    ${inner}
+  </div>`;
+    }
+    function renderCastleCard() {
+      const sc = state.sect;
+      if (!sc || !sc.id) return '';
+      ensureCastles();
+      let rows = '';
+      CASTLES.forEach(c => {
+        const cur = state.castles[c.id];
+        const own = cur.owner === sc.id;
+        const ownerName = castleOwnerName(c.id);
+        let action = '';
+        if (own) {
+          action = (cur.defLv || 1) >= 10
+            ? `<span class="text-sm font-bold text-[#5c5346]">已滿 10 級</span>`
+            : `<button type="button" data-castle-action="upgrade-def" data-castle-id="${c.id}" class="gold-btn text-sm py-2.5 px-3 rounded-lg font-bold shrink-0">升級城防（${500 * (cur.defLv || 1)}石＋${100 * (cur.defLv || 1)}貢獻）</button>`;
+        } else if ((cur.protectSecondsLeft || 0) > 0) {
+          action = `<span class="text-sm font-bold text-[#5c5346]">保護中（${fmtWarTime(cur.protectSecondsLeft)}）</span>`;
+        } else if ((cur.siegeCooldownSeconds || 0) > 0) {
+          action = `<span class="text-sm font-bold text-[#5c5346]">冷卻中（${fmtWarTime(cur.siegeCooldownSeconds)}）</span>`;
+        } else if (c.type === 'home' && !(sc.war && sc.war.enemyId === cur.owner)) {
+          action = `<span class="text-sm font-bold text-[#5c5346]">需先宣戰${ownerName}</span>`;
+        } else {
+          action = `<button type="button" data-castle-action="siege" data-castle-id="${c.id}" class="cinnabar-btn text-sm py-2.5 px-3 rounded-lg font-bold shrink-0">攻城</button>`;
+        }
+        rows += `<div class="flex items-center justify-between gap-2">
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-[#1e1a16]">${c.name}（${ownerName}｜城防 ${cur.defLv || 1} 級）</div>
+        <div class="text-sm font-bold text-[#5c5346]">${c.bonusText}</div>
+      </div>
+      ${action}
+    </div>`;
+      });
+      return `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+    <div class="font-black text-base text-[#1e1a16]">城池（佔領拿加成）</div>
+    ${rows}
+  </div>`;
+    }
+    function updateWarBannerDOM() {
+      const banner = document.getElementById('sect-war-banner');
+      if (!banner) return;
+      const sc = state.sect;
+      const textEl = document.getElementById('sect-war-banner-text');
+      const fightBtn = document.getElementById('btn-sect-fight-defense');
+      if (!sc || !sc.id || (!sc.warWarn && !sc.defenseWarn)) { banner.classList.add('hidden'); return; }
+      banner.classList.remove('hidden');
+      if (sc.defenseWarn) {
+        const castle = CASTLES.find(c => c.id === sc.defenseWarn.castleId) || CASTLES[0];
+        if (!sc.defenseWarn.arrived) {
+          if (textEl) textEl.textContent = `⚠️ 【${castle.emoji}${castle.name}】即將遭到攻擊！${fmtWarTime(Math.max(0, sc.defenseWarn.warnSecondsLeft))} 後開打，準備迎戰。`;
+          if (fightBtn) fightBtn.classList.add('hidden');
+        } else {
+          if (textEl) textEl.textContent = `🛡️ 【${castle.emoji}${castle.name}】正在被攻打！剩餘 ${fmtWarTime(Math.max(0, sc.defenseWarn.graceSecondsLeft))} 未迎戰將自動結算。`;
+          if (fightBtn) fightBtn.classList.remove('hidden');
+        }
+      } else if (sc.warWarn) {
+        const enemy = SECTS.find(x => x.id === sc.warWarn.enemyId);
+        if (textEl) textEl.textContent = `⚠️ 【${enemy ? enemy.emoji + enemy.name : ''}】即將向你宗門宣戰！${fmtWarTime(Math.max(0, sc.warWarn.secondsLeft))} 後開戰，準備迎戰。`;
+        if (fightBtn) fightBtn.classList.add('hidden');
+      }
+    }
+    function recruitDisciples() {
+      const sc = state.sect;
+      if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
+      const cap = (sectRankFromTotal(sc.totalContribution || 0) + 1) * 20;
+      const cur = sc.disciples || 0;
+      if (cur >= cap) { showToast(`弟子已滿 ${cap} 名！提升職位可再招募。`); return; }
+      if ((state.stones || 0) < 300) { showToast('招募弟子需 300 靈石！'); return; }
+      state.stones -= 300;
+      sc.disciples = cur + 1;
+      showToast(`招募弟子＋1（現有 ${sc.disciples}/${cap} 名）！`);
+      renderAll(); saveState();
+    }
+    function renderDiscipleCard() {
+      const sc = state.sect;
+      if (!sc || !sc.id) return '';
+      const cur = sc.disciples || 0;
+      const cap = (sectRankFromTotal(sc.totalContribution || 0) + 1) * 20;
+      const full = cur >= cap;
+      return `<div class="bg-[#f4ede0] border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2">
+    <div class="font-black text-base text-[#1e1a16]">宗門弟子</div>
+    <div class="text-sm text-[#1e1a16] font-bold">弟子 ${cur}／${cap} 名（職位越高，上限越高）</div>
+    <div class="text-sm text-[#5c5346] font-bold">弟子每回合助戰＋${cur * 10}、守城防禦＋${cur * 20}、每日上繳 ${cur} 貢獻。</div>
+    <button type="button" data-sect-action="recruit" class="${full ? 'paper-btn' : 'cinnabar-btn'} text-sm py-3 px-4 rounded-lg font-bold w-full">${full ? '弟子已滿員（提升職位可再招募）' : '招募弟子（300 靈石／名）'}</button>
+  </div>`;
+    }
     let state = createDefaultState();
 
     function loadState() {
@@ -1428,7 +1950,11 @@
           state.sect = Object.assign({}, def.sect, parsed.sect || {});
           if (!Array.isArray(state.sect.tasks)) state.sect.tasks = [];
           if (!state.sect.shopBought || typeof state.sect.shopBought !== 'object') state.sect.shopBought = {};
+          ensureSectState();
           if (state.sect.bossState) state.sect.bossState.inCombat = false;
+          if (state.sect.defenseWarn) state.sect.defenseWarn.inCombat = false;
+          state.castles = Object.assign(defaultCastles(), parsed.castles || {});
+          CASTLES.forEach(c => { const cur = state.castles[c.id] || {}; state.castles[c.id] = Object.assign({ owner: c.homeSect || null, defLv: 1, protectSecondsLeft: 0, siegeCooldownSeconds: 0 }, cur); });
           if (!Array.isArray(parsed.unlockedSeeds) || parsed.unlockedSeeds.length === 0) {
             state.unlockedSeeds = HERBS.slice(0, 4).map(h => h.id);
           } else {
@@ -1527,7 +2053,7 @@
       const herbGot = {};
       (state.plots || []).forEach(plot => {
         const herb = HERBS.find(h => h.id === plot.herbId) || HERBS[0];
-        plot.progress += (100 / herb.growTime) * capped * eff * getSectGrowthMult();
+        plot.progress += (100 / herb.growTime) * capped * eff * getSectGrowthMult() * (1 + getCastleBonuses().herbMult);
         let n = 0;
         while (plot.progress >= 100 && n < 10000) { plot.progress -= 100; n += 1; }
         if (n > 0) {
@@ -1669,7 +2195,11 @@
       const lifespanPenalty = state.ageYears > realm.lifespan ? 0.5 : 1.0;
       const sectQiMult = (state.activePath === 'magic' && state.sect && state.sect.id === 'yanyue') ? (1 + getSectPassive()) : 1;
       const sectBuffMult = (state.sect && state.sect.buffSecondsLeft > 0) ? 1.1 : 1;
-      return Math.max(1, Math.round((realm.baseRate + flatTreasure) * origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * injuryPenalty * lifespanPenalty * sectQiMult * sectBuffMult));
+      // 總倍率上限 2000 倍：古寶／功法／塔層／轉世等疊加不再無限膨脹，
+      // 填滿一條的時間才會隨境界拉長；受傷／壽元懲罰仍在上限外另算。
+      const rawMult = origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * sectQiMult * sectBuffMult * (1 + getCastleBonuses().qiMult);
+      const cappedMult = Math.min(2000, rawMult);
+      return Math.max(1, Math.round((realm.baseRate + flatTreasure) * cappedMult * injuryPenalty * lifespanPenalty));
     }
     function getTotalCombat() {
       const mRealm = getMagicRealm();
@@ -1686,7 +2216,7 @@
       });
       const artCombatMult = 1 + (artLv - 1) * 0.22;
       const baseCombined = mRealm.combat + Math.round(bRealm.combat * 0.85) + treasureCombat;
-      return Math.round(baseCombined * (origin.id === 'thunder' ? 1.45 : 1.0) * artCombatMult * relicB.combatMult * (1 + traitB.combatMult) * resonanceMult * (1 + getSectPassiveFor('huadao')));
+      return Math.round(baseCombined * (origin.id === 'thunder' ? 1.45 : 1.0) * artCombatMult * relicB.combatMult * (1 + traitB.combatMult) * resonanceMult * (1 + getSectPassiveFor('huadao')) * (1 + getCastleBonuses().combatMult));
     }
     function getTotalSense() {
       const art = getCurrentArt();
@@ -1699,9 +2229,9 @@
       const hasQianlan = ((state.relics && state.relics.qianlan_fire) || 0) > 0;
       const heavenlyBonus = getOrigin().id === 'heavenly' ? 0.08 : 0;
 
-      if (hasShiling) return { failRate: 0.0, supremeRate: 0.32 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4, highRate: 0.40, flameName: '噬靈天火' };
-      if (hasQianlan) return { failRate: 0.08, supremeRate: 0.18 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4, highRate: 0.30, flameName: '乾藍冰焰' };
-      return { failRate: 0.22, supremeRate: 0.06 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4, highRate: 0.22, flameName: '地肺火' };
+      if (hasShiling) return { failRate: 0.0, supremeRate: 0.32 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4 + getCastleBonuses().alchemySupreme, highRate: 0.40, flameName: '噬靈天火' };
+      if (hasQianlan) return { failRate: 0.08, supremeRate: 0.18 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4 + getCastleBonuses().alchemySupreme, highRate: 0.30, flameName: '乾藍冰焰' };
+      return { failRate: 0.22, supremeRate: 0.06 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4 + getCastleBonuses().alchemySupreme, highRate: 0.22, flameName: '地肺火' };
     }
     function getBreakthroughChance() {
       const realm = getActiveRealm();
@@ -1711,6 +2241,7 @@
       }
       if (state.toxicity >= 70) base -= 0.15;
       if (state.sect && state.sect.id === 'yanyue') base += getSectPassive() * 0.2;
+      base += getCastleBonuses().breakBonus;
       return Math.min(0.98, Math.max(0.05, base));
     }
     function formatNum(n) {
@@ -1856,7 +2387,7 @@
 
     function handleMeditateClick() {
       const baseGain = Math.max(4, Math.round(getQiRatePerSec() * 1.2));
-      const isCrit = Math.random() <= 0.22 + getSectPassiveFor('xiesha') * 0.5;
+      const isCrit = Math.random() <= 0.22 + getSectPassiveFor('xiesha') * 0.5 + getCastleBonuses().critRate;
       const nowMs = Date.now();
       if (nowMs - (state.lastMeditateAt || 0) <= 2000) {
         state.meditateCombo = (state.meditateCombo || 0) + 1;
@@ -1864,7 +2395,7 @@
         state.meditateCombo = 1;
       }
       state.lastMeditateAt = nowMs;
-      const comboMult = 1 + Math.min(state.meditateCombo, 20) * 0.02 * (1 + getSectPassiveFor('xiesha'));
+      const comboMult = (1 + Math.min(state.meditateCombo, 20) * 0.02 * (1 + getSectPassiveFor('xiesha'))) * (1 + getCastleBonuses().comboMult);
       const gain = Math.round((isCrit ? baseGain * 5 : baseGain) * comboMult);
       const comboTxt = state.meditateCombo >= 5 ? ` 連擊x${state.meditateCombo}` : '';
       const realm = getActiveRealm();
@@ -1952,10 +2483,10 @@
         const isGuaranteed = (count === 5 && i === 4);
         const r = Math.random();
         let pool = RELICS.filter(x => x.tier.includes('白') || x.tier.includes('藍'));
-        if (isGuaranteed || r < 0.35) {
-          if (r < 0.05) {
+        if (isGuaranteed || r < 0.45) {
+          if (r < 0.10) {
             pool = RELICS.filter(x => x.tier.includes('紅'));
-          } else if (r < 0.18) {
+          } else if (r < 0.28) {
             pool = RELICS.filter(x => x.tier.includes('金'));
           } else {
             pool = RELICS.filter(x => x.tier.includes('紫'));
@@ -2037,41 +2568,58 @@
       saveState();
     }
 
-    function handleQuickConsumePill() {
-      const available = PILLS.find(p => (state.pills[p.id] || 0) > 0);
-      if (!available) {
-        showToast('無丹藥！請先煉丹');
-        return;
-      }
-      consumePillById(available.id);
-    }
-
-    function consumePillById(pillId) {
+    function consumePillCore(pillId) {
       const pill = PILLS.find(p => p.id === pillId);
       const count = state.pills[pillId] || 0;
-      if (!pill || count <= 0) return;
-
-      if (state.toxicity >= 80) {
-        showToast('☠️ 丹毒已滿(80)！請先排毒');
-        return;
-      }
-
+      if (!pill || count <= 0) return null;
+      if (state.toxicity >= 80) return null;
       const effMult = state.toxicity >= 50 ? 0.45 : 1.0;
       state.pills[pillId] -= 1;
       const actualQi = Math.round(pill.qiGain * effMult);
       const realm = getActiveRealm();
-
       if (state.activePath === 'body') {
         state.bodyQi = Math.min(realm.maxQi * 2.0, (state.bodyQi || 0) + actualQi);
       } else {
         state.qi = Math.min(realm.maxQi * 2.0, state.qi + actualQi);
       }
-
       state.toxicity = Math.min(100, state.toxicity + pill.tox);
-
+      return { pill, actualQi, tox: pill.tox };
+    }
+    function consumePillById(pillId) {
+      const pill = PILLS.find(p => p.id === pillId);
+      const count = state.pills[pillId] || 0;
+      if (!pill || count <= 0) return;
+      if (state.toxicity >= 80) {
+        showToast('☠️ 丹毒已滿(80)！請先排毒');
+        return;
+      }
+      const r = consumePillCore(pillId);
+      if (!r) return;
       playSound('dew');
-      spawnFloatingText(`💊 +${formatNum(actualQi)}`, 'text-[#9e2a22]');
-      showToast(`💊 +${formatNum(actualQi)}（毒+${pill.tox}）`);
+      spawnFloatingText(`💊 +${formatNum(r.actualQi)}`, 'text-[#9e2a22]');
+      showToast(`💊 +${formatNum(r.actualQi)}（毒+${r.tox}）`);
+      renderAll();
+      saveState();
+    }
+    function handleBatchConsumePill() {
+      const available = PILLS.some(p => (state.pills[p.id] || 0) > 0);
+      if (!available) { showToast('無丹藥！請先煉丹'); return; }
+      if (state.toxicity >= 80) { showToast('☠️ 丹毒已滿(80)！請先排毒'); return; }
+      const ordered = PILLS.slice().sort((a, b) => b.qiGain - a.qiGain);
+      let eaten = 0, totalQi = 0;
+      const startTox = state.toxicity;
+      while (state.toxicity < 80) {
+        const next = ordered.find(p => (state.pills[p.id] || 0) > 0);
+        if (!next) break;
+        const r = consumePillCore(next.id);
+        if (!r) break;
+        eaten += 1; totalQi += r.actualQi;
+      }
+      if (eaten === 0) { showToast('☠️ 丹毒已滿(80)！請先排毒'); return; }
+      playSound('dew');
+      const msg = `💊 一鍵服丹：吃了 ${eaten} 顆，修為 ＋${formatNum(totalQi)}，毒性 ${startTox}→${state.toxicity}。`;
+      addLog(msg, true);
+      showToast(msg);
       renderAll();
       saveState();
     }
@@ -2184,23 +2732,16 @@
       saveState();
     }
 
-    function craftPill(pillId) {
+    function craftPillCore(pillId) {
       const pill = PILLS.find(p => p.id === pillId);
-      if (!pill) return;
+      if (!pill) return null;
       const haveHerb = state.herbs[pill.herbId] || 0;
-      if (haveHerb < pill.herbCost) {
-        showToast(`靈草不足！請去【🌿 藥園】種植催熟`);
-        return;
-      }
+      if (haveHerb < pill.herbCost) return null;
       state.herbs[pill.herbId] -= pill.herbCost;
-
       const rates = getAlchemyRates();
       const roll = Math.random();
-
-      if (roll < rates.failRate) {
-        playSound('plucked');
-        showToast(`💨 煉丹失敗（廢丹）`);
-      } else if (roll < rates.failRate + rates.supremeRate) {
+      if (roll < rates.failRate) return { pill, result: 'fail', bonusQi: 0 };
+      if (roll < rates.failRate + rates.supremeRate) {
         state.pills[pill.id] = (state.pills[pill.id] || 0) + 2;
         const bonusQi = Math.round(pill.qiGain * 1.5);
         const supRealm = getActiveRealm();
@@ -2209,22 +2750,65 @@
         } else {
           state.qi = Math.min(supRealm.maxQi * 2.0, state.qi + bonusQi);
         }
-        playSound('breakthrough');
-        addLog(`🌟 煉出【極品・${pill.name} x2】，修為 +${formatNum(bonusQi)}！`, true);
-        showToast(`🌟 極品丹 x2！+${formatNum(bonusQi)}`);
         progressSectTask('alchemy3', 1);
-      } else if (roll < rates.failRate + rates.supremeRate + rates.highRate) {
+        return { pill, result: 'supreme', bonusQi };
+      }
+      if (roll < rates.failRate + rates.supremeRate + rates.highRate) {
         state.pills[pill.id] = (state.pills[pill.id] || 0) + 2;
+        progressSectTask('alchemy3', 1);
+        return { pill, result: 'high', bonusQi: 0 };
+      }
+      state.pills[pill.id] = (state.pills[pill.id] || 0) + 1;
+      progressSectTask('alchemy3', 1);
+      return { pill, result: 'normal', bonusQi: 0 };
+    }
+    function craftPill(pillId) {
+      const pill = PILLS.find(p => p.id === pillId);
+      if (!pill) return;
+      if ((state.herbs[pill.herbId] || 0) < pill.herbCost) {
+        showToast(`靈草不足！請去【🌿 藥園】種植催熟`);
+        return;
+      }
+      const r = craftPillCore(pillId);
+      if (!r) return;
+      if (r.result === 'fail') {
+        playSound('plucked');
+        showToast(`💨 煉丹失敗（廢丹）`);
+      } else if (r.result === 'supreme') {
+        playSound('breakthrough');
+        addLog(`🌟 煉出【極品・${pill.name} x2】，修為 +${formatNum(r.bonusQi)}！`, true);
+        showToast(`🌟 極品丹 x2！+${formatNum(r.bonusQi)}`);
+      } else if (r.result === 'high') {
         playSound('breakthrough');
         showToast(`🔥 上品：${pill.name} x2`);
-        progressSectTask('alchemy3', 1);
       } else {
-        state.pills[pill.id] = (state.pills[pill.id] || 0) + 1;
         playSound('dew');
         showToast(`煉成：${pill.name} x1`);
-        progressSectTask('alchemy3', 1);
       }
-
+      updateGardenLiveDOM();
+      renderAlchemyTab();
+      renderPillBag();
+      updateStatusUI();
+      saveState();
+    }
+    function batchCraftAll() {
+      let made = 0, failed = 0, supreme = 0, totalBonusQi = 0;
+      const perPill = [];
+      PILLS.slice().reverse().forEach(pill => {
+        let c = 0, f = 0, s = 0;
+        while ((state.herbs[pill.herbId] || 0) >= pill.herbCost) {
+          const r = craftPillCore(pill.id);
+          if (!r) break;
+          if (r.result === 'fail') { f += 1; failed += 1; }
+          else { c += 1; made += 1; if (r.result === 'supreme') { s += 1; supreme += 1; totalBonusQi += r.bonusQi; } }
+        }
+        if (c > 0 || f > 0) perPill.push(`${pill.name}：成${c}${s > 0 ? `（極品${s}）` : ''}${f > 0 ? `／敗${f}` : ''}`);
+      });
+      if (made === 0 && failed === 0) { showToast('靈草不足！請去【🌿 藥園】種植催熟'); return; }
+      playSound('breakthrough');
+      const msg = `⚡ 一鍵全煉：${perPill.join('、')}${totalBonusQi > 0 ? `，極品修為 ＋${formatNum(totalBonusQi)}` : ''}。`;
+      addLog(msg, true);
+      showToast(msg);
       updateGardenLiveDOM();
       renderAlchemyTab();
       renderPillBag();
@@ -2341,6 +2925,7 @@
 
       if (skillId === 'flee') {
         if (activeCombat.isBoss && state.sect && state.sect.bossState) state.sect.bossState.inCombat = false;
+        if (activeCombat.isDefense && state.sect && state.sect.defenseWarn) state.sect.defenseWarn.inCombat = false;
         showToast('🛶 成功遁走！');
         document.getElementById('active-event-box').classList.add('hidden');
         activeCombat = null;
@@ -2375,9 +2960,9 @@
       }
 
       activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - dmgToEnemy);
-      if (activeCombat.isBoss) {
+      if (activeCombat.isBoss || activeCombat.isSiege || activeCombat.isDefense) {
         const _sc = state.sect || {};
-        const assist = sectRankFromTotal(_sc.totalContribution || 0) * 50 + ((_sc.arrayDurability || 0) > 0 ? (_sc.arrayLv || 1) * 30 : 0);
+        const assist = sectRankFromTotal(_sc.totalContribution || 0) * 50 + ((_sc.arrayDurability || 0) > 0 ? (_sc.arrayLv || 1) * 30 : 0) + ((_sc.disciples || 0) * 10);
         if (assist > 0) {
           activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - assist);
           notes.push(`宗門助戰-${formatNum(assist)}`);
@@ -2387,6 +2972,10 @@
       if (activeCombat.enemyHp <= 0) {
         if (activeCombat.isBoss) {
           handleBossVictory();
+        } else if (activeCombat.isSiege) {
+          handleSiegeVictory();
+        } else if (activeCombat.isDefense) {
+          handleDefenseVictory();
         } else if (activeCombat.isTower) {
           handleTowerVictory(activeCombat.floor);
         } else {
@@ -2434,6 +3023,25 @@
           saveState();
           return;
         }
+        if (activeCombat.isSiege) {
+          const cid = activeCombat.castleId;
+          document.getElementById('active-event-box').classList.add('hidden');
+          activeCombat = null;
+          ensureCastles();
+          if (cid) state.castles[cid].siegeCooldownSeconds = SIEGE_COOLDOWN;
+          showToast('🏯 攻城失敗！冷卻 30 分鐘後才能再打，不扣修為。');
+          renderAll();
+          saveState();
+          return;
+        }
+        if (activeCombat.isDefense) {
+          document.getElementById('active-event-box').classList.add('hidden');
+          activeCombat = null;
+          handleDefenseDefeat();
+          renderAll();
+          saveState();
+          return;
+        }
         if (activeCombat.isTower) {
           showToast(`🗼 挑戰失敗！請提升戰力再戰`);
         } else {
@@ -2459,8 +3067,8 @@
       const milestone = floor % 5 === 0;
       const tokens = 2 + (milestone ? 3 : 0);
       const sectTowerMult = 1 + getSectPassiveFor('huadao');
-      const dust = Math.round((30 + floor * 5 + (milestone ? 100 : 0)) * sectTowerMult);
-      const stones = Math.round(floor * 60 * sectTowerMult);
+      const dust = Math.round((30 + floor * 5 + (milestone ? 100 : 0)) * sectTowerMult * (1 + getCastleBonuses().towerDustMult));
+      const stones = Math.round(floor * 60 * sectTowerMult * (1 + getCastleBonuses().towerStoneMult));
       state.towerFloor = floor + 1;
       state.gachaTokens = (state.gachaTokens || 0) + tokens;
       state.spiritDust = (state.spiritDust || 0) + dust;
@@ -2486,7 +3094,7 @@
     function handleCombatVictory(loc) {
       const origin = getOrigin();
       const yuanwaoMult = 1 + ((state.companionAffinity.yuanwao || 0) * 0.015);
-      const dropMult = (origin.dropBonus || 1.0) * yuanwaoMult * (1 + getSectPassiveFor('lingshou'));
+      const dropMult = (origin.dropBonus || 1.0) * yuanwaoMult * (1 + getSectPassiveFor('lingshou')) * (1 + getCastleBonuses().dropMult);
 
       const stoneReward = Math.round((35 + loc.minRealm * 85) * dropMult);
       const qiReward = Math.round((45 + loc.minRealm * 150) * dropMult);
@@ -2740,7 +3348,7 @@
       document.getElementById('stat-dew').textContent = `💧${state.dew}滴`;
       document.getElementById('stat-stones').textContent = `💎${formatNum(state.stones)}`;
 
-      document.getElementById('btn-toggle-path').textContent = isBody ? '💪 主修:體' : '☯️ 主修:法';
+      document.getElementById('btn-toggle-path').textContent = isBody ? '主修:體' : '主修:法';
       document.getElementById('path-progress-label').textContent = isBody ? '煉體' : '修法';
       const qiOverflow = Math.max(0, curQi - activeRealm.maxQi);
       document.getElementById('stat-qi-current').textContent = formatNum(Math.min(curQi, activeRealm.maxQi));
@@ -3375,13 +3983,13 @@
         }
 
         const ziyanMult = 1 + ((state.companionAffinity.ziyan || 0) * 0.01);
-        const stoneGain = Math.max(1, Math.round((1 + state.realmIndex * 2 + (state.treasureLevels.shenfeng || 1)) * mult * ziyanMult));
+        const stoneGain = Math.max(1, Math.round((1 + state.realmIndex * 2 + (state.treasureLevels.shenfeng || 1)) * mult * ziyanMult * (1 + getCastleBonuses().stoneMult)));
         state.stones += stoneGain;
 
         roamTickCounter += 1;
         if (roamTickCounter >= 8) {
           roamTickCounter = 0;
-          state.spiritDust = (state.spiritDust || 0) + Math.round(2 * mult * (1 + getSectPassiveFor('lingshou')));
+          state.spiritDust = (state.spiritDust || 0) + Math.round(2 * mult * (1 + getSectPassiveFor('lingshou')) * (1 + getCastleBonuses().roamDustMult));
           const highestIdx = Math.max(state.realmIndex || 0, state.bodyRealmIndex || 0);
           const unlockedLocs = LOCATIONS.filter(l => highestIdx >= l.minRealm);
           const roamLoc = unlockedLocs[unlockedLocs.length - 1] || LOCATIONS[0];
@@ -3425,7 +4033,9 @@
           renderAlchemyTab();
         }
         tickSectBoss();
+        tickSectWar();
         updateBossBannerDOM();
+        updateWarBannerDOM();
         saveState();
       }, 1000);
     }
@@ -3505,6 +4115,7 @@
       document.getElementById('btn-goto-sect').addEventListener('click', () => switchMobileView('sect'));
       document.getElementById('view-panel-sect').addEventListener('click', handleSectPanelClick);
       document.getElementById('btn-sect-fight-boss').addEventListener('click', startBossFight);
+      document.getElementById('btn-sect-fight-defense').addEventListener('click', startDefenseFight);
       document.getElementById('btn-auto-cast-combat').addEventListener('click', () => {
         if (!activeCombat) return;
         const eq = state.equippedSkills || ['zhenyuan_shield'];
@@ -3528,7 +4139,8 @@
       document.getElementById('btn-meditate').addEventListener('click', handleMeditateClick);
       document.getElementById('btn-absorb-moon').addEventListener('click', handleAbsorbMoon);
       document.getElementById('btn-top-dew').addEventListener('click', handleAbsorbMoon);
-      document.getElementById('btn-quick-pill').addEventListener('click', handleQuickConsumePill);
+      document.getElementById('btn-quick-pill').addEventListener('click', handleBatchConsumePill);
+      document.getElementById('btn-batch-craft').addEventListener('click', batchCraftAll);
       document.getElementById('btn-breakthrough').addEventListener('click', handleBreakthrough);
       document.getElementById('btn-top-break').addEventListener('click', handleBreakthrough);
       document.getElementById('btn-ripen-all').addEventListener('click', handleRipenAllPlots);
