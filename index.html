@@ -446,6 +446,35 @@
         <button id="btn-detox-cultivate" type="button" class="jade-btn text-xs px-3.5 py-2.5 rounded-lg font-bold shrink-0">排毒（60靈石，毒-45）</button>
       </div>
 
+      <!-- Cave Mansion Spirit Gathering Array & Tribulation Shield -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="sub-card rounded-xl p-3.5 flex flex-col justify-between gap-2">
+          <div class="space-y-0.5">
+            <div class="flex items-center justify-between">
+              <span id="cave-array-title" class="text-xs font-black text-[#1e1a16]">🏡 洞府聚靈陣・1階</span>
+              <span id="cave-array-bonus" class="text-[11px] font-bold text-[#236c53]">修速+0%｜凝露+0%</span>
+            </div>
+            <div class="text-[11px] text-[#5c5346]">匯聚天地靈氣，永久提升洞府吐納與掌天瓶凝露效率</div>
+          </div>
+          <button id="btn-upgrade-cave-array" type="button" class="gold-btn text-xs py-2 px-3 rounded-lg font-bold w-full">
+            ✨ 升階聚靈陣 (200石+15塵)
+          </button>
+        </div>
+
+        <div class="sub-card rounded-xl p-3.5 flex flex-col justify-between gap-2">
+          <div class="space-y-0.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-[#9e2a22]">🛡️ 渡劫避雷陣盤</span>
+              <span id="trib-shield-status" class="text-[11px] px-2 py-0.5 rounded bg-[#e6dcc5] text-[#5c5346] font-bold">未佈陣</span>
+            </div>
+            <div class="text-[11px] text-[#5c5346]">破境成功率直接 +20%，且若失敗免除修為倒退與重傷</div>
+          </div>
+          <button id="btn-forge-trib-shield" type="button" class="cinnabar-btn text-xs py-2 px-3 rounded-lg font-bold w-full">
+            🛡️ 祭煉護法陣盤 (耗 80 靈塵)
+          </button>
+        </div>
+      </div>
+
       <!-- Next Step Intelligent Guidance -->
       <div class="bg-[#fcfaf5] border border-[#d6c7ac] rounded-xl p-3.5">
         <div id="next-step-text" class="text-xs leading-relaxed font-bold text-[#1e1a16]">修煉中……</div>
@@ -550,6 +579,35 @@
         </div>
       </div>
 
+      <!-- Spirit Sense Random Encounters & Dao Heart System -->
+      <div class="sub-card border-2 border-[#236c53] rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+          <div class="space-y-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="seal-stamp text-xs px-2 py-0.5 rounded">神識奇遇</span>
+              <span id="encounter-sense-label" class="font-black text-sm text-[#1e1a16]">神識 70 ｜ 道心 0</span>
+              <span id="encounter-charges-badge" class="text-xs px-2 py-0.5 rounded bg-emerald-100 text-[#236c53] font-bold">機緣 3/5</span>
+            </div>
+            <div id="encounter-bonus-desc" class="text-xs text-[#5c5346] font-bold">
+              每點道心提升修為與戰力 +1.5%、破境率 +0.2%｜神識越高越易看破奇遇禁制
+            </div>
+          </div>
+          <button id="btn-trigger-encounter" type="button" class="jade-btn text-xs py-2.5 px-3.5 rounded-lg font-bold shrink-0">
+            🗺️ 神識探查奇遇
+          </button>
+        </div>
+
+        <!-- Active Encounter Choice Box -->
+        <div id="active-encounter-box" class="hidden bg-[#fcfaf5] border-2 border-[#236c53] rounded-xl p-3.5 space-y-2.5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span id="encounter-title" class="font-black text-sm text-[#236c53]"></span>
+            <span id="encounter-req-tag" class="text-[11px] px-2 py-0.5 rounded bg-[#f3ead8] border border-[#cbbba0] text-[#9e2a22] font-bold"></span>
+          </div>
+          <p id="encounter-story" class="text-xs text-[#221e1a] leading-relaxed font-medium"></p>
+          <div id="encounter-choices-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+        </div>
+      </div>
+
       <!-- Active Combat Box -->
       <div id="active-event-box" class="bg-[#f3ecdc] border-2 border-[#9e2a22] rounded-xl p-3.5 hidden space-y-3 shadow-md">
         <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -620,6 +678,30 @@
           </button>
         </div>
         <div id="bloodline-traits-list" class="grid grid-cols-1 gap-2"></div>
+      </div>
+
+      <!-- Spirit Beasts & Exotic Insects System -->
+      <div class="sub-card rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div>
+            <span class="text-sm font-black text-[#236c53]">🐉 本命靈獸・育蟲袋</span>
+            <span id="active-beast-summary" class="text-xs font-bold text-[#9e2a22] ml-1.5"></span>
+          </div>
+          <span class="text-[11px] text-[#5c5346] font-semibold">所有已孵化靈獸皆生效被動，出戰靈獸每回合協同攻擊</span>
+        </div>
+        <div id="spirit-beasts-list" class="grid grid-cols-1 gap-2"></div>
+      </div>
+
+      <!-- Cosmic Dao Laws System -->
+      <div class="sub-card rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div>
+            <span class="text-sm font-black text-[#9c6b21]">☯️ 大道法則參悟</span>
+            <span id="dao-laws-summary" class="text-xs font-bold text-[#236c53] ml-1.5"></span>
+          </div>
+          <span class="text-[11px] text-[#5c5346] font-semibold">消耗靈塵參悟天地本源，轉世重修永久保留</span>
+        </div>
+        <div id="dao-laws-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
       </div>
 
       <div class="border-t border-[#dfd3bc] pt-3">
@@ -1022,6 +1104,182 @@
       { id: 'yuanwao', name: '元瑤', affinity: 10, bonusDesc: '掉寶' }
     ];
 
+    // =========================================================================
+    // 1.4 靈獸育蟲袋、大道法則、洞府聚靈陣與神識奇遇池
+    // =========================================================================
+    const SPIRIT_BEASTS = [
+      { id: 'beetle_king', name: '噬金蟲王', icon: '🪲', title: '奇蟲榜首', baseStoneCost: 180, baseDustCost: 20, passiveDesc: '每階歷練與掛機靈石 +8%', activeDesc: '出戰：每回合噬咬敵方造成 38% 額外真傷' },
+      { id: 'tihun_beast', name: '啼魂獸', icon: '🐵', title: '鎮魂異獸', baseStoneCost: 260, baseDustCost: 25, passiveDesc: '每階神識 +12%、戰力 +5%', activeDesc: '出戰：每回合 28% 機率震懾定身敵人並造成 30% 魂傷' },
+      { id: 'silver_wolf', name: '雙首銀狼', icon: '🐺', title: '銀月天狼', baseStoneCost: 350, baseDustCost: 30, passiveDesc: '每階修為速度 +7%', activeDesc: '出戰：每回合空間爪擊並為主人回復 25% 傷害氣血' },
+      { id: 'frost_centipede', name: '六翼霜蚣', icon: '🦂', title: '寒焰異種', baseStoneCost: 500, baseDustCost: 40, passiveDesc: '每階煉丹極品率 +0.8%', activeDesc: '出戰：每回合凝結 14% 最大氣血寒冰護盾' },
+      { id: 'true_phoenix', name: '真靈天鳳', icon: '🦅', title: '真靈聖禽', baseStoneCost: 850, baseDustCost: 60, passiveDesc: '每階戰力 +10%、修為速度 +8%', activeDesc: '出戰：每回合降下真靈天火造成 50% 焚天傷害' }
+    ];
+
+    const DAO_LAWS = [
+      { id: 'wuxing', name: '五行法則', icon: '🌿', baseDustCost: 30, desc: '萬物生剋：每級修為速度 +8%' },
+      { id: 'shijian', name: '時間法則', icon: '⏳', baseDustCost: 40, desc: '歲月如梭：每級靈草生長與凝露 +6%' },
+      { id: 'kongjian', name: '空間法則', icon: '🌌', baseDustCost: 35, desc: '咫尺天涯：每級秘境與鎮妖塔收益 +8%' },
+      { id: 'shalu', name: '殺戮法則', icon: '⚔️', baseDustCost: 40, desc: '一劍破萬法：每級總戰力 +9%' },
+      { id: 'zaohua', name: '造化法則', icon: '✨', baseDustCost: 45, desc: '奪天地造化：每級極品丹率 +0.6%、破境率 +0.5%' }
+    ];
+
+    const CAVE_ARRAY_NAMES = [
+      '凡品聚靈陣', '兩儀微塵陣', '四象聚靈陣', '五行納氣陣', '六合蘊靈陣',
+      '七星引月陣', '八卦鎖靈陣', '九宮顛倒陣', '十方乾坤陣', '地煞凝元陣',
+      '天罡星斗陣', '周天星辰陣', '太乙分光陣', '混元河洛陣', '鴻蒙造化陣'
+    ];
+
+    const ENCOUNTER_POOL = [
+      {
+        id: 'tainan_slip',
+        title: '【太南黑市・殘破古簡】',
+        reqSense: 120,
+        story: '你在太南山黑市偶遇一名黑袍散修，攤上擺著一枚被古禁制封鎖的青玉竹簡，隱約透出上古丹道氣息。',
+        choiceA: '👁️ 神識強行破禁（檢定神識）',
+        choiceB: '💎 花 120 靈石買下外層丹方',
+        resolveA: (ok) => {
+          if (ok) {
+            const q = Math.round(getActiveRealm().maxQi * 0.30);
+            addActiveQi(q);
+            state.daoHeart = (state.daoHeart || 0) + 2;
+            state.gachaTokens = (state.gachaTokens || 0) + 1;
+            return `神識看破古禁制，參悟上古功法殘篇！修為 +${formatNum(q)}、道心 +2、探寶令 +1！`;
+          }
+          state.daoHeart = (state.daoHeart || 0) + 1;
+          return '古簡禁制反噬，所幸收斂及時，仍有所獲：道心 +1。';
+        },
+        resolveB: () => {
+          state.stones = Math.max(0, state.stones - 120);
+          state.pills.jinsui = (state.pills.jinsui || 0) + 2;
+          state.daoHeart = (state.daoHeart || 0) + 1;
+          return '穩妥買下外層丹方與隨附丹丸：金髓丸 +2、道心 +1。';
+        }
+      },
+      {
+        id: 'xuese_cave',
+        title: '【血色禁地・古修坐化洞府】',
+        reqSense: 280,
+        story: '深入禁地腹地，見一處被迷魂幻陣籠罩的石室，石榻上古修遺骸旁擺放著一只碧綠玉瓶與數枚令牌。',
+        choiceA: '👁️ 以神識堪破迷陣（檢定神識）',
+        choiceB: '🙏 恭敬斂骨行禮後退去',
+        resolveA: (ok) => {
+          if (ok) {
+            state.dew = (state.dew || 0) + 2;
+            state.gachaTokens = (state.gachaTokens || 0) + 2;
+            state.daoHeart = (state.daoHeart || 0) + 2;
+            return '神識瞬間鎖定陣眼，盡數取走洞府遺寶：💧綠液 +2、🎟️探寶令 +2、道心 +2！';
+          }
+          state.spiritDust = (state.spiritDust || 0) + 35;
+          return '幻陣深奧，僅取走外圍靈塵：✨靈塵 +35。';
+        },
+        resolveB: () => {
+          state.spiritDust = (state.spiritDust || 0) + 55;
+          state.stones = (state.stones || 0) + 400;
+          state.daoHeart = (state.daoHeart || 0) + 2;
+          return '古修遺骸化作點點靈光相贈：✨靈塵 +55、💎靈石 +400、道心 +2！';
+        }
+      },
+      {
+        id: 'xutian_flame',
+        title: '【虛天內殿・乾藍冰焰餘威】',
+        reqSense: 600,
+        story: '冰魄寒氣瀰漫的長廊中，一朵幽藍冰花在石縫中搖曳，四周卻有殘餘禁制冰刺環伺。',
+        choiceA: '👁️ 神識推演冰刺軌跡奪寶（檢定神識）',
+        choiceB: '🌿 採集外圍伴生靈草',
+        resolveA: (ok) => {
+          if (ok) {
+            state.gachaTokens = (state.gachaTokens || 0) + 3;
+            state.spiritDust = (state.spiritDust || 0) + 90;
+            state.daoHeart = (state.daoHeart || 0) + 2;
+            return '毫髮無傷穿過冰刺，奪得秘寶：🎟️探寶令 +3、✨靈塵 +90、道心 +2！';
+          }
+          state.spiritDust = (state.spiritDust || 0) + 40;
+          return '寒氣逼人，僅收取外圍靈塵：✨靈塵 +40。';
+        },
+        resolveB: () => {
+          state.herbs.snow_lotus = (state.herbs.snow_lotus || 0) + 3;
+          state.dew = (state.dew || 0) + 1;
+          state.daoHeart = (state.daoHeart || 0) + 1;
+          return '順利採得伴生靈藥：🪷天靈雪蓮 +3、💧綠液 +1、道心 +1。';
+        }
+      },
+      {
+        id: 'zhuimo_rift',
+        title: '【墜魔谷・空間裂縫異動】',
+        reqSense: 1200,
+        story: '前方虛空忽然裂開一道銀色縫隙，精純無比的上古靈氣伴隨著空間風暴席捲而出！',
+        choiceA: '👁️ 神識定住空間節點吐納（檢定神識）',
+        choiceB: '🧘 於裂縫百丈外穩健打坐',
+        resolveA: (ok) => {
+          if (ok) {
+            const q = Math.round(getActiveRealm().maxQi * 0.42);
+            addActiveQi(q);
+            state.spiritDust = (state.spiritDust || 0) + 110;
+            state.daoHeart = (state.daoHeart || 0) + 3;
+            return `於空間風暴中心頓悟法則！修為 +${formatNum(q)}、✨靈塵 +110、道心 +3！`;
+          }
+          const q = Math.round(getActiveRealm().maxQi * 0.15);
+          addActiveQi(q);
+          return `空間風暴猛烈，退回外圍煉化：修為 +${formatNum(q)}。`;
+        },
+        resolveB: () => {
+          const q = Math.round(getActiveRealm().maxQi * 0.22);
+          addActiveQi(q);
+          state.daoHeart = (state.daoHeart || 0) + 1;
+          return `汲取溢散的上古靈氣：修為 +${formatNum(q)}、道心 +1。`;
+        }
+      },
+      {
+        id: 'heart_demon',
+        title: '【域外天魔・心魔問道】',
+        reqSense: 350,
+        story: '閉關之際，域外天魔幻化出紅塵過往與無上仙途，低語誘你以一絲道基換取頃刻破境。',
+        choiceA: '⚡ 緊守靈台・神識斬魔（檢定神識）',
+        choiceB: '🍵 默誦清心訣・滌蕩丹毒',
+        resolveA: (ok) => {
+          if (ok) {
+            state.tribulationShield = true;
+            state.daoHeart = (state.daoHeart || 0) + 3;
+            state.gachaTokens = (state.gachaTokens || 0) + 2;
+            return '一念斬滅天魔，煉化天魔本源化為護法大陣：🛡️渡劫避雷陣盤已啟動、🎟️探寶令 +2、道心 +3！';
+          }
+          state.daoHeart = (state.daoHeart || 0) + 1;
+          return '固守本心驅散魔影：道心 +1。';
+        },
+        resolveB: () => {
+          state.toxicity = 0;
+          state.injuryTimer = 0;
+          state.daoHeart = (state.daoHeart || 0) + 2;
+          return '心如止水，百毒不侵：☠️丹毒徹底清零、道基恢復、道心 +2！';
+        }
+      },
+      {
+        id: 'guanghan_pool',
+        title: '【廣寒界・仙靈甘露池】',
+        reqSense: 2500,
+        story: '踏入古仙遺跡，一方白玉池中盛滿造化甘露，池底銘刻著繁複的太古仙紋。',
+        choiceA: '👁️ 參悟太古仙紋汲取甘露（檢定神識）',
+        choiceB: '💧 以掌天瓶收取池畔靈霧',
+        resolveA: (ok) => {
+          if (ok) {
+            state.dew = (state.dew || 0) + 3;
+            const q = Math.round(getActiveRealm().maxQi * 0.45);
+            addActiveQi(q);
+            state.daoHeart = (state.daoHeart || 0) + 3;
+            return `仙紋共鳴，甘露盡入掌天瓶：💧綠液 +3、修為 +${formatNum(q)}、道心 +3！`;
+          }
+          state.dew = (state.dew || 0) + 1;
+          return '仙紋深奧，收取一滴造化甘露：💧綠液 +1。';
+        },
+        resolveB: () => {
+          state.dew = (state.dew || 0) + 2;
+          state.spiritDust = (state.spiritDust || 0) + 80;
+          state.daoHeart = (state.daoHeart || 0) + 1;
+          return '掌天瓶吸納靈霧凝聚成形：💧綠液 +2、✨靈塵 +80、道心 +1！';
+        }
+      }
+    ];
+
 
     // =========================================================================
     // 1.5 宗門 Phase 1（NPC 宗門，單機版：無後端、無真人）
@@ -1086,7 +1344,7 @@
       if (!state.sect || state.sect.id !== sectId) return 0;
       return getSectPassive();
     }
-    function getSectGrowthMult() { return 1 + getSectPassiveFor('huangfeng'); }
+    function getSectGrowthMult() { return (1 + getSectPassiveFor('huangfeng')) * (1 + getLawBonuses().timeMult); }
     function rollSectTasks() {
       const pool = SECT_TASK_POOL.slice();
       const picked = [];
@@ -1689,6 +1947,14 @@
         injuryTimer: 0,
         pityBonus: 0,
         reincarnationCount: 0,
+        caveArrayLv: 1,
+        tribulationShield: false,
+        daoHeart: 0,
+        encounterCharges: 3,
+        encounterTick: 0,
+        activeBeastId: 'beetle_king',
+        beastLevels: { beetle_king: 1, tihun_beast: 0, silver_wolf: 0, frost_centipede: 0, true_phoenix: 0 },
+        daoLaws: { wuxing: 0, shijian: 0, kongjian: 0, shalu: 0, zaohua: 0 },
         speedMult: 1,
         lastSeen: 0,
         lastLoginDate: '',
@@ -2264,6 +2530,11 @@
           state.treasureLevels = Object.assign(def.treasureLevels, parsed.treasureLevels || {});
           state.companionAffinity = Object.assign(def.companionAffinity, parsed.companionAffinity || {});
           state.artLevels = Object.assign(def.artLevels, parsed.artLevels || {});
+          state.beastLevels = Object.assign(def.beastLevels, parsed.beastLevels || {});
+          state.daoLaws = Object.assign(def.daoLaws, parsed.daoLaws || {});
+          if (!state.caveArrayLv || state.caveArrayLv < 1) state.caveArrayLv = 1;
+          if (state.encounterCharges === undefined) state.encounterCharges = 3;
+          if (state.daoHeart === undefined) state.daoHeart = 0;
           state.relics = Object.assign({}, parsed.relics || {});
           state.relicInfusion = Object.assign({}, parsed.relicInfusion || {});
           state.sect = Object.assign({}, def.sect, parsed.sect || {});
@@ -2495,6 +2766,45 @@
       const setMult = 1 + Math.floor(ownedCount / 3) * 0.25;
       return { qiMult: qiMult * setMult, combatMult: combatMult * setMult, ownedCount };
     }
+    function getBeastBonuses() {
+      const bl = state.beastLevels || {};
+      const stoneMult = (bl.beetle_king || 0) * 0.08;
+      const senseMult = (bl.tihun_beast || 0) * 0.12;
+      const qiMult = (bl.silver_wolf || 0) * 0.07 + (bl.true_phoenix || 0) * 0.08;
+      const supremeAdd = (bl.frost_centipede || 0) * 0.008;
+      const combatMult = (bl.tihun_beast || 0) * 0.05 + (bl.true_phoenix || 0) * 0.10;
+      return { stoneMult, senseMult, qiMult, supremeAdd, combatMult };
+    }
+    function getLawBonuses() {
+      const dl = state.daoLaws || {};
+      return {
+        qiMult: (dl.wuxing || 0) * 0.08,
+        timeMult: (dl.shijian || 0) * 0.06,
+        dropMult: (dl.kongjian || 0) * 0.08,
+        combatMult: (dl.shalu || 0) * 0.09,
+        supremeAdd: (dl.zaohua || 0) * 0.006,
+        breakAdd: (dl.zaohua || 0) * 0.005
+      };
+    }
+    function getCaveArrayQiMult() {
+      const lv = Math.max(1, state.caveArrayLv || 1);
+      return 1 + (lv - 1) * 0.18;
+    }
+    function getCaveArrayDewMult() {
+      const lv = Math.max(1, state.caveArrayLv || 1);
+      return 1 + (lv - 1) * 0.08;
+    }
+    function getDaoHeartMult() {
+      return 1 + Math.min(3.0, (state.daoHeart || 0) * 0.015);
+    }
+    function addActiveQi(amount) {
+      const realm = getActiveRealm();
+      if (state.activePath === 'body') {
+        state.bodyQi = Math.min(realm.maxQi * 2.0, (state.bodyQi || 0) + amount);
+      } else {
+        state.qi = Math.min(realm.maxQi * 2.0, state.qi + amount);
+      }
+    }
     function getQiRatePerSec() {
       const realm = getActiveRealm();
       const origin = getOrigin();
@@ -2516,7 +2826,9 @@
       const sectBuffMult = (state.sect && state.sect.buffSecondsLeft > 0) ? 1.1 : 1;
       // 總倍率上限 2000 倍：古寶／功法／塔層／轉世等疊加不再無限膨脹，
       // 填滿一條的時間才會隨境界拉長；受傷／壽元懲罰仍在上限外另算。
-      const rawMult = origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * sectQiMult * sectBuffMult * (1 + getCastleBonuses().qiMult);
+      const beastB = getBeastBonuses();
+      const lawB = getLawBonuses();
+      const rawMult = origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * sectQiMult * sectBuffMult * (1 + getCastleBonuses().qiMult) * getCaveArrayQiMult() * (1 + beastB.qiMult) * (1 + lawB.qiMult) * getDaoHeartMult();
       const cappedMult = Math.min(2000, rawMult);
       return Math.max(1, Math.round((realm.baseRate + flatTreasure) * cappedMult * injuryPenalty * lifespanPenalty));
     }
@@ -2535,18 +2847,20 @@
       });
       const artCombatMult = 1 + (artLv - 1) * 0.22;
       const baseCombined = mRealm.combat + Math.round(bRealm.combat * 0.85) + treasureCombat;
-      return Math.round(baseCombined * (origin.id === 'thunder' ? 1.45 : 1.0) * artCombatMult * relicB.combatMult * (1 + traitB.combatMult) * resonanceMult * (1 + getSectPassiveFor('huadao')) * (1 + getCastleBonuses().combatMult));
+      const beastB = getBeastBonuses();
+      const lawB = getLawBonuses();
+      return Math.round(baseCombined * (origin.id === 'thunder' ? 1.45 : 1.0) * artCombatMult * relicB.combatMult * (1 + traitB.combatMult) * resonanceMult * (1 + getSectPassiveFor('huadao')) * (1 + getCastleBonuses().combatMult) * (1 + beastB.combatMult) * (1 + lawB.combatMult) * getDaoHeartMult());
     }
     function getTotalSense() {
       const art = getCurrentArt();
       const artLv = (state.artLevels && state.artLevels[art.id]) || 1;
       const base = 50 + (state.realmIndex + state.bodyRealmIndex) * 90 + art.senseBonus * artLv;
-      return Math.round(base * (1 + ((state.companionAffinity.yinyue || 0) * 0.01)));
+      return Math.round(base * (1 + ((state.companionAffinity.yinyue || 0) * 0.01)) * (1 + getBeastBonuses().senseMult) * getDaoHeartMult());
     }
     function getAlchemyRates() {
       const hasShiling = ((state.relics && state.relics.shiling_fire) || 0) > 0;
       const hasQianlan = ((state.relics && state.relics.qianlan_fire) || 0) > 0;
-      const heavenlyBonus = getOrigin().id === 'heavenly' ? 0.08 : 0;
+      const heavenlyBonus = (getOrigin().id === 'heavenly' ? 0.08 : 0) + getBeastBonuses().supremeAdd + getLawBonuses().supremeAdd;
 
       if (hasShiling) return { failRate: 0.0, supremeRate: 0.32 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4 + getCastleBonuses().alchemySupreme, highRate: 0.40, flameName: '噬靈天火' };
       if (hasQianlan) return { failRate: 0.08, supremeRate: 0.18 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4 + getCastleBonuses().alchemySupreme, highRate: 0.30, flameName: '乾藍冰焰' };
@@ -2560,7 +2874,8 @@
       }
       if (state.toxicity >= 70) base -= 0.15;
       if (state.sect && state.sect.id === 'yanyue') base += getSectPassive() * 0.2;
-      base += getCastleBonuses().breakBonus;
+      base += getCastleBonuses().breakBonus + getLawBonuses().breakAdd + Math.min(0.15, (state.daoHeart || 0) * 0.002);
+      if (state.tribulationShield) base += 0.20;
       return Math.min(0.98, Math.max(0.05, base));
     }
     function formatNum(n) {
@@ -3005,6 +3320,7 @@
           state.realmIndex += 1;
         }
         state.pityBonus = 0;
+        state.tribulationShield = false;
         state.toxicity = Math.max(0, state.toxicity - 30);
         state.gachaTokens = (state.gachaTokens || 0) + 1;
         progressSectTask('breakthrough1', 1);
@@ -3016,19 +3332,28 @@
         addLog(`🎉 晉入【${nextTitle}】（探寶令+1${nextRealm.lifespan > realm.lifespan ? `、壽元延至 ${nextRealm.lifespan}載` : ''}）！`, true);
         showToast(`🎉 晉入【${nextTitle}】！`);
       } else {
-        const lostQi = Math.round(curQi * 0.25);
-        if (isBody) {
-          state.bodyQi = Math.max(0, state.bodyQi - lostQi);
+        if (state.tribulationShield) {
+          state.tribulationShield = false;
+          state.pityBonus = Math.min(0.50, state.pityBonus + 0.08);
+          playSound('dew');
+          spawnFloatingText('🛡️ 陣盤護體・免損修為', 'text-[#236c53]');
+          addLog('🛡️ 破境天劫降臨，【渡劫避雷陣盤】替你擋下全部反噬（0 修為損失、保底 +8%）！', true);
+          showToast('🛡️ 渡劫陣盤已抵擋破境反噬，修為無損！');
         } else {
-          state.qi = Math.max(0, state.qi - lostQi);
+          const lostQi = Math.round(curQi * 0.25);
+          if (isBody) {
+            state.bodyQi = Math.max(0, state.bodyQi - lostQi);
+          } else {
+            state.qi = Math.max(0, state.qi - lostQi);
+          }
+          state.toxicity = Math.min(100, state.toxicity + 25);
+          state.injuryTimer = 25;
+          state.pityBonus = Math.min(0.50, state.pityBonus + 0.05);
+          playSound('plucked');
+          spawnFloatingText(`💥 -${formatNum(lostQi)}`, 'text-rose-800');
+          addLog(`⚡ 破境失敗，損失 ${formatNum(lostQi)} 修為！`, true);
+          showToast(`💥 破境失敗！扣 25% 修為`);
         }
-        state.toxicity = Math.min(100, state.toxicity + 25);
-        state.injuryTimer = 25;
-        state.pityBonus = Math.min(0.50, state.pityBonus + 0.05);
-        playSound('plucked');
-        spawnFloatingText(`💥 -${formatNum(lostQi)}`, 'text-rose-800');
-        addLog(`⚡ 破境失敗，損失 ${formatNum(lostQi)} 修為！`, true);
-        showToast(`💥 破境失敗！扣 25% 修為`);
       }
       renderAll();
       saveState();
@@ -3326,6 +3651,40 @@
       }
 
       activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - dmgToEnemy);
+      // 本命靈獸協同出戰
+      const beastId = state.activeBeastId || 'beetle_king';
+      const beastLv = (state.beastLevels && state.beastLevels[beastId]) || 0;
+      const beastDef = SPIRIT_BEASTS.find(b => b.id === beastId);
+      if (beastDef && beastLv > 0) {
+        if (beastId === 'beetle_king') {
+          const bDmg = Math.round(playerBaseAtk * (0.35 + beastLv * 0.03));
+          activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - bDmg);
+          notes.push(`🪲噬金-${formatNum(bDmg)}`);
+        } else if (beastId === 'tihun_beast') {
+          const bDmg = Math.round(playerBaseAtk * (0.28 + beastLv * 0.025));
+          activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - bDmg);
+          if (Math.random() <= Math.min(0.65, 0.25 + beastLv * 0.015)) {
+            activeCombat.enemyStunned = true;
+            notes.push(`🐵啼魂震懾-${formatNum(bDmg)}`);
+          } else {
+            notes.push(`🐵啼魂-${formatNum(bDmg)}`);
+          }
+        } else if (beastId === 'silver_wolf') {
+          const bDmg = Math.round(playerBaseAtk * (0.30 + beastLv * 0.025));
+          const bHeal = Math.round(bDmg * (0.25 + beastLv * 0.015));
+          activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - bDmg);
+          activeCombat.playerHp = Math.min(activeCombat.playerMaxHp, activeCombat.playerHp + bHeal);
+          notes.push(`🐺銀狼-${formatNum(bDmg)}/回+${formatNum(bHeal)}`);
+        } else if (beastId === 'frost_centipede') {
+          const bSh = Math.round(activeCombat.playerMaxHp * (0.12 + beastLv * 0.01));
+          activeCombat.playerShield += bSh;
+          notes.push(`🦂霜蚣盾+${formatNum(bSh)}`);
+        } else if (beastId === 'true_phoenix') {
+          const bDmg = Math.round(playerBaseAtk * (0.45 + beastLv * 0.04));
+          activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - bDmg);
+          notes.push(`🦅天鳳-${formatNum(bDmg)}`);
+        }
+      }
       if (activeCombat.isBoss || activeCombat.isSiege || activeCombat.isDefense) {
         const _sc = state.sect || {};
         const assist = sectRankFromTotal(_sc.totalContribution || 0) * 50 + ((_sc.arrayDurability || 0) > 0 ? (_sc.arrayLv || 1) * 30 : 0) + ((_sc.disciples || 0) * 10);
@@ -3444,7 +3803,7 @@
     function grantTowerVictory(floor) {
       const milestone = floor % 5 === 0;
       const tokens = 2 + (milestone ? 3 : 0);
-      const sectTowerMult = 1 + getSectPassiveFor('huadao');
+      const sectTowerMult = (1 + getSectPassiveFor('huadao')) * (1 + getLawBonuses().dropMult);
       const dust = Math.round((30 + floor * 5 + (milestone ? 100 : 0)) * sectTowerMult * (1 + getCastleBonuses().towerDustMult));
       const stones = Math.round(floor * 60 * sectTowerMult * (1 + getCastleBonuses().towerStoneMult));
       state.towerFloor = floor + 1;
@@ -3474,7 +3833,7 @@
     function handleCombatVictory(loc) {
       const origin = getOrigin();
       const yuanwaoMult = 1 + ((state.companionAffinity.yuanwao || 0) * 0.015);
-      const dropMult = (origin.dropBonus || 1.0) * yuanwaoMult * (1 + getSectPassiveFor('lingshou')) * (1 + getCastleBonuses().dropMult);
+      const dropMult = (origin.dropBonus || 1.0) * yuanwaoMult * (1 + getSectPassiveFor('lingshou')) * (1 + getCastleBonuses().dropMult) * (1 + getLawBonuses().dropMult) * (1 + getBeastBonuses().stoneMult);
 
       const stoneReward = Math.round((35 + loc.minRealm * 85) * dropMult);
       const qiReward = Math.round((45 + loc.minRealm * 150) * dropMult);
@@ -3563,6 +3922,23 @@
         if (sk.stunChance && Math.random() <= sk.stunChance) stunned = true;
         if (sk.lifesteal) playerHp = Math.min(playerMaxHp, playerHp + Math.round(dmg * sk.lifesteal));
         enemyHp = Math.max(0, enemyHp - dmg);
+        const beastId = state.activeBeastId || 'beetle_king';
+        const beastLv = (state.beastLevels && state.beastLevels[beastId]) || 0;
+        if (beastLv > 0) {
+          if (beastId === 'beetle_king') enemyHp = Math.max(0, enemyHp - Math.round(baseAtk * (0.35 + beastLv * 0.03)));
+          else if (beastId === 'tihun_beast') {
+            enemyHp = Math.max(0, enemyHp - Math.round(baseAtk * (0.28 + beastLv * 0.025)));
+            if (Math.random() <= Math.min(0.65, 0.25 + beastLv * 0.015)) stunned = true;
+          } else if (beastId === 'silver_wolf') {
+            const bd = Math.round(baseAtk * (0.30 + beastLv * 0.025));
+            enemyHp = Math.max(0, enemyHp - bd);
+            playerHp = Math.min(playerMaxHp, playerHp + Math.round(bd * (0.25 + beastLv * 0.015)));
+          } else if (beastId === 'frost_centipede') {
+            shield += Math.round(playerMaxHp * (0.12 + beastLv * 0.01));
+          } else if (beastId === 'true_phoenix') {
+            enemyHp = Math.max(0, enemyHp - Math.round(baseAtk * (0.45 + beastLv * 0.04)));
+          }
+        }
         if (enemyHp <= 0) break;
         if (stunned) {
           stunned = false;
@@ -3726,6 +4102,150 @@
       saveState();
     }
 
+    function upgradeCaveArray() {
+      const lv = Math.max(1, state.caveArrayLv || 1);
+      if (lv >= 15) { showToast('🏡 洞府聚靈陣已臻 15 階鴻蒙造化陣！'); return; }
+      const stoneCost = Math.round(200 * Math.pow(1.75, lv - 1));
+      const dustCost = 15 * lv;
+      if ((state.stones || 0) < stoneCost) { showToast(`需 ${formatNum(stoneCost)} 靈石！`); return; }
+      if ((state.spiritDust || 0) < dustCost) { showToast(`需 ${formatNum(dustCost)} 靈塵！`); return; }
+      state.stones -= stoneCost;
+      state.spiritDust -= dustCost;
+      state.caveArrayLv = lv + 1;
+      const arrName = CAVE_ARRAY_NAMES[state.caveArrayLv - 1] || `${state.caveArrayLv}階聚靈陣`;
+      playSound('breakthrough');
+      addLog(`🏡 洞府聚靈陣升至 ${state.caveArrayLv} 階【${arrName}】！`, true);
+      showToast(`🏡 升至 ${state.caveArrayLv} 階【${arrName}】！`);
+      renderAll();
+      saveState();
+    }
+
+    function forgeTribulationShield() {
+      if (state.tribulationShield) {
+        showToast('🛡️ 渡劫避雷陣盤已處於啟動狀態！');
+        return;
+      }
+      if ((state.spiritDust || 0) < 80) {
+        showToast('需 80 靈塵祭煉渡劫陣盤！');
+        return;
+      }
+      state.spiritDust -= 80;
+      state.tribulationShield = true;
+      playSound('dew');
+      showToast('🛡️ 已佈下【渡劫避雷陣盤】：下次破境率+20%且失敗免損！');
+      renderAll();
+      saveState();
+    }
+
+    let currentEncounter = null;
+    function triggerSenseEncounter() {
+      if (currentEncounter) {
+        showToast('請先完成當前的奇遇抉擇！');
+        return;
+      }
+      if ((state.encounterCharges || 0) <= 0) {
+        if ((state.spiritDust || 0) < 30) {
+          showToast('🗺️ 奇遇機緣冷卻中（每45秒+1），強行推演需 30 靈塵！');
+          return;
+        }
+        state.spiritDust -= 30;
+      } else {
+        state.encounterCharges -= 1;
+      }
+      currentEncounter = ENCOUNTER_POOL[Math.floor(Math.random() * ENCOUNTER_POOL.length)];
+      playSound('plucked');
+      renderEncounterBox();
+      updateStatusUI();
+      saveState();
+    }
+
+    function renderEncounterBox() {
+      const box = document.getElementById('active-encounter-box');
+      if (!box) return;
+      if (!currentEncounter) {
+        box.classList.add('hidden');
+        return;
+      }
+      box.classList.remove('hidden');
+      const sense = getTotalSense();
+      const chance = Math.min(100, Math.round((sense / currentEncounter.reqSense) * 80));
+      document.getElementById('encounter-title').textContent = currentEncounter.title;
+      document.getElementById('encounter-req-tag').textContent = `建議神識 ${formatNum(currentEncounter.reqSense)}（破禁率 ${chance}%）`;
+      document.getElementById('encounter-story').textContent = currentEncounter.story;
+      const grid = document.getElementById('encounter-choices-grid');
+      grid.innerHTML = `
+        <button type="button" id="btn-enc-choice-a" class="cinnabar-btn text-xs py-2.5 px-3 rounded-lg font-bold text-center">${currentEncounter.choiceA}</button>
+        <button type="button" id="btn-enc-choice-b" class="jade-btn text-xs py-2.5 px-3 rounded-lg font-bold text-center">${currentEncounter.choiceB}</button>
+      `;
+      document.getElementById('btn-enc-choice-a').addEventListener('click', () => resolveEncounterChoice('A'));
+      document.getElementById('btn-enc-choice-b').addEventListener('click', () => resolveEncounterChoice('B'));
+    }
+
+    function resolveEncounterChoice(choice) {
+      if (!currentEncounter) return;
+      let resultText = '';
+      if (choice === 'A') {
+        const sense = getTotalSense();
+        const ok = Math.random() <= Math.min(1.0, (sense / currentEncounter.reqSense) * 0.80);
+        resultText = currentEncounter.resolveA(ok);
+        playSound(ok ? 'breakthrough' : 'plucked');
+      } else {
+        resultText = currentEncounter.resolveB();
+        playSound('dew');
+      }
+      addLog(`🗺️ ${currentEncounter.title}：${resultText}`, true);
+      showToast(`🗺️ ${resultText}`);
+      currentEncounter = null;
+      renderEncounterBox();
+      renderAll();
+      saveState();
+    }
+
+    function upgradeSpiritBeast(beastId) {
+      const b = SPIRIT_BEASTS.find(x => x.id === beastId);
+      if (!b) return;
+      const lv = (state.beastLevels && state.beastLevels[beastId]) || 0;
+      if (lv >= 20) { showToast('🐉 靈獸血脈已滿 20 階！'); return; }
+      const stoneCost = Math.round(b.baseStoneCost * Math.pow(1.55, lv));
+      const dustCost = Math.round(b.baseDustCost * (lv + 1));
+      if ((state.stones || 0) < stoneCost) { showToast(`需 ${formatNum(stoneCost)} 靈石！`); return; }
+      if ((state.spiritDust || 0) < dustCost) { showToast(`需 ${formatNum(dustCost)} 靈塵！`); return; }
+      state.stones -= stoneCost;
+      state.spiritDust -= dustCost;
+      state.beastLevels[beastId] = lv + 1;
+      state.activeBeastId = beastId;
+      playSound('breakthrough');
+      showToast(`🐉 【${b.name}】升至 ${lv + 1} 階並設為出戰！`);
+      renderAll();
+      saveState();
+    }
+
+    function selectActiveBeast(beastId) {
+      const lv = (state.beastLevels && state.beastLevels[beastId]) || 0;
+      if (lv <= 0) { showToast('請先孵化此靈獸！'); return; }
+      state.activeBeastId = beastId;
+      const b = SPIRIT_BEASTS.find(x => x.id === beastId);
+      playSound('plucked');
+      showToast(`🐉 已派【${b ? b.name : ''}】出戰助陣！`);
+      renderAll();
+      saveState();
+    }
+
+    function comprehendDaoLaw(lawId) {
+      const law = DAO_LAWS.find(x => x.id === lawId);
+      if (!law) return;
+      const lv = (state.daoLaws && state.daoLaws[lawId]) || 0;
+      if (lv >= 20) { showToast('☯️ 此大道法則已臻 20 重圓滿！'); return; }
+      const dustCost = Math.round(law.baseDustCost * Math.pow(1.45, lv));
+      if ((state.spiritDust || 0) < dustCost) { showToast(`需 ${formatNum(dustCost)} 靈塵參悟！`); return; }
+      state.spiritDust -= dustCost;
+      state.daoLaws[lawId] = lv + 1;
+      playSound('breakthrough');
+      showToast(`☯️ 【${law.name}】參悟至第 ${lv + 1} 重！`);
+      renderAll();
+      saveState();
+    }
+
     // =========================================================================
     // 9. UI Rendering (Separating Initial DOM Build from Live 1-Second Updates!)
     // =========================================================================
@@ -3745,6 +4265,9 @@
       const sectBuffMult = (state.sect && state.sect.buffSecondsLeft > 0) ? 1.1 : 1;
       const castleB = getCastleBonuses();
 
+      const beastB = getBeastBonuses();
+      const lawB = getLawBonuses();
+
       const items = [
         { label: '出身命格', val: `修x${origin.qiMult.toFixed(2)}｜凝露x${origin.dewMult.toFixed(2)}` },
         { label: '主修功法', val: `修x${artMult.toFixed(2)}` },
@@ -3754,7 +4277,10 @@
         { label: '血脈詞條', val: `修+${Math.round(traitB.qiMult * 100)}%｜戰+${Math.round(traitB.combatMult * 100)}%` },
         { label: '道侶仙緣', val: `吐納+${Math.round((nangongBonus - 1) * 100)}%｜靈石+${state.companionAffinity.ziyan || 0}%` },
         { label: '輪迴遺澤', val: `修x${reincBonus.toFixed(2)} (${state.reincarnationCount}世)` },
-        { label: '宗門與城池', val: `修x${(sectQiMult * sectBuffMult * (1 + castleB.qiMult)).toFixed(2)}｜草+${Math.round((getSectGrowthMult() - 1 + castleB.herbMult) * 100)}%` }
+        { label: '宗門與城池', val: `修x${(sectQiMult * sectBuffMult * (1 + castleB.qiMult)).toFixed(2)}｜草+${Math.round((getSectGrowthMult() - 1 + castleB.herbMult) * 100)}%` },
+        { label: '洞府聚靈陣', val: `${state.caveArrayLv || 1}階｜修+${Math.round((getCaveArrayQiMult() - 1) * 100)}%` },
+        { label: '靈獸與法則', val: `修+${Math.round((beastB.qiMult + lawB.qiMult) * 100)}%｜戰+${Math.round((beastB.combatMult + lawB.combatMult) * 100)}%` },
+        { label: '道心與護法', val: `道心${state.daoHeart || 0}(+${Math.round((getDaoHeartMult() - 1) * 100)}%)｜${state.tribulationShield ? '🛡️已護法' : '無護法'}` }
       ];
 
       const grid = document.getElementById('breakdown-grid');
@@ -3977,6 +4503,49 @@
       const hintEl = document.getElementById('realm-perk-hint');
       if (hintEl) {
         hintEl.textContent = activeRealm.gateHint || `下一階：${isBody ? nextRealm.bodyName : nextRealm.name}`;
+      }
+
+      // Cave Mansion Spirit Array & Tribulation Shield UI
+      const caveLv = Math.max(1, state.caveArrayLv || 1);
+      const caveName = CAVE_ARRAY_NAMES[caveLv - 1] || `${caveLv}階聚靈陣`;
+      const caveTitleEl = document.getElementById('cave-array-title');
+      const caveBonusEl = document.getElementById('cave-array-bonus');
+      const caveBtn = document.getElementById('btn-upgrade-cave-array');
+      if (caveTitleEl) caveTitleEl.textContent = `🏡 ${caveName}（${caveLv}/15階）`;
+      if (caveBonusEl) caveBonusEl.textContent = `修速+${Math.round((getCaveArrayQiMult() - 1) * 100)}%｜凝露+${Math.round((getCaveArrayDewMult() - 1) * 100)}%`;
+      if (caveBtn) {
+        if (caveLv >= 15) {
+          caveBtn.textContent = '已臻 15 階鴻蒙造化陣';
+          caveBtn.disabled = true;
+        } else {
+          const sCost = Math.round(200 * Math.pow(1.75, caveLv - 1));
+          const dCost = 15 * caveLv;
+          caveBtn.textContent = `✨ 升階聚靈陣 (${formatNum(sCost)}石+${dCost}塵)`;
+          caveBtn.disabled = false;
+        }
+      }
+      const shieldStatusEl = document.getElementById('trib-shield-status');
+      const shieldBtn = document.getElementById('btn-forge-trib-shield');
+      if (shieldStatusEl && shieldBtn) {
+        if (state.tribulationShield) {
+          shieldStatusEl.textContent = '🛡️ 護法生效中';
+          shieldStatusEl.className = 'text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-[#236c53] font-bold';
+          shieldBtn.textContent = '🛡️ 護法大陣已就緒（破境+20%・免反噬）';
+          shieldBtn.disabled = true;
+        } else {
+          shieldStatusEl.textContent = '未佈陣';
+          shieldStatusEl.className = 'text-[11px] px-2 py-0.5 rounded bg-[#e6dcc5] text-[#5c5346] font-bold';
+          shieldBtn.textContent = '🛡️ 祭煉護法陣盤 (耗 80 靈塵)';
+          shieldBtn.disabled = false;
+        }
+      }
+      const encSenseEl = document.getElementById('encounter-sense-label');
+      const encChargesEl = document.getElementById('encounter-charges-badge');
+      const encBtn = document.getElementById('btn-trigger-encounter');
+      if (encSenseEl) encSenseEl.textContent = `神識 ${formatNum(getTotalSense())} ｜ 道心 ${state.daoHeart || 0}`;
+      if (encChargesEl) encChargesEl.textContent = `機緣 ${state.encounterCharges || 0}/5`;
+      if (encBtn) {
+        encBtn.textContent = (state.encounterCharges || 0) > 0 ? `🗺️ 神識探查奇遇 (${state.encounterCharges})` : '🗺️ 推演奇遇 (30塵)';
       }
 
       const unlockedRelicCount = Object.keys(state.relics || {}).filter(k => state.relics[k] > 0).length;
@@ -4253,6 +4822,79 @@
             updateStatusUI();
             saveState();
           });
+        });
+      }
+
+      // Render Spirit Beasts
+      const beastList = document.getElementById('spirit-beasts-list');
+      if (beastList) {
+        beastList.innerHTML = '';
+        const actBeast = SPIRIT_BEASTS.find(b => b.id === state.activeBeastId) || SPIRIT_BEASTS[0];
+        const actSumEl = document.getElementById('active-beast-summary');
+        if (actSumEl) actSumEl.textContent = `（當前出戰：${actBeast.icon}${actBeast.name}）`;
+
+        SPIRIT_BEASTS.forEach(b => {
+          const lv = (state.beastLevels && state.beastLevels[b.id]) || 0;
+          const isAct = state.activeBeastId === b.id && lv > 0;
+          const sCost = Math.round(b.baseStoneCost * Math.pow(1.55, lv));
+          const dCost = Math.round(b.baseDustCost * (lv + 1));
+          const row = document.createElement('div');
+          row.className = `p-3 rounded-xl border flex items-center justify-between gap-2 ${isAct ? 'bg-[#f2ead7] border-2 border-[#236c53]' : 'bg-[#fcfaf5] border-[#d6c7ac]'}`;
+          row.innerHTML = `
+            <div class="min-w-0 flex-1 space-y-0.5">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-sm text-[#1e1a16]">${b.icon} ${b.name}</span>
+                <span class="text-[11px] px-1.5 py-0.5 rounded bg-[#efe7d6] text-[#9e2a22] font-bold">${lv > 0 ? `${lv}/20階` : '未孵化'}</span>
+                <span class="text-xs text-[#236c53] font-bold">${b.passiveDesc}</span>
+              </div>
+              <div class="text-[11px] text-[#5c5346]">${b.activeDesc}</div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              ${lv > 0 ? `<button type="button" data-beast-select="${b.id}" class="${isAct ? 'jade-btn' : 'paper-btn'} text-xs px-2.5 py-1.5 rounded-lg font-bold">${isAct ? '✓出戰中' : '出戰'}</button>` : ''}
+              <button type="button" data-beast-up="${b.id}" ${lv >= 20 ? 'disabled' : ''} class="cinnabar-btn text-xs px-2.5 py-1.5 rounded-lg font-bold">
+                ${lv >= 20 ? '已滿階' : lv === 0 ? `孵化(${sCost}石/${dCost}塵)` : `進階(${formatNum(sCost)}石/${dCost}塵)`}
+              </button>
+            </div>
+          `;
+          beastList.appendChild(row);
+        });
+        beastList.querySelectorAll('[data-beast-select]').forEach(btn => {
+          btn.addEventListener('click', () => selectActiveBeast(btn.getAttribute('data-beast-select')));
+        });
+        beastList.querySelectorAll('[data-beast-up]').forEach(btn => {
+          btn.addEventListener('click', () => upgradeSpiritBeast(btn.getAttribute('data-beast-up')));
+        });
+      }
+
+      // Render Cosmic Dao Laws
+      const lawsList = document.getElementById('dao-laws-list');
+      if (lawsList) {
+        lawsList.innerHTML = '';
+        const totalLawLv = Object.values(state.daoLaws || {}).reduce((a, b) => a + b, 0);
+        const lawSumEl = document.getElementById('dao-laws-summary');
+        if (lawSumEl) lawSumEl.textContent = `（總參悟：${totalLawLv}/100重）`;
+
+        DAO_LAWS.forEach(law => {
+          const lv = (state.daoLaws && state.daoLaws[law.id]) || 0;
+          const dCost = Math.round(law.baseDustCost * Math.pow(1.45, lv));
+          const card = document.createElement('div');
+          card.className = 'bg-[#fcfaf5] border border-[#d6c7ac] rounded-xl p-2.5 flex items-center justify-between gap-2';
+          card.innerHTML = `
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-xs text-[#1e1a16]">${law.icon} ${law.name}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#efe7d6] text-[#9c6b21] font-bold">${lv}/20重</span>
+              </div>
+              <div class="text-[11px] text-[#236c53] font-semibold mt-0.5">${law.desc}</div>
+            </div>
+            <button type="button" data-law-up="${law.id}" ${lv >= 20 ? 'disabled' : ''} class="gold-btn text-xs px-2.5 py-1.5 rounded-lg font-bold shrink-0">
+              ${lv >= 20 ? '圓滿' : `參悟(${formatNum(dCost)}塵)`}
+            </button>
+          `;
+          lawsList.appendChild(card);
+        });
+        lawsList.querySelectorAll('[data-law-up]').forEach(btn => {
+          btn.addEventListener('click', () => comprehendDaoLaw(btn.getAttribute('data-law-up')));
         });
       }
 
@@ -4603,7 +5245,7 @@
         const origin = getOrigin();
         const yinyueMult = 1 + ((state.companionAffinity.yinyue || 0) * 0.01);
         const xutianBonus = 1 + ((state.treasureLevels.xutian || 0) * 0.25);
-        state.dewProgress += 1.4 * mult * origin.dewMult * yinyueMult * xutianBonus;
+        state.dewProgress += 1.4 * mult * origin.dewMult * yinyueMult * xutianBonus * getCaveArrayDewMult() * (1 + getLawBonuses().timeMult);
         if (state.dewProgress >= 100) {
           const newDrops = Math.floor(state.dewProgress / 100);
           state.dew += newDrops;
@@ -4621,6 +5263,13 @@
           }
         });
 
+        state.encounterTick = (state.encounterTick || 0) + 1;
+        if (state.encounterTick >= 45) {
+          state.encounterTick = 0;
+          if ((state.encounterCharges || 0) < 5) {
+            state.encounterCharges = (state.encounterCharges || 0) + 1;
+          }
+        }
         state.ageMonths += 0.1 * mult; // 年齡降速：舊版 1 秒長 1 個月，17 分鐘就活過 100 載，壽元形同虛設
         if (state.ageMonths >= 12) {
           state.ageYears += Math.floor(state.ageMonths / 12);
@@ -4797,11 +5446,19 @@
         const savedSect = JSON.parse(JSON.stringify(state.sect || {}));
         const savedCastles = JSON.parse(JSON.stringify(state.castles || defaultCastles()));
         const savedInfusion = Object.assign({}, state.relicInfusion || {});
+        const savedBeasts = Object.assign({}, state.beastLevels || {});
+        const savedActiveBeast = state.activeBeastId || 'beetle_king';
+        const savedLaws = Object.assign({}, state.daoLaws || {});
+        const savedDaoHeart = state.daoHeart || 0;
         state = createDefaultState();
         state.reincarnationCount = nextReinc;
         state.relics = savedRelics;
         state.relicInfusion = savedInfusion;
         state.castles = savedCastles;
+        state.beastLevels = savedBeasts;
+        state.activeBeastId = savedActiveBeast;
+        state.daoLaws = savedLaws;
+        state.daoHeart = savedDaoHeart;
         ensureCastles();
         if (savedSect && savedSect.id) { state.sect = savedSect; ensureSectState(); }
         state.gachaTokens = 3 + nextReinc;
@@ -4819,6 +5476,14 @@
         renderLogs();
         saveState();
       });
+
+      // New Content Systems Event Listeners
+      const upCaveBtn = document.getElementById('btn-upgrade-cave-array');
+      if (upCaveBtn) upCaveBtn.addEventListener('click', upgradeCaveArray);
+      const forgeShieldBtn = document.getElementById('btn-forge-trib-shield');
+      if (forgeShieldBtn) forgeShieldBtn.addEventListener('click', forgeTribulationShield);
+      const trigEncBtn = document.getElementById('btn-trigger-encounter');
+      if (trigEncBtn) trigEncBtn.addEventListener('click', triggerSenseEncounter);
 
       // New QoL Event Listeners
       const breakdownBtn = document.getElementById('btn-toggle-breakdown');
