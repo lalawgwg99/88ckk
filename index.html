@@ -5795,6 +5795,699 @@
       }, 1000);
     }
 
+    // =========================================================================
+    // 11. Custom Player Name, Cloud Account Server Save & Leaderboards
+    // =========================================================================
+    const CLOUD_TOPIC_LB = '88ckk_global_leaderboard_v2';
+    let activeLbTab = 'sects'; // 'sects' | 'disciples'
+    let activeDiscipleSort = 'combat'; // 'combat' | 'realm' | 'tower'
+    let cloudPlayersCache = [];
+
+    // Rich NPC Cultivator Roster across Sects for Disciple Leaderboard
+    const NPC_DISCIPLES = [
+      { playerName: '南宮婉', sectId: 'yanyue', sectName: '🌙 掩月宗', realmName: '元嬰中期', realmIndex: 11, bodyRealmName: '金身初期', combat: 420000, towerFloor: 48, sectContribution: 6800 },
+      { playerName: '向之禮', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '化神初期', realmIndex: 14, bodyRealmName: '萬象圓滿', combat: 2850000, towerFloor: 72, sectContribution: 15200 },
+      { playerName: '大衍神君', sectId: 'lingshou', sectName: '🦁 靈獸山', realmName: '元嬰後期', realmIndex: 12, bodyRealmName: '金身後期', combat: 1150000, towerFloor: 60, sectContribution: 11200 },
+      { playerName: '蠻鬍子', sectId: 'huadao', sectName: '🔪 化刀塢', realmName: '元嬰中期', realmIndex: 11, bodyRealmName: '金身圓滿', combat: 680000, towerFloor: 52, sectContribution: 8900 },
+      { playerName: '六道極聖', sectId: 'xiesha', sectName: '🩸 血煞宗', realmName: '元嬰後期', realmIndex: 12, bodyRealmName: '萬象初期', combat: 1380000, towerFloor: 64, sectContribution: 12400 },
+      { playerName: '令狐老祖', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '元嬰初期', realmIndex: 10, bodyRealmName: '玉骨圓滿', combat: 195000, towerFloor: 38, sectContribution: 5400 },
+      { playerName: '韓天尊・分身', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '煉虛初期', realmIndex: 17, bodyRealmName: '不滅初期', combat: 9600000, towerFloor: 88, sectContribution: 22000 },
+      { playerName: '玄骨上人', sectId: 'xiesha', sectName: '🩸 血煞宗', realmName: '結丹圓滿', realmIndex: 9, bodyRealmName: '玉骨後期', combat: 86000, towerFloor: 31, sectContribution: 4100 },
+      { playerName: '青元子', sectId: 'yanyue', sectName: '🌙 掩月宗', realmName: '化神中期', realmIndex: 15, bodyRealmName: '萬象後期', combat: 4600000, towerFloor: 79, sectContribution: 18500 },
+      { playerName: '車老妖', sectId: 'lingshou', sectName: '🦁 靈獸山', realmName: '化神初期', realmIndex: 14, bodyRealmName: '金身圓滿', combat: 2100000, towerFloor: 68, sectContribution: 13600 },
+      { playerName: '溫天仁', sectId: 'xiesha', sectName: '🩸 血煞宗', realmName: '結丹後期', realmIndex: 8, bodyRealmName: '玉骨中期', combat: 48000, towerFloor: 26, sectContribution: 3200 },
+      { playerName: '慕沛靈', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '結丹初期', realmIndex: 6, bodyRealmName: '銅皮圓滿', combat: 14500, towerFloor: 18, sectContribution: 2100 },
+      { playerName: '陳巧倩', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '築基後期', realmIndex: 5, bodyRealmName: '鍛骨後期', combat: 4800, towerFloor: 12, sectContribution: 1250 },
+      { playerName: '厲飛雨', sectId: 'huadao', sectName: '🔪 化刀塢', realmName: '結丹中期', realmIndex: 7, bodyRealmName: '玉骨初期', combat: 29000, towerFloor: 22, sectContribution: 2800 },
+      { playerName: '董萱兒', sectId: 'yanyue', sectName: '🌙 掩月宗', realmName: '結丹初期', realmIndex: 6, bodyRealmName: '鍛骨圓滿', combat: 16800, towerFloor: 19, sectContribution: 1950 }
+    ];
+
+    function simplePinHash(username, password) {
+      const str = `${username.toLowerCase()}::88ckk_salt::${password}`;
+      let h1 = 0xdeadbeef ^ str.length;
+      let h2 = 0x41c6ce57 ^ str.length;
+      for (let i = 0; i < str.length; i++) {
+        const ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+      }
+      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+      h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+      return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
+    }
+
+    function acctTopicForUser(username) {
+      let h = 2166136261;
+      const clean = username.trim().toLowerCase();
+      for (let i = 0; i < clean.length; i++) {
+        h ^= clean.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return `88ckk_acct_${(h >>> 0).toString(36)}`;
+    }
+
+    function updateCloudModalUI() {
+      const nameInput = document.getElementById('player-name-input');
+      if (nameInput && document.activeElement !== nameInput) {
+        nameInput.value = state.playerName || '韓立';
+      }
+      const userInp = document.getElementById('cloud-username-input');
+      if (userInp && state.cloudUsername && !userInp.value) {
+        userInp.value = state.cloudUsername;
+      }
+      const badge = document.getElementById('cloud-status-badge');
+      const banner = document.getElementById('cloud-status-banner');
+      if (badge) {
+        if (state.cloudUsername) {
+          badge.textContent = `✅ 已登入：${state.cloudUsername}`;
+          badge.className = 'text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-[#236c53] font-bold';
+        } else {
+          badge.textContent = '未登入帳號';
+          badge.className = 'text-[11px] px-2 py-0.5 rounded bg-[#e6dcc5] text-[#5c5346] font-bold';
+        }
+      }
+      if (banner && state.cloudUsername && state.lastCloudSync) {
+        const dt = new Date(state.lastCloudSync);
+        const timeStr = `${dt.getMonth() + 1}/${dt.getDate()} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+        banner.textContent = `☁️ 帳號【${state.cloudUsername}】已連線伺服器（上次雲端同步：${timeStr}）。可隨時點擊「存檔至伺服器」或跨裝置「從伺服器讀檔」。`;
+      }
+    }
+
+    function setCloudStatusBanner(msg, isError = false) {
+      const banner = document.getElementById('cloud-status-banner');
+      if (!banner) return;
+      banner.textContent = msg;
+      banner.className = `text-[11px] font-bold rounded-lg px-2.5 py-2 leading-relaxed border ${
+        isError
+          ? 'text-[#9e2a22] bg-rose-50 border-rose-300'
+          : 'text-[#236c53] bg-[#fcfaf5] border-[#d6c7ac]'
+      }`;
+    }
+
+    function savePlayerName() {
+      const inp = document.getElementById('player-name-input');
+      if (!inp) return;
+      const val = inp.value.trim().slice(0, 12);
+      if (!val) {
+        showToast('請輸入有效的道號（1~12字）！');
+        return;
+      }
+      state.playerName = val;
+      playSound('dew');
+      addLog(`✍️ 修士尊號已更改為【${val}】！`, true);
+      showToast(`✅ 道號已設為：${val}`);
+      renderAll();
+      saveState();
+      updateCloudModalUI();
+    }
+
+    function getPlayerLeaderboardSnapshot() {
+      const mRealm = getMagicRealm();
+      const bRealm = getBodyRealm();
+      const sectDef = getSectDef();
+      return {
+        username: state.cloudUsername || 'local_player',
+        playerName: state.playerName || '韓立',
+        sectId: (state.sect && state.sect.id) || '',
+        sectName: sectDef ? `${sectDef.emoji} ${sectDef.name}` : '散修',
+        realmName: mRealm.name,
+        realmIndex: state.realmIndex || 0,
+        bodyRealmName: bRealm.bodyName,
+        bodyRealmIndex: state.bodyRealmIndex || 0,
+        combat: getTotalCombat(),
+        towerFloor: state.towerFloor || 1,
+        sectContribution: (state.sect && state.sect.totalContribution) || 0,
+        disciples: (state.sect && state.sect.disciples) || 0,
+        reincarnationCount: state.reincarnationCount || 0,
+        updatedAt: Date.now()
+      };
+    }
+
+    async function tryLocalServerApi(path, options = {}) {
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 1800);
+        const res = await fetch(path, Object.assign({}, options, { signal: ctrl.signal }));
+        clearTimeout(timer);
+        if (res.ok || res.status === 400 || res.status === 401 || res.status === 404) {
+          const ct = res.headers.get('content-type') || '';
+          if (ct.includes('application/json')) {
+            const data = await res.json();
+            return { handled: true, status: res.status, data };
+          }
+        }
+      } catch (e) {}
+      return { handled: false };
+    }
+
+    async function fetchRelayAccountRecords(username) {
+      const topic = acctTopicForUser(username);
+      const res = await fetch(`https://ntfy.sh/${topic}/json?poll=1&since=720h`);
+      if (!res.ok) return [];
+      const text = await res.text();
+      const lines = text.split('\n').filter(Boolean);
+      const records = [];
+      for (const line of lines) {
+        try {
+          const msg = JSON.parse(line);
+          if (msg && msg.event === 'message' && msg.message) {
+            const payload = JSON.parse(msg.message);
+            if (payload && payload.u === username.trim().toLowerCase()) {
+              records.push(payload);
+            }
+          }
+        } catch (e) {}
+      }
+      return records;
+    }
+
+    async function cloudAuthLoginOrRegister() {
+      const uInp = document.getElementById('cloud-username-input');
+      const pInp = document.getElementById('cloud-password-input');
+      const username = (uInp ? uInp.value : '').trim();
+      const password = (pInp ? pInp.value : '').trim();
+      if (username.length < 3 || username.length > 24) {
+        setCloudStatusBanner('❌ 帳號長度需為 3 ~ 24 個字元！', true);
+        showToast('❌ 帳號需 3~24 字！');
+        return;
+      }
+      if (password.length < 4) {
+        setCloudStatusBanner('❌ 密碼長度至少需 4 個字元！', true);
+        showToast('❌ 密碼至少需 4 碼！');
+        return;
+      }
+
+      setCloudStatusBanner('⏳ 正在連線仙界伺服器驗證帳密...');
+      const localRes = await tryLocalServerApi('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, action: 'login_or_register' })
+      });
+      if (localRes.handled) {
+        if (!localRes.data.ok) {
+          setCloudStatusBanner(`❌ ${localRes.data.error || '驗證失敗'}`, true);
+          showToast(`❌ ${localRes.data.error || '驗證失敗'}`);
+          return;
+        }
+        state.cloudUsername = username;
+        localStorage.setItem('88ckk_cloud_pwd_hash', simplePinHash(username, password));
+        localStorage.setItem('88ckk_cloud_pwd_raw', password);
+        playSound('breakthrough');
+        setCloudStatusBanner(`✅ ${localRes.data.message}（本地伺服器已連線）`);
+        showToast(`✅ ${localRes.data.message}`);
+        updateCloudModalUI();
+        updateStatusUI();
+        saveState();
+        return;
+      }
+
+      try {
+        const pinHash = simplePinHash(username, password);
+        const records = await fetchRelayAccountRecords(username);
+        if (records.length > 0) {
+          const latest = records[records.length - 1];
+          if (latest.p !== pinHash) {
+            setCloudStatusBanner('❌ 伺服器密碼錯誤！請確認此帳號的密碼。', true);
+            showToast('❌ 伺服器密碼錯誤！');
+            return;
+          }
+          state.cloudUsername = username;
+          localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
+          localStorage.setItem('88ckk_cloud_pwd_raw', password);
+          playSound('breakthrough');
+          setCloudStatusBanner(`✅ 帳號【${username}】登入成功！偵測到雲端存檔，可點「從伺服器讀檔」載入或「存檔至伺服器」覆蓋。`);
+          showToast(`✅ 帳號【${username}】登入成功！`);
+        } else {
+          state.cloudUsername = username;
+          localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
+          localStorage.setItem('88ckk_cloud_pwd_raw', password);
+          await cloudUploadSave(true);
+          return;
+        }
+        updateCloudModalUI();
+        updateStatusUI();
+        saveState();
+      } catch (err) {
+        setCloudStatusBanner('❌ 無法連線至雲端伺服器，請檢查網路連線後重試。', true);
+        showToast('❌ 伺服器連線失敗');
+      }
+    }
+
+    async function cloudUploadSave(fromAutoRegister = false) {
+      const uInp = document.getElementById('cloud-username-input');
+      const pInp = document.getElementById('cloud-password-input');
+      const username = ((uInp && uInp.value.trim()) || state.cloudUsername || '').trim();
+      const password = ((pInp && pInp.value.trim()) || localStorage.getItem('88ckk_cloud_pwd_raw') || '').trim();
+      if (username.length < 3) {
+        setCloudStatusBanner('❌ 請先輸入帳號（3~24字）與密碼！', true);
+        showToast('請先輸入伺服器帳號與密碼！');
+        return;
+      }
+      if (password.length < 4) {
+        setCloudStatusBanner('❌ 請輸入至少 4 碼的伺服器密碼以驗證並加密上傳！', true);
+        showToast('請輸入伺服器密碼（至少4碼）！');
+        return;
+      }
+
+      setCloudStatusBanner('⏳ 正在將存檔上傳至仙界伺服器並同步仙榜...');
+      saveState();
+
+      const localRes = await tryLocalServerApi('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, state })
+      });
+      if (localRes.handled) {
+        if (!localRes.data.ok) {
+          setCloudStatusBanner(`❌ ${localRes.data.error || '上傳失敗'}`, true);
+          showToast(`❌ ${localRes.data.error || '上傳失敗'}`);
+          return;
+        }
+        state.cloudUsername = username;
+        state.lastCloudSync = Date.now();
+        localStorage.setItem('88ckk_cloud_pwd_raw', password);
+        saveState();
+        updateCloudModalUI();
+        updateStatusUI();
+        playSound('breakthrough');
+        setCloudStatusBanner(`☁️ 存檔已成功儲存至伺服器（帳號：${username}），並已同步更新宗門與弟子排行榜！`);
+        showToast('☁️ 存檔已成功上傳至伺服器！');
+        return;
+      }
+
+      try {
+        const pinHash = simplePinHash(username, password);
+        const existing = await fetchRelayAccountRecords(username);
+        if (existing.length > 0 && existing[existing.length - 1].p !== pinHash) {
+          setCloudStatusBanner('❌ 密碼與伺服器上該帳號的原密碼不符，無法覆寫存檔！', true);
+          showToast('❌ 伺服器密碼錯誤！');
+          return;
+        }
+
+        const binRes = await fetch('https://bytebin.lucko.me/post', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, savedAt: Date.now(), state })
+        });
+        if (!binRes.ok) throw new Error('Bytebin upload failed');
+        const binData = await binRes.json();
+        const saveKey = binData.key;
+
+        const snap = getPlayerLeaderboardSnapshot();
+        snap.username = username;
+        const acctRecord = {
+          u: username.toLowerCase(),
+          displayUser: username,
+          p: pinHash,
+          k: saveKey,
+          t: Date.now(),
+          playerName: snap.playerName,
+          realmName: snap.realmName,
+          combat: snap.combat
+        };
+        await fetch(`https://ntfy.sh/${acctTopicForUser(username)}`, {
+          method: 'POST',
+          body: JSON.stringify(acctRecord)
+        });
+
+        await fetch(`https://ntfy.sh/${CLOUD_TOPIC_LB}`, {
+          method: 'POST',
+          body: JSON.stringify(snap)
+        });
+
+        state.cloudUsername = username;
+        state.lastCloudSync = Date.now();
+        localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
+        localStorage.setItem('88ckk_cloud_pwd_raw', password);
+        saveState();
+        updateCloudModalUI();
+        updateStatusUI();
+        playSound('breakthrough');
+        const msg = fromAutoRegister
+          ? `🎉 帳號【${username}】註冊成功並已將當前進度存入雲端伺服器！`
+          : `☁️ 存檔已加密儲存至雲端伺服器（存檔碼：${saveKey}），並已同步至九天仙榜！`;
+        setCloudStatusBanner(msg);
+        showToast('☁️ 伺服器存檔成功！');
+        addLog(`☁️ 修仙進度已同步儲存至雲端伺服器（帳號：${username}）。`, false);
+      } catch (err) {
+        setCloudStatusBanner('❌ 雲端伺服器存檔失敗，請稍後再試。', true);
+        showToast('❌ 雲端存檔失敗');
+      }
+    }
+
+    async function cloudDownloadSave() {
+      const uInp = document.getElementById('cloud-username-input');
+      const pInp = document.getElementById('cloud-password-input');
+      const username = ((uInp && uInp.value.trim()) || state.cloudUsername || '').trim();
+      const password = ((pInp && pInp.value.trim()) || localStorage.getItem('88ckk_cloud_pwd_raw') || '').trim();
+      if (username.length < 3 || password.length < 4) {
+        setCloudStatusBanner('❌ 請輸入欲讀取的伺服器帳號與密碼！', true);
+        showToast('請輸入伺服器帳號與密碼！');
+        return;
+      }
+
+      setCloudStatusBanner('⏳ 正在從仙界伺服器驗證並下載存檔...');
+      const localRes = await tryLocalServerApi('/api/load', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (localRes.handled) {
+        if (!localRes.data.ok || !localRes.data.state) {
+          setCloudStatusBanner(`❌ ${localRes.data.error || '找不到伺服器存檔'}`, true);
+          showToast(`❌ ${localRes.data.error || '讀取失敗'}`);
+          return;
+        }
+        const loadedState = localRes.data.state;
+        loadedState.cloudUsername = username;
+        loadedState.lastCloudSync = Date.now();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(loadedState));
+        localStorage.setItem('88ckk_cloud_pwd_raw', password);
+        loadState();
+        initGardenPlotsDOM();
+        renderAll();
+        saveState();
+        updateCloudModalUI();
+        playSound('breakthrough');
+        setCloudStatusBanner(`✅ 已成功從伺服器載入【${state.playerName || username}】的雲端存檔！`);
+        showToast('✅ 伺服器讀檔成功！');
+        return;
+      }
+
+      try {
+        const pinHash = simplePinHash(username, password);
+        const records = await fetchRelayAccountRecords(username);
+        if (records.length === 0) {
+          setCloudStatusBanner(`❌ 伺服器上找不到帳號【${username}】的存檔紀錄！請先點「存檔至伺服器」。`, true);
+          showToast('❌ 查無此帳號的雲端存檔');
+          return;
+        }
+        const latest = records[records.length - 1];
+        if (latest.p !== pinHash) {
+          setCloudStatusBanner('❌ 伺服器密碼錯誤！無法讀取該帳號存檔。', true);
+          showToast('❌ 伺服器密碼錯誤！');
+          return;
+        }
+        const binRes = await fetch(`https://bytebin.lucko.me/${latest.k}`);
+        if (!binRes.ok) throw new Error('Save blob expired or missing');
+        const payload = await binRes.json();
+        const remoteState = payload && payload.state ? payload.state : payload;
+        if (!remoteState || typeof remoteState !== 'object') throw new Error('Invalid state');
+        remoteState.cloudUsername = username;
+        remoteState.lastCloudSync = Date.now();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(remoteState));
+        localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
+        localStorage.setItem('88ckk_cloud_pwd_raw', password);
+        loadState();
+        initGardenPlotsDOM();
+        renderAll();
+        saveState();
+        updateCloudModalUI();
+        playSound('breakthrough');
+        setCloudStatusBanner(`✅ 已從雲端伺服器成功載入【${state.playerName || username}】的存檔！`);
+        showToast(`✅ 成功載入【${state.playerName || username}】的伺服器存檔！`);
+        addLog(`📥 已從雲端伺服器讀取帳號【${username}】之存檔。`, true);
+      } catch (err) {
+        setCloudStatusBanner('❌ 讀取雲端存檔失敗，請確認網路狀態或重新上傳存檔。', true);
+        showToast('❌ 雲端讀檔失敗');
+      }
+    }
+
+    function cloudLogout() {
+      state.cloudUsername = '';
+      localStorage.removeItem('88ckk_cloud_pwd_raw');
+      localStorage.removeItem('88ckk_cloud_pwd_hash');
+      const pInp = document.getElementById('cloud-password-input');
+      if (pInp) pInp.value = '';
+      saveState();
+      updateCloudModalUI();
+      updateStatusUI();
+      setCloudStatusBanner('🚪 已登出雲端帳號（本地修仙進度完整保留）。');
+      showToast('🚪 已登出雲端帳號');
+    }
+
+    async function syncCloudLeaderboardPlayers() {
+      const localRes = await tryLocalServerApi('/api/leaderboard');
+      if (localRes.handled && localRes.data && localRes.data.ok && Array.isArray(localRes.data.discipleBoard)) {
+        cloudPlayersCache = localRes.data.discipleBoard;
+        return;
+      }
+      try {
+        const res = await fetch(`https://ntfy.sh/${CLOUD_TOPIC_LB}/json?poll=1&since=720h`);
+        if (!res.ok) return;
+        const text = await res.text();
+        const lines = text.split('\n').filter(Boolean);
+        const byUser = new Map();
+        for (const line of lines) {
+          try {
+            const msg = JSON.parse(line);
+            if (msg && msg.event === 'message' && msg.message) {
+              const p = JSON.parse(msg.message);
+              if (p && p.playerName && typeof p.combat === 'number') {
+                const key = (p.username || p.playerName).toLowerCase();
+                byUser.set(key, p);
+              }
+            }
+          } catch (e) {}
+        }
+        cloudPlayersCache = Array.from(byUser.values());
+      } catch (e) {}
+    }
+
+    function buildDiscipleLeaderboardList() {
+      const me = getPlayerLeaderboardSnapshot();
+      me.isPlayer = true;
+      const map = new Map();
+      NPC_DISCIPLES.forEach(npc => {
+        map.set(`npc_${npc.playerName}`, Object.assign({}, npc, { isNpc: true }));
+      });
+      (cloudPlayersCache || []).forEach(cp => {
+        if (state.cloudUsername && cp.username && cp.username.toLowerCase() === state.cloudUsername.toLowerCase()) return;
+        if (cp.playerName === me.playerName && Math.abs((cp.combat || 0) - me.combat) < 5) return;
+        map.set(`cloud_${(cp.username || cp.playerName).toLowerCase()}`, Object.assign({}, cp, { isCloud: true }));
+      });
+      map.set('__current_player__', me);
+      const list = Array.from(map.values());
+      if (activeDiscipleSort === 'realm') {
+        list.sort((a, b) => ((b.realmIndex || 0) - (a.realmIndex || 0)) || ((b.combat || 0) - (a.combat || 0)));
+      } else if (activeDiscipleSort === 'tower') {
+        list.sort((a, b) => ((b.towerFloor || 1) - (a.towerFloor || 1)) || ((b.combat || 0) - (a.combat || 0)));
+      } else {
+        list.sort((a, b) => (b.combat || 0) - (a.combat || 0));
+      }
+      return list;
+    }
+
+    function buildSectLeaderboardList() {
+      ensureCastles();
+      const disciplesList = buildDiscipleLeaderboardList();
+      const basePrestige = {
+        huangfeng: { baseScore: 185000, npcDisciples: 86 },
+        yanyue: { baseScore: 210000, npcDisciples: 92 },
+        huadao: { baseScore: 175000, npcDisciples: 78 },
+        lingshou: { baseScore: 192000, npcDisciples: 84 },
+        xiesha: { baseScore: 205000, npcDisciples: 88 }
+      };
+
+      const rows = SECTS.map(s => {
+        const bp = basePrestige[s.id] || { baseScore: 150000, npcDisciples: 70 };
+        let castlesOwned = 0;
+        CASTLES.forEach(c => {
+          if (state.castles[c.id] && state.castles[c.id].owner === s.id) castlesOwned += 1;
+        });
+        const members = disciplesList.filter(d => d.sectId === s.id);
+        const topMember = members[0] || null;
+        const memberCombatSum = members.reduce((acc, m) => acc + Math.round((m.combat || 0) * 0.25), 0);
+        const isMySect = state.sect && state.sect.id === s.id;
+        const myContribBonus = isMySect ? ((state.sect.totalContribution || 0) * 45 + (state.sect.disciples || 0) * 1500 + (state.sect.arrayLv || 1) * 12000) : 0;
+        const totalDisciples = bp.npcDisciples + (isMySect ? (state.sect.disciples || 0) : 0) + members.length;
+        const prestige = bp.baseScore + castlesOwned * 65000 + memberCombatSum + myContribBonus;
+
+        return {
+          sectId: s.id,
+          name: s.name,
+          emoji: s.emoji,
+          route: s.route,
+          passiveDesc: s.passiveDesc,
+          castlesOwned,
+          totalDisciples,
+          topDiscipleName: topMember ? topMember.playerName : '虛位以待',
+          topDiscipleCombat: topMember ? topMember.combat : 0,
+          prestige,
+          isMySect
+        };
+      });
+
+      rows.sort((a, b) => b.prestige - a.prestige);
+      return rows;
+    }
+
+    function renderSectInlineLeaderboard() {
+      const box = document.getElementById('sect-inline-leaderboard');
+      if (!box) return;
+      const sectBoard = buildSectLeaderboardList();
+      const discBoard = buildDiscipleLeaderboardList();
+      const myDiscRank = discBoard.findIndex(d => d.isPlayer) + 1;
+      const mySectRank = sectBoard.findIndex(s => s.isMySect) + 1;
+
+      const badge = document.getElementById('sect-lb-summary-badge');
+      if (badge) {
+        badge.textContent = `我的天驕排名：#${myDiscRank} ｜ 所屬宗門排名：${mySectRank > 0 ? `#${mySectRank}` : '未入宗'}`;
+      }
+
+      const topSectsHtml = sectBoard.slice(0, 3).map((s, i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+        return `<div class="flex items-center justify-between gap-1 py-0.5">
+          <span class="font-bold ${s.isMySect ? 'text-[#9e2a22]' : 'text-[#1e1a16]'}">${medal} ${s.emoji}${s.name}${s.isMySect ? ' (本宗)' : ''}</span>
+          <span class="text-[#236c53] font-bold">威望 ${formatNum(s.prestige)}・${s.castlesOwned}城</span>
+        </div>`;
+      }).join('');
+
+      const topDiscHtml = discBoard.slice(0, 3).map((d, i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+        return `<div class="flex items-center justify-between gap-1 py-0.5">
+          <span class="font-bold ${d.isPlayer ? 'text-[#9e2a22]' : 'text-[#1e1a16]'}">${medal} ${d.playerName}${d.isPlayer ? ' (我)' : ''} <span class="text-[10px] text-[#5c5346]">[${d.realmName}]</span></span>
+          <span class="text-[#236c53] font-bold">戰 ${formatNum(d.combat)}</span>
+        </div>`;
+      }).join('');
+
+      box.innerHTML = `
+        <div class="bg-[#fcfaf5] border border-[#d6c7ac] rounded-lg p-2.5 space-y-1">
+          <div class="font-black text-[#9c6b21] border-b border-[#ece3d0] pb-1">🏯 萬宗榜前三甲</div>
+          ${topSectsHtml}
+        </div>
+        <div class="bg-[#fcfaf5] border border-[#d6c7ac] rounded-lg p-2.5 space-y-1">
+          <div class="font-black text-[#9e2a22] border-b border-[#ece3d0] pb-1">⚔️ 天驕弟子榜前三甲</div>
+          ${topDiscHtml}
+        </div>
+      `;
+    }
+
+    function renderLeaderboards() {
+      const container = document.getElementById('leaderboard-list-container');
+      const sortBar = document.getElementById('lb-disciple-sort-bar');
+      const tabSects = document.getElementById('tab-lb-sects');
+      const tabDisc = document.getElementById('tab-lb-disciples');
+      const summaryEl = document.getElementById('lb-player-rank-summary');
+      const rewardBtn = document.getElementById('btn-claim-lb-reward');
+      if (!container) return;
+
+      const isSects = activeLbTab === 'sects';
+      if (tabSects) tabSects.classList.toggle('cat-btn-active', isSects);
+      if (tabDisc) tabDisc.classList.toggle('cat-btn-active', !isSects);
+      if (sortBar) {
+        sortBar.classList.toggle('hidden', isSects);
+        sortBar.classList.toggle('grid', !isSects);
+      }
+
+      const sectBoard = buildSectLeaderboardList();
+      const discBoard = buildDiscipleLeaderboardList();
+      const myDiscRank = discBoard.findIndex(d => d.isPlayer) + 1;
+      const mySectRank = sectBoard.findIndex(s => s.isMySect) + 1;
+
+      const today = localDateStr(new Date());
+      const claimedToday = state.lastLbRewardDate === today;
+      if (rewardBtn) {
+        rewardBtn.textContent = claimedToday ? '✅ 今日俸祿已領' : '🎁 領每日仙榜俸祿';
+        rewardBtn.disabled = claimedToday;
+      }
+
+      if (summaryEl) {
+        summaryEl.textContent = `👤 ${state.playerName || '韓立'}｜天驕弟子榜：第 ${myDiscRank} 名｜所屬宗門榜：${mySectRank > 0 ? `第 ${mySectRank} 名` : '未入宗門'}`;
+      }
+
+      if (isSects) {
+        container.innerHTML = sectBoard.map((s, idx) => {
+          const rank = idx + 1;
+          const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+          return `
+            <div class="rounded-xl p-3 border flex items-center justify-between gap-2 ${
+              s.isMySect ? 'bg-[#f3ead8] border-2 border-[#9e2a22] shadow-xs' : 'bg-[#fcfaf5] border-[#d6c7ac]'
+            }">
+              <div class="min-w-0 flex-1 space-y-0.5">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-black text-sm text-[#9e2a22]">${medal}</span>
+                  <span class="font-black text-sm text-[#1e1a16]">${s.emoji} ${s.name}</span>
+                  <span class="seal-stamp text-[10px] px-1.5 py-0.5 rounded">${s.route}</span>
+                  ${s.isMySect ? '<span class="text-[11px] px-2 py-0.5 rounded bg-[#9e2a22] text-white font-bold">我方宗門</span>' : ''}
+                </div>
+                <div class="text-xs text-[#5c5346] font-semibold">
+                  首席天驕：<strong class="text-[#1e1a16]">${s.topDiscipleName}</strong>（戰力 ${formatNum(s.topDiscipleCombat)}）｜門下弟子 ${s.totalDisciples} 人｜領地 ${s.castlesOwned} 城
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="text-xs font-black text-[#236c53]">宗門威望</div>
+                <div class="text-sm font-black text-[#9e2a22]">${formatNum(s.prestige)}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        container.innerHTML = discBoard.slice(0, 30).map((d, idx) => {
+          const rank = idx + 1;
+          const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+          const tag = d.isPlayer
+            ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-[#9e2a22] text-white font-bold">本尊</span>'
+            : d.isCloud
+              ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-[#236c53] font-bold">☁️雲端修士</span>'
+              : '<span class="text-[10px] px-1.5 py-0.5 rounded bg-[#ece3d0] text-[#5c5346] font-bold">天南名宿</span>';
+          return `
+            <div class="rounded-xl p-2.5 border flex items-center justify-between gap-2 ${
+              d.isPlayer ? 'bg-[#f3ead8] border-2 border-[#9e2a22] shadow-xs' : 'bg-[#fcfaf5] border-[#d6c7ac]'
+            }">
+              <div class="min-w-0 flex-1 space-y-0.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-black text-xs text-[#9e2a22] w-6">${medal}</span>
+                  <span class="font-black text-xs sm:text-sm text-[#1e1a16]">${d.playerName}</span>
+                  ${tag}
+                  <span class="text-xs font-bold text-[#9c6b21]">${d.sectName || '散修'}</span>
+                </div>
+                <div class="text-[11px] text-[#5c5346] font-semibold pl-6">
+                  法修：${d.realmName} ｜ 煉體：${d.bodyRealmName || '通脈一層'} ｜ 鎮妖塔：${d.towerFloor || 1} 層
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="text-[11px] text-[#5c5346] font-bold">總戰力</div>
+                <div class="text-xs sm:text-sm font-black text-[#236c53]">⚔️ ${formatNum(d.combat || 0)}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function claimLeaderboardDailyReward() {
+      const today = localDateStr(new Date());
+      if (state.lastLbRewardDate === today) {
+        showToast('今日已領取過九天仙榜俸祿，明日再來！');
+        return;
+      }
+      const discBoard = buildDiscipleLeaderboardList();
+      const sectBoard = buildSectLeaderboardList();
+      const myDiscRank = Math.max(1, discBoard.findIndex(d => d.isPlayer) + 1);
+      const mySectRank = sectBoard.findIndex(s => s.isMySect) + 1;
+
+      const rankFactor = Math.max(1, 22 - Math.min(20, myDiscRank));
+      const sectFactor = mySectRank > 0 ? (6 - mySectRank) * 150 : 100;
+      const stoneReward = 500 + rankFactor * 120 + sectFactor;
+      const dustReward = 60 + rankFactor * 12;
+      const tokenReward = myDiscRank <= 10 ? 2 : 1;
+
+      state.lastLbRewardDate = today;
+      state.stones = (state.stones || 0) + stoneReward;
+      state.spiritDust = (state.spiritDust || 0) + dustReward;
+      state.gachaTokens = (state.gachaTokens || 0) + tokenReward;
+      if (state.sect && state.sect.id) addSectContribution(50);
+
+      playSound('breakthrough');
+      const msg = `🏆 領取九天仙榜每日俸祿（天驕榜 #${myDiscRank}）：💎靈石 +${formatNum(stoneReward)}、✨靈塵 +${dustReward}、🎟️探寶令 +${tokenReward}！`;
+      addLog(msg, true);
+      showToast(msg);
+      renderLeaderboards();
+      renderAll();
+      saveState();
+    }
+
     window.addEventListener('load', () => {
       loadState();
       settleOfflineProgress();
@@ -6198,708 +6891,6 @@
           showToast('已複製！');
         }
       });
-
-      // =====================================================================
-      // 11. Custom Player Name, Cloud Account Server Save & Leaderboards
-      // =====================================================================
-      const CLOUD_TOPIC_LB = '88ckk_global_leaderboard_v2';
-      let activeLbTab = 'sects'; // 'sects' | 'disciples'
-      let activeDiscipleSort = 'combat'; // 'combat' | 'realm' | 'tower'
-      let cloudPlayersCache = [];
-
-      // Rich NPC Cultivator Roster across Sects for Disciple Leaderboard
-      const NPC_DISCIPLES = [
-        { playerName: '南宮婉', sectId: 'yanyue', sectName: '🌙 掩月宗', realmName: '元嬰中期', realmIndex: 11, bodyRealmName: '金身初期', combat: 420000, towerFloor: 48, sectContribution: 6800 },
-        { playerName: '向之禮', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '化神初期', realmIndex: 14, bodyRealmName: '萬象圓滿', combat: 2850000, towerFloor: 72, sectContribution: 15200 },
-        { playerName: '大衍神君', sectId: 'lingshou', sectName: '🦁 靈獸山', realmName: '元嬰後期', realmIndex: 12, bodyRealmName: '金身後期', combat: 1150000, towerFloor: 60, sectContribution: 11200 },
-        { playerName: '蠻鬍子', sectId: 'huadao', sectName: '🔪 化刀塢', realmName: '元嬰中期', realmIndex: 11, bodyRealmName: '金身圓滿', combat: 680000, towerFloor: 52, sectContribution: 8900 },
-        { playerName: '六道極聖', sectId: 'xiesha', sectName: '🩸 血煞宗', realmName: '元嬰後期', realmIndex: 12, bodyRealmName: '萬象初期', combat: 1380000, towerFloor: 64, sectContribution: 12400 },
-        { playerName: '令狐老祖', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '元嬰初期', realmIndex: 10, bodyRealmName: '玉骨圓滿', combat: 195000, towerFloor: 38, sectContribution: 5400 },
-        { playerName: '韓天尊・分身', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '煉虛初期', realmIndex: 17, bodyRealmName: '不滅初期', combat: 9600000, towerFloor: 88, sectContribution: 22000 },
-        { playerName: '玄骨上人', sectId: 'xiesha', sectName: '🩸 血煞宗', realmName: '結丹圓滿', realmIndex: 9, bodyRealmName: '玉骨後期', combat: 86000, towerFloor: 31, sectContribution: 4100 },
-        { playerName: '青元子', sectId: 'yanyue', sectName: '🌙 掩月宗', realmName: '化神中期', realmIndex: 15, bodyRealmName: '萬象後期', combat: 4600000, towerFloor: 79, sectContribution: 18500 },
-        { playerName: '車老妖', sectId: 'lingshou', sectName: '🦁 靈獸山', realmName: '化神初期', realmIndex: 14, bodyRealmName: '金身圓滿', combat: 2100000, towerFloor: 68, sectContribution: 13600 },
-        { playerName: '溫天仁', sectId: 'xiesha', sectName: '🩸 血煞宗', realmName: '結丹後期', realmIndex: 8, bodyRealmName: '玉骨中期', combat: 48000, towerFloor: 26, sectContribution: 3200 },
-        { playerName: '慕沛靈', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '結丹初期', realmIndex: 6, bodyRealmName: '銅皮圓滿', combat: 14500, towerFloor: 18, sectContribution: 2100 },
-        { playerName: '陳巧倩', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '築基後期', realmIndex: 5, bodyRealmName: '鍛骨後期', combat: 4800, towerFloor: 12, sectContribution: 1250 },
-        { playerName: '厲飛雨', sectId: 'huadao', sectName: '🔪 化刀塢', realmName: '結丹中期', realmIndex: 7, bodyRealmName: '玉骨初期', combat: 29000, towerFloor: 22, sectContribution: 2800 },
-        { playerName: '董萱兒', sectId: 'yanyue', sectName: '🌙 掩月宗', realmName: '結丹初期', realmIndex: 6, bodyRealmName: '鍛骨圓滿', combat: 16800, towerFloor: 19, sectContribution: 1950 }
-      ];
-
-      function simplePinHash(username, password) {
-        const str = `${username.toLowerCase()}::88ckk_salt::${password}`;
-        let h1 = 0xdeadbeef ^ str.length;
-        let h2 = 0x41c6ce57 ^ str.length;
-        for (let i = 0; i < str.length; i++) {
-          const ch = str.charCodeAt(i);
-          h1 = Math.imul(h1 ^ ch, 2654435761);
-          h2 = Math.imul(h2 ^ ch, 1597334677);
-        }
-        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-        return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
-      }
-
-      function acctTopicForUser(username) {
-        let h = 2166136261;
-        const clean = username.trim().toLowerCase();
-        for (let i = 0; i < clean.length; i++) {
-          h ^= clean.charCodeAt(i);
-          h = Math.imul(h, 16777619);
-        }
-        return `88ckk_acct_${(h >>> 0).toString(36)}`;
-      }
-
-      function updateCloudModalUI() {
-        const nameInput = document.getElementById('player-name-input');
-        if (nameInput && document.activeElement !== nameInput) {
-          nameInput.value = state.playerName || '韓立';
-        }
-        const userInp = document.getElementById('cloud-username-input');
-        if (userInp && state.cloudUsername && !userInp.value) {
-          userInp.value = state.cloudUsername;
-        }
-        const badge = document.getElementById('cloud-status-badge');
-        const banner = document.getElementById('cloud-status-banner');
-        if (badge) {
-          if (state.cloudUsername) {
-            badge.textContent = `✅ 已登入：${state.cloudUsername}`;
-            badge.className = 'text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-[#236c53] font-bold';
-          } else {
-            badge.textContent = '未登入帳號';
-            badge.className = 'text-[11px] px-2 py-0.5 rounded bg-[#e6dcc5] text-[#5c5346] font-bold';
-          }
-        }
-        if (banner && state.cloudUsername && state.lastCloudSync) {
-          const dt = new Date(state.lastCloudSync);
-          const timeStr = `${dt.getMonth() + 1}/${dt.getDate()} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
-          banner.textContent = `☁️ 帳號【${state.cloudUsername}】已連線伺服器（上次雲端同步：${timeStr}）。可隨時點擊「存檔至伺服器」或跨裝置「從伺服器讀檔」。`;
-        }
-      }
-
-      function setCloudStatusBanner(msg, isError = false) {
-        const banner = document.getElementById('cloud-status-banner');
-        if (!banner) return;
-        banner.textContent = msg;
-        banner.className = `text-[11px] font-bold rounded-lg px-2.5 py-2 leading-relaxed border ${
-          isError
-            ? 'text-[#9e2a22] bg-rose-50 border-rose-300'
-            : 'text-[#236c53] bg-[#fcfaf5] border-[#d6c7ac]'
-        }`;
-      }
-
-      function savePlayerName() {
-        const inp = document.getElementById('player-name-input');
-        if (!inp) return;
-        const val = inp.value.trim().slice(0, 12);
-        if (!val) {
-          showToast('請輸入有效的道號（1~12字）！');
-          return;
-        }
-        state.playerName = val;
-        playSound('dew');
-        addLog(`✍️ 修士尊號已更改為【${val}】！`, true);
-        showToast(`✅ 道號已設為：${val}`);
-        renderAll();
-        saveState();
-        updateCloudModalUI();
-      }
-
-      function getPlayerLeaderboardSnapshot() {
-        const mRealm = getMagicRealm();
-        const bRealm = getBodyRealm();
-        const sectDef = getSectDef();
-        return {
-          username: state.cloudUsername || 'local_player',
-          playerName: state.playerName || '韓立',
-          sectId: (state.sect && state.sect.id) || '',
-          sectName: sectDef ? `${sectDef.emoji} ${sectDef.name}` : '散修',
-          realmName: mRealm.name,
-          realmIndex: state.realmIndex || 0,
-          bodyRealmName: bRealm.bodyName,
-          bodyRealmIndex: state.bodyRealmIndex || 0,
-          combat: getTotalCombat(),
-          towerFloor: state.towerFloor || 1,
-          sectContribution: (state.sect && state.sect.totalContribution) || 0,
-          disciples: (state.sect && state.sect.disciples) || 0,
-          reincarnationCount: state.reincarnationCount || 0,
-          updatedAt: Date.now()
-        };
-      }
-
-      async function tryLocalServerApi(path, options = {}) {
-        try {
-          const ctrl = new AbortController();
-          const timer = setTimeout(() => ctrl.abort(), 1800);
-          const res = await fetch(path, Object.assign({}, options, { signal: ctrl.signal }));
-          clearTimeout(timer);
-          if (res.ok || res.status === 400 || res.status === 401 || res.status === 404) {
-            const ct = res.headers.get('content-type') || '';
-            if (ct.includes('application/json')) {
-              const data = await res.json();
-              return { handled: true, status: res.status, data };
-            }
-          }
-        } catch (e) {}
-        return { handled: false };
-      }
-
-      async function fetchRelayAccountRecords(username) {
-        const topic = acctTopicForUser(username);
-        const res = await fetch(`https://ntfy.sh/${topic}/json?poll=1&since=720h`);
-        if (!res.ok) return [];
-        const text = await res.text();
-        const lines = text.split('\n').filter(Boolean);
-        const records = [];
-        for (const line of lines) {
-          try {
-            const msg = JSON.parse(line);
-            if (msg && msg.event === 'message' && msg.message) {
-              const payload = JSON.parse(msg.message);
-              if (payload && payload.u === username.trim().toLowerCase()) {
-                records.push(payload);
-              }
-            }
-          } catch (e) {}
-        }
-        return records;
-      }
-
-      async function cloudAuthLoginOrRegister() {
-        const uInp = document.getElementById('cloud-username-input');
-        const pInp = document.getElementById('cloud-password-input');
-        const username = (uInp ? uInp.value : '').trim();
-        const password = (pInp ? pInp.value : '').trim();
-        if (username.length < 3 || username.length > 24) {
-          setCloudStatusBanner('❌ 帳號長度需為 3 ~ 24 個字元！', true);
-          showToast('❌ 帳號需 3~24 字！');
-          return;
-        }
-        if (password.length < 4) {
-          setCloudStatusBanner('❌ 密碼長度至少需 4 個字元！', true);
-          showToast('❌ 密碼至少需 4 碼！');
-          return;
-        }
-
-        setCloudStatusBanner('⏳ 正在連線仙界伺服器驗證帳密...');
-        const localRes = await tryLocalServerApi('/api/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password, action: 'login_or_register' })
-        });
-        if (localRes.handled) {
-          if (!localRes.data.ok) {
-            setCloudStatusBanner(`❌ ${localRes.data.error || '驗證失敗'}`, true);
-            showToast(`❌ ${localRes.data.error || '驗證失敗'}`);
-            return;
-          }
-          state.cloudUsername = username;
-          localStorage.setItem('88ckk_cloud_pwd_hash', simplePinHash(username, password));
-          localStorage.setItem('88ckk_cloud_pwd_raw', password);
-          playSound('breakthrough');
-          setCloudStatusBanner(`✅ ${localRes.data.message}（本地伺服器已連線）`);
-          showToast(`✅ ${localRes.data.message}`);
-          updateCloudModalUI();
-          updateStatusUI();
-          saveState();
-          return;
-        }
-
-        // Fallback to Cross-Origin Cloud Relay Server (ntfy + bytebin)
-        try {
-          const pinHash = simplePinHash(username, password);
-          const records = await fetchRelayAccountRecords(username);
-          if (records.length > 0) {
-            const latest = records[records.length - 1];
-            if (latest.p !== pinHash) {
-              setCloudStatusBanner('❌ 伺服器密碼錯誤！請確認此帳號的密碼。', true);
-              showToast('❌ 伺服器密碼錯誤！');
-              return;
-            }
-            state.cloudUsername = username;
-            localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
-            localStorage.setItem('88ckk_cloud_pwd_raw', password);
-            playSound('breakthrough');
-            setCloudStatusBanner(`✅ 帳號【${username}】登入成功！偵測到雲端存檔，可點「從伺服器讀檔」載入或「存檔至伺服器」覆蓋。`);
-            showToast(`✅ 帳號【${username}】登入成功！`);
-          } else {
-            state.cloudUsername = username;
-            localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
-            localStorage.setItem('88ckk_cloud_pwd_raw', password);
-            await cloudUploadSave(true);
-            return;
-          }
-          updateCloudModalUI();
-          updateStatusUI();
-          saveState();
-        } catch (err) {
-          setCloudStatusBanner('❌ 無法連線至雲端伺服器，請檢查網路連線後重試。', true);
-          showToast('❌ 伺服器連線失敗');
-        }
-      }
-
-      async function cloudUploadSave(fromAutoRegister = false) {
-        const uInp = document.getElementById('cloud-username-input');
-        const pInp = document.getElementById('cloud-password-input');
-        const username = ((uInp && uInp.value.trim()) || state.cloudUsername || '').trim();
-        const password = ((pInp && pInp.value.trim()) || localStorage.getItem('88ckk_cloud_pwd_raw') || '').trim();
-        if (username.length < 3) {
-          setCloudStatusBanner('❌ 請先輸入帳號（3~24字）與密碼！', true);
-          showToast('請先輸入伺服器帳號與密碼！');
-          return;
-        }
-        if (password.length < 4) {
-          setCloudStatusBanner('❌ 請輸入至少 4 碼的伺服器密碼以驗證並加密上傳！', true);
-          showToast('請輸入伺服器密碼（至少4碼）！');
-          return;
-        }
-
-        setCloudStatusBanner('⏳ 正在將存檔上傳至仙界伺服器並同步仙榜...');
-        saveState();
-
-        const localRes = await tryLocalServerApi('/api/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password, state })
-        });
-        if (localRes.handled) {
-          if (!localRes.data.ok) {
-            setCloudStatusBanner(`❌ ${localRes.data.error || '上傳失敗'}`, true);
-            showToast(`❌ ${localRes.data.error || '上傳失敗'}`);
-            return;
-          }
-          state.cloudUsername = username;
-          state.lastCloudSync = Date.now();
-          localStorage.setItem('88ckk_cloud_pwd_raw', password);
-          saveState();
-          updateCloudModalUI();
-          updateStatusUI();
-          playSound('breakthrough');
-          setCloudStatusBanner(`☁️ 存檔已成功儲存至伺服器（帳號：${username}），並已同步更新宗門與弟子排行榜！`);
-          showToast('☁️ 存檔已成功上傳至伺服器！');
-          return;
-        }
-
-        try {
-          const pinHash = simplePinHash(username, password);
-          const existing = await fetchRelayAccountRecords(username);
-          if (existing.length > 0 && existing[existing.length - 1].p !== pinHash) {
-            setCloudStatusBanner('❌ 密碼與伺服器上該帳號的原密碼不符，無法覆寫存檔！', true);
-            showToast('❌ 伺服器密碼錯誤！');
-            return;
-          }
-
-          // 1. Upload full JSON save to bytebin cloud storage
-          const binRes = await fetch('https://bytebin.lucko.me/post', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, savedAt: Date.now(), state })
-          });
-          if (!binRes.ok) throw new Error('Bytebin upload failed');
-          const binData = await binRes.json();
-          const saveKey = binData.key;
-
-          // 2. Store pointer + password hash in account index topic
-          const snap = getPlayerLeaderboardSnapshot();
-          snap.username = username;
-          const acctRecord = {
-            u: username.toLowerCase(),
-            displayUser: username,
-            p: pinHash,
-            k: saveKey,
-            t: Date.now(),
-            playerName: snap.playerName,
-            realmName: snap.realmName,
-            combat: snap.combat
-          };
-          await fetch(`https://ntfy.sh/${acctTopicForUser(username)}`, {
-            method: 'POST',
-            body: JSON.stringify(acctRecord)
-          });
-
-          // 3. Broadcast public summary to global leaderboard topic
-          await fetch(`https://ntfy.sh/${CLOUD_TOPIC_LB}`, {
-            method: 'POST',
-            body: JSON.stringify(snap)
-          });
-
-          state.cloudUsername = username;
-          state.lastCloudSync = Date.now();
-          localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
-          localStorage.setItem('88ckk_cloud_pwd_raw', password);
-          saveState();
-          updateCloudModalUI();
-          updateStatusUI();
-          playSound('breakthrough');
-          const msg = fromAutoRegister
-            ? `🎉 帳號【${username}】註冊成功並已將當前進度存入雲端伺服器！`
-            : `☁️ 存檔已加密儲存至雲端伺服器（存檔碼：${saveKey}），並已同步至九天仙榜！`;
-          setCloudStatusBanner(msg);
-          showToast('☁️ 伺服器存檔成功！');
-          addLog(`☁️ 修仙進度已同步儲存至雲端伺服器（帳號：${username}）。`, false);
-        } catch (err) {
-          setCloudStatusBanner('❌ 雲端伺服器存檔失敗，請稍後再試。', true);
-          showToast('❌ 雲端存檔失敗');
-        }
-      }
-
-      async function cloudDownloadSave() {
-        const uInp = document.getElementById('cloud-username-input');
-        const pInp = document.getElementById('cloud-password-input');
-        const username = ((uInp && uInp.value.trim()) || state.cloudUsername || '').trim();
-        const password = ((pInp && pInp.value.trim()) || localStorage.getItem('88ckk_cloud_pwd_raw') || '').trim();
-        if (username.length < 3 || password.length < 4) {
-          setCloudStatusBanner('❌ 請輸入欲讀取的伺服器帳號與密碼！', true);
-          showToast('請輸入伺服器帳號與密碼！');
-          return;
-        }
-
-        setCloudStatusBanner('⏳ 正在從仙界伺服器驗證並下載存檔...');
-        const localRes = await tryLocalServerApi('/api/load', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        if (localRes.handled) {
-          if (!localRes.data.ok || !localRes.data.state) {
-            setCloudStatusBanner(`❌ ${localRes.data.error || '找不到伺服器存檔'}`, true);
-            showToast(`❌ ${localRes.data.error || '讀取失敗'}`);
-            return;
-          }
-          const loadedState = localRes.data.state;
-          loadedState.cloudUsername = username;
-          loadedState.lastCloudSync = Date.now();
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(loadedState));
-          localStorage.setItem('88ckk_cloud_pwd_raw', password);
-          loadState();
-          initGardenPlotsDOM();
-          renderAll();
-          saveState();
-          updateCloudModalUI();
-          playSound('breakthrough');
-          setCloudStatusBanner(`✅ 已成功從伺服器載入【${state.playerName || username}】的雲端存檔！`);
-          showToast('✅ 伺服器讀檔成功！');
-          return;
-        }
-
-        try {
-          const pinHash = simplePinHash(username, password);
-          const records = await fetchRelayAccountRecords(username);
-          if (records.length === 0) {
-            setCloudStatusBanner(`❌ 伺服器上找不到帳號【${username}】的存檔紀錄！請先點「存檔至伺服器」。`, true);
-            showToast('❌ 查無此帳號的雲端存檔');
-            return;
-          }
-          const latest = records[records.length - 1];
-          if (latest.p !== pinHash) {
-            setCloudStatusBanner('❌ 伺服器密碼錯誤！無法讀取該帳號存檔。', true);
-            showToast('❌ 伺服器密碼錯誤！');
-            return;
-          }
-          const binRes = await fetch(`https://bytebin.lucko.me/${latest.k}`);
-          if (!binRes.ok) throw new Error('Save blob expired or missing');
-          const payload = await binRes.json();
-          const remoteState = payload && payload.state ? payload.state : payload;
-          if (!remoteState || typeof remoteState !== 'object') throw new Error('Invalid state');
-          remoteState.cloudUsername = username;
-          remoteState.lastCloudSync = Date.now();
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(remoteState));
-          localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
-          localStorage.setItem('88ckk_cloud_pwd_raw', password);
-          loadState();
-          initGardenPlotsDOM();
-          renderAll();
-          saveState();
-          updateCloudModalUI();
-          playSound('breakthrough');
-          setCloudStatusBanner(`✅ 已從雲端伺服器成功載入【${state.playerName || username}】的存檔！`);
-          showToast(`✅ 成功載入【${state.playerName || username}】的伺服器存檔！`);
-          addLog(`📥 已從雲端伺服器讀取帳號【${username}】之存檔。`, true);
-        } catch (err) {
-          setCloudStatusBanner('❌ 讀取雲端存檔失敗，請確認網路狀態或重新上傳存檔。', true);
-          showToast('❌ 雲端讀檔失敗');
-        }
-      }
-
-      function cloudLogout() {
-        state.cloudUsername = '';
-        localStorage.removeItem('88ckk_cloud_pwd_raw');
-        localStorage.removeItem('88ckk_cloud_pwd_hash');
-        const pInp = document.getElementById('cloud-password-input');
-        if (pInp) pInp.value = '';
-        saveState();
-        updateCloudModalUI();
-        updateStatusUI();
-        setCloudStatusBanner('🚪 已登出雲端帳號（本地修仙進度完整保留）。');
-        showToast('🚪 已登出雲端帳號');
-      }
-
-      // =====================================================================
-      // Sect Leaderboard (萬宗榜) & Disciple Leaderboard (天驕榜)
-      // =====================================================================
-      async function syncCloudLeaderboardPlayers() {
-        // 1. Try local server /api/leaderboard first
-        const localRes = await tryLocalServerApi('/api/leaderboard');
-        if (localRes.handled && localRes.data && localRes.data.ok && Array.isArray(localRes.data.discipleBoard)) {
-          cloudPlayersCache = localRes.data.discipleBoard;
-          return;
-        }
-        // 2. Poll public cloud leaderboard channel
-        try {
-          const res = await fetch(`https://ntfy.sh/${CLOUD_TOPIC_LB}/json?poll=1&since=720h`);
-          if (!res.ok) return;
-          const text = await res.text();
-          const lines = text.split('\n').filter(Boolean);
-          const byUser = new Map();
-          for (const line of lines) {
-            try {
-              const msg = JSON.parse(line);
-              if (msg && msg.event === 'message' && msg.message) {
-                const p = JSON.parse(msg.message);
-                if (p && p.playerName && typeof p.combat === 'number') {
-                  const key = (p.username || p.playerName).toLowerCase();
-                  byUser.set(key, p);
-                }
-              }
-            } catch (e) {}
-          }
-          cloudPlayersCache = Array.from(byUser.values());
-        } catch (e) {}
-      }
-
-      function buildDiscipleLeaderboardList() {
-        const me = getPlayerLeaderboardSnapshot();
-        me.isPlayer = true;
-        const map = new Map();
-        NPC_DISCIPLES.forEach(npc => {
-          map.set(`npc_${npc.playerName}`, Object.assign({}, npc, { isNpc: true }));
-        });
-        (cloudPlayersCache || []).forEach(cp => {
-          if (state.cloudUsername && cp.username && cp.username.toLowerCase() === state.cloudUsername.toLowerCase()) return;
-          if (cp.playerName === me.playerName && Math.abs((cp.combat || 0) - me.combat) < 5) return;
-          map.set(`cloud_${(cp.username || cp.playerName).toLowerCase()}`, Object.assign({}, cp, { isCloud: true }));
-        });
-        map.set('__current_player__', me);
-        const list = Array.from(map.values());
-        if (activeDiscipleSort === 'realm') {
-          list.sort((a, b) => ((b.realmIndex || 0) - (a.realmIndex || 0)) || ((b.combat || 0) - (a.combat || 0)));
-        } else if (activeDiscipleSort === 'tower') {
-          list.sort((a, b) => ((b.towerFloor || 1) - (a.towerFloor || 1)) || ((b.combat || 0) - (a.combat || 0)));
-        } else {
-          list.sort((a, b) => (b.combat || 0) - (a.combat || 0));
-        }
-        return list;
-      }
-
-      function buildSectLeaderboardList() {
-        ensureCastles();
-        const disciplesList = buildDiscipleLeaderboardList();
-        const basePrestige = {
-          huangfeng: { baseScore: 185000, npcDisciples: 86 },
-          yanyue: { baseScore: 210000, npcDisciples: 92 },
-          huadao: { baseScore: 175000, npcDisciples: 78 },
-          lingshou: { baseScore: 192000, npcDisciples: 84 },
-          xiesha: { baseScore: 205000, npcDisciples: 88 }
-        };
-
-        const rows = SECTS.map(s => {
-          const bp = basePrestige[s.id] || { baseScore: 150000, npcDisciples: 70 };
-          let castlesOwned = 0;
-          CASTLES.forEach(c => {
-            if (state.castles[c.id] && state.castles[c.id].owner === s.id) castlesOwned += 1;
-          });
-          const members = disciplesList.filter(d => d.sectId === s.id);
-          const topMember = members[0] || null;
-          const memberCombatSum = members.reduce((acc, m) => acc + Math.round((m.combat || 0) * 0.25), 0);
-          const isMySect = state.sect && state.sect.id === s.id;
-          const myContribBonus = isMySect ? ((state.sect.totalContribution || 0) * 45 + (state.sect.disciples || 0) * 1500 + (state.sect.arrayLv || 1) * 12000) : 0;
-          const totalDisciples = bp.npcDisciples + (isMySect ? (state.sect.disciples || 0) : 0) + members.length;
-          const prestige = bp.baseScore + castlesOwned * 65000 + memberCombatSum + myContribBonus;
-
-          return {
-            sectId: s.id,
-            name: s.name,
-            emoji: s.emoji,
-            route: s.route,
-            passiveDesc: s.passiveDesc,
-            castlesOwned,
-            totalDisciples,
-            topDiscipleName: topMember ? topMember.playerName : '虛位以待',
-            topDiscipleCombat: topMember ? topMember.combat : 0,
-            prestige,
-            isMySect
-          };
-        });
-
-        rows.sort((a, b) => b.prestige - a.prestige);
-        return rows;
-      }
-
-      function renderSectInlineLeaderboard() {
-        const box = document.getElementById('sect-inline-leaderboard');
-        if (!box) return;
-        const sectBoard = buildSectLeaderboardList();
-        const discBoard = buildDiscipleLeaderboardList();
-        const myDiscRank = discBoard.findIndex(d => d.isPlayer) + 1;
-        const mySectRank = sectBoard.findIndex(s => s.isMySect) + 1;
-
-        const badge = document.getElementById('sect-lb-summary-badge');
-        if (badge) {
-          badge.textContent = `我的天驕排名：#${myDiscRank} ｜ 所屬宗門排名：${mySectRank > 0 ? `#${mySectRank}` : '未入宗'}`;
-        }
-
-        const topSectsHtml = sectBoard.slice(0, 3).map((s, i) => {
-          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
-          return `<div class="flex items-center justify-between gap-1 py-0.5">
-            <span class="font-bold ${s.isMySect ? 'text-[#9e2a22]' : 'text-[#1e1a16]'}">${medal} ${s.emoji}${s.name}${s.isMySect ? ' (本宗)' : ''}</span>
-            <span class="text-[#236c53] font-bold">威望 ${formatNum(s.prestige)}・${s.castlesOwned}城</span>
-          </div>`;
-        }).join('');
-
-        const topDiscHtml = discBoard.slice(0, 3).map((d, i) => {
-          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
-          return `<div class="flex items-center justify-between gap-1 py-0.5">
-            <span class="font-bold ${d.isPlayer ? 'text-[#9e2a22]' : 'text-[#1e1a16]'}">${medal} ${d.playerName}${d.isPlayer ? ' (我)' : ''} <span class="text-[10px] text-[#5c5346]">[${d.realmName}]</span></span>
-            <span class="text-[#236c53] font-bold">戰 ${formatNum(d.combat)}</span>
-          </div>`;
-        }).join('');
-
-        box.innerHTML = `
-          <div class="bg-[#fcfaf5] border border-[#d6c7ac] rounded-lg p-2.5 space-y-1">
-            <div class="font-black text-[#9c6b21] border-b border-[#ece3d0] pb-1">🏯 萬宗榜前三甲</div>
-            ${topSectsHtml}
-          </div>
-          <div class="bg-[#fcfaf5] border border-[#d6c7ac] rounded-lg p-2.5 space-y-1">
-            <div class="font-black text-[#9e2a22] border-b border-[#ece3d0] pb-1">⚔️ 天驕弟子榜前三甲</div>
-            ${topDiscHtml}
-          </div>
-        `;
-      }
-
-      function renderLeaderboards() {
-        const container = document.getElementById('leaderboard-list-container');
-        const sortBar = document.getElementById('lb-disciple-sort-bar');
-        const tabSects = document.getElementById('tab-lb-sects');
-        const tabDisc = document.getElementById('tab-lb-disciples');
-        const summaryEl = document.getElementById('lb-player-rank-summary');
-        const rewardBtn = document.getElementById('btn-claim-lb-reward');
-        if (!container) return;
-
-        const isSects = activeLbTab === 'sects';
-        if (tabSects) tabSects.classList.toggle('cat-btn-active', isSects);
-        if (tabDisc) tabDisc.classList.toggle('cat-btn-active', !isSects);
-        if (sortBar) {
-          sortBar.classList.toggle('hidden', isSects);
-          sortBar.classList.toggle('grid', !isSects);
-        }
-
-        const sectBoard = buildSectLeaderboardList();
-        const discBoard = buildDiscipleLeaderboardList();
-        const myDiscRank = discBoard.findIndex(d => d.isPlayer) + 1;
-        const mySectRank = sectBoard.findIndex(s => s.isMySect) + 1;
-
-        const today = localDateStr(new Date());
-        const claimedToday = state.lastLbRewardDate === today;
-        if (rewardBtn) {
-          rewardBtn.textContent = claimedToday ? '✅ 今日俸祿已領' : '🎁 領每日仙榜俸祿';
-          rewardBtn.disabled = claimedToday;
-        }
-
-        if (summaryEl) {
-          summaryEl.textContent = `👤 ${state.playerName || '韓立'}｜天驕弟子榜：第 ${myDiscRank} 名｜所屬宗門榜：${mySectRank > 0 ? `第 ${mySectRank} 名` : '未入宗門'}`;
-        }
-
-        if (isSects) {
-          container.innerHTML = sectBoard.map((s, idx) => {
-            const rank = idx + 1;
-            const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
-            return `
-              <div class="rounded-xl p-3 border flex items-center justify-between gap-2 ${
-                s.isMySect ? 'bg-[#f3ead8] border-2 border-[#9e2a22] shadow-xs' : 'bg-[#fcfaf5] border-[#d6c7ac]'
-              }">
-                <div class="min-w-0 flex-1 space-y-0.5">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-black text-sm text-[#9e2a22]">${medal}</span>
-                    <span class="font-black text-sm text-[#1e1a16]">${s.emoji} ${s.name}</span>
-                    <span class="seal-stamp text-[10px] px-1.5 py-0.5 rounded">${s.route}</span>
-                    ${s.isMySect ? '<span class="text-[11px] px-2 py-0.5 rounded bg-[#9e2a22] text-white font-bold">我方宗門</span>' : ''}
-                  </div>
-                  <div class="text-xs text-[#5c5346] font-semibold">
-                    首席天驕：<strong class="text-[#1e1a16]">${s.topDiscipleName}</strong>（戰力 ${formatNum(s.topDiscipleCombat)}）｜門下弟子 ${s.totalDisciples} 人｜領地 ${s.castlesOwned} 城
-                  </div>
-                </div>
-                <div class="text-right shrink-0">
-                  <div class="text-xs font-black text-[#236c53]">宗門威望</div>
-                  <div class="text-sm font-black text-[#9e2a22]">${formatNum(s.prestige)}</div>
-                </div>
-              </div>
-            `;
-          }).join('');
-        } else {
-          container.innerHTML = discBoard.slice(0, 30).map((d, idx) => {
-            const rank = idx + 1;
-            const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
-            const tag = d.isPlayer
-              ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-[#9e2a22] text-white font-bold">本尊</span>'
-              : d.isCloud
-                ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-[#236c53] font-bold">☁️雲端修士</span>'
-                : '<span class="text-[10px] px-1.5 py-0.5 rounded bg-[#ece3d0] text-[#5c5346] font-bold">天南名宿</span>';
-            return `
-              <div class="rounded-xl p-2.5 border flex items-center justify-between gap-2 ${
-                d.isPlayer ? 'bg-[#f3ead8] border-2 border-[#9e2a22] shadow-xs' : 'bg-[#fcfaf5] border-[#d6c7ac]'
-              }">
-                <div class="min-w-0 flex-1 space-y-0.5">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="font-black text-xs text-[#9e2a22] w-6">${medal}</span>
-                    <span class="font-black text-xs sm:text-sm text-[#1e1a16]">${d.playerName}</span>
-                    ${tag}
-                    <span class="text-xs font-bold text-[#9c6b21]">${d.sectName || '散修'}</span>
-                  </div>
-                  <div class="text-[11px] text-[#5c5346] font-semibold pl-6">
-                    法修：${d.realmName} ｜ 煉體：${d.bodyRealmName || '通脈一層'} ｜ 鎮妖塔：${d.towerFloor || 1} 層
-                  </div>
-                </div>
-                <div class="text-right shrink-0">
-                  <div class="text-[11px] text-[#5c5346] font-bold">總戰力</div>
-                  <div class="text-xs sm:text-sm font-black text-[#236c53]">⚔️ ${formatNum(d.combat || 0)}</div>
-                </div>
-              </div>
-            `;
-          }).join('');
-        }
-      }
-
-      function claimLeaderboardDailyReward() {
-        const today = localDateStr(new Date());
-        if (state.lastLbRewardDate === today) {
-          showToast('今日已領取過九天仙榜俸祿，明日再來！');
-          return;
-        }
-        const discBoard = buildDiscipleLeaderboardList();
-        const sectBoard = buildSectLeaderboardList();
-        const myDiscRank = Math.max(1, discBoard.findIndex(d => d.isPlayer) + 1);
-        const mySectRank = sectBoard.findIndex(s => s.isMySect) + 1;
-
-        const rankFactor = Math.max(1, 22 - Math.min(20, myDiscRank));
-        const sectFactor = mySectRank > 0 ? (6 - mySectRank) * 150 : 100;
-        const stoneReward = 500 + rankFactor * 120 + sectFactor;
-        const dustReward = 60 + rankFactor * 12;
-        const tokenReward = myDiscRank <= 10 ? 2 : 1;
-
-        state.lastLbRewardDate = today;
-        state.stones = (state.stones || 0) + stoneReward;
-        state.spiritDust = (state.spiritDust || 0) + dustReward;
-        state.gachaTokens = (state.gachaTokens || 0) + tokenReward;
-        if (state.sect && state.sect.id) addSectContribution(50);
-
-        playSound('breakthrough');
-        const msg = `🏆 領取九天仙榜每日俸祿（天驕榜 #${myDiscRank}）：💎靈石 +${formatNum(stoneReward)}、✨靈塵 +${dustReward}、🎟️探寶令 +${tokenReward}！`;
-        addLog(msg, true);
-        showToast(msg);
-        renderLeaderboards();
-        renderAll();
-        saveState();
-      }
 
       // Open / Close Cloud Modal & Leaderboard Modal Event Listeners
       const cloudModal = document.getElementById('cloud-account-modal');
