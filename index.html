@@ -475,6 +475,27 @@
         </div>
       </div>
 
+      <!-- Spirit Vein Mine & Dew Refining (Fast Stones & Dust!) -->
+      <div class="sub-card border border-[#9c6b21]/60 rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div>
+            <span id="spirit-vein-title" class="text-xs font-black text-[#8c5d19]">⛏️ 洞府靈脈・1階下品靈脈</span>
+            <span id="spirit-vein-rate" class="text-[11px] font-bold text-[#236c53] ml-1.5">💎+5/秒 ｜ ✨漫遊+6/8秒</span>
+          </div>
+          <button id="btn-upgrade-vein" type="button" class="paper-btn text-xs px-2.5 py-1 rounded-lg font-bold text-[#8c5d19]">
+            ⬆️ 升階靈脈 (150石)
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-mine-vein" type="button" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold text-center">
+            ⛏️ 靈脈採掘 (+石/+塵)
+          </button>
+          <button id="btn-dew-to-vein" type="button" class="jade-btn text-xs py-2.5 px-3 rounded-lg font-bold text-center">
+            💧 綠液點化靈脈 (耗1滴)
+          </button>
+        </div>
+      </div>
+
       <!-- Next Step Intelligent Guidance -->
       <div class="bg-[#fcfaf5] border border-[#d6c7ac] rounded-xl p-3.5">
         <div id="next-step-text" class="text-xs leading-relaxed font-bold text-[#1e1a16]">修煉中……</div>
@@ -525,7 +546,10 @@
 
       <div id="herb-stock-summary" class="text-xs bg-[#efe7d6] px-3 py-2.5 rounded-xl border border-[#d3c4a8] text-[#4a4138] leading-relaxed"></div>
 
-      <button id="btn-batch-craft" type="button" class="cinnabar-btn text-xs sm:text-sm py-3 px-4 rounded-xl font-bold w-full">⚡ 一鍵全煉（由高階開始，草藥耗盡為止）</button>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <button id="btn-batch-craft" type="button" class="cinnabar-btn text-xs sm:text-sm py-3 px-3 rounded-xl font-bold w-full">⚡ 一鍵全煉（由高階開始）</button>
+        <button id="btn-alchemy-sell-herbs" type="button" class="gold-btn text-xs sm:text-sm py-3 px-3 rounded-xl font-bold w-full">🏮 坊市售草（保留各3株換靈石靈塵）</button>
+      </div>
       <div id="alchemy-recipes-grid" class="grid grid-cols-1 gap-2.5"></div>
     </section>
 
@@ -569,12 +593,15 @@
             首通獎勵：🎟️探寶令 +2 ｜ ✨靈塵 +35
           </div>
         </div>
-        <div class="flex gap-2 shrink-0">
-          <button id="btn-challenge-tower" type="button" class="gold-btn text-xs py-2.5 px-3.5 rounded-lg font-bold">
+        <div class="flex gap-1.5 flex-wrap shrink-0">
+          <button id="btn-claim-tower-tribute" type="button" class="jade-btn text-xs py-2.5 px-3 rounded-lg font-bold">
+            🎁 鎮塔俸祿
+          </button>
+          <button id="btn-challenge-tower" type="button" class="gold-btn text-xs py-2.5 px-3 rounded-lg font-bold">
             🗼 挑戰
           </button>
-          <button id="btn-quick-tower" type="button" class="cinnabar-btn text-xs py-2.5 px-3.5 rounded-lg font-bold">
-            ⚡ 一鍵速通
+          <button id="btn-quick-tower" type="button" class="cinnabar-btn text-xs py-2.5 px-3 rounded-lg font-bold">
+            ⚡ 速通
           </button>
         </div>
       </div>
@@ -729,7 +756,29 @@
     <!-- VIEW 7: 🎰 寶庫 (Gacha + Relics + Treasures) -->
     <section id="view-panel-treasures" class="scroll-border rounded-2xl p-4 sm:p-5 space-y-4 hidden">
 
-      <div class="sub-card border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2.5">
+      <!-- Tiannan Market Exchange Card -->
+      <div class="sub-card border-2 border-[#236c53] rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <span class="font-black text-sm text-[#236c53]">🏮 天南坊市・靈石靈塵聚寶閣</span>
+          <span class="text-xs font-bold text-[#5c5346]">多餘靈草變現｜靈石靈塵雙向互轉</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button id="btn-market-sell-herbs" type="button" class="gold-btn text-xs py-2.5 px-2 rounded-lg font-bold text-center">
+            🌿 售餘草換石塵
+          </button>
+          <button id="btn-market-stone-to-dust" type="button" class="cinnabar-btn text-xs py-2.5 px-2 rounded-lg font-bold text-center">
+            🔥 500石 ➔ 60塵
+          </button>
+          <button id="btn-market-dust-to-stone" type="button" class="jade-btn text-xs py-2.5 px-2 rounded-lg font-bold text-center">
+            💎 50塵 ➔ 600石
+          </button>
+          <button id="btn-market-dew-exchange" type="button" class="ink-btn text-xs py-2.5 px-2 rounded-lg font-bold text-center">
+            💧 1滴綠液換寶
+          </button>
+        </div>
+      </div>
+
+            <div class="sub-card border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2.5">
         <div class="flex items-center justify-between">
           <span class="seal-stamp text-xs px-2.5 py-0.5 rounded">🎰 機緣探寶</span>
           <span id="gacha-token-display" class="text-xs font-black text-[#9e2a22]">🎟️ 2 ｜ ✨ 20</span>
@@ -1315,7 +1364,8 @@
     ];
     const SECT_SHOP = [
       { id: 'dew', name: '💧 綠液 1 滴', cost: 50, daily: 3, minRank: 0 },
-      { id: 'stones', name: '🪨 靈石 500', cost: 100, daily: 2, minRank: 0 },
+      { id: 'stones', name: '🪨 靈石 1,500', cost: 80, daily: 5, minRank: 0 },
+      { id: 'dust', name: '✨ 靈塵 150', cost: 60, daily: 5, minRank: 0 },
       { id: 'pill', name: '💊 隨機低階丹 1 顆', cost: 80, daily: 2, minRank: 1 },
       { id: 'token', name: '🎟️ 探寶令 1', cost: 150, daily: 2, minRank: 1 },
       { id: 'array', name: '🏯 大陣升階符（大陣＋1 級）', cost: 200, daily: 0, minRank: 2, weekly: true }
@@ -1532,7 +1582,8 @@
       } else {
         sc.shopBought[itemId] = ((sc.shopBought && sc.shopBought[itemId]) || 0) + 1;
         if (itemId === 'dew') state.dew = (state.dew || 0) + 1;
-        if (itemId === 'stones') state.stones = (state.stones || 0) + 500;
+        if (itemId === 'stones') state.stones = (state.stones || 0) + 1500;
+        if (itemId === 'dust') state.spiritDust = (state.spiritDust || 0) + 150;
         if (itemId === 'pill') {
           const low = ['huanglong', 'jinsui', 'zhuji'];
           const pick = low[Math.floor(Math.random() * low.length)];
@@ -1948,6 +1999,9 @@
         pityBonus: 0,
         reincarnationCount: 0,
         caveArrayLv: 1,
+        spiritVeinLv: 1,
+        mineCooldown: 0,
+        towerTributeCooldown: 0,
         tribulationShield: false,
         daoHeart: 0,
         encounterCharges: 3,
@@ -2533,6 +2587,9 @@
           state.beastLevels = Object.assign(def.beastLevels, parsed.beastLevels || {});
           state.daoLaws = Object.assign(def.daoLaws, parsed.daoLaws || {});
           if (!state.caveArrayLv || state.caveArrayLv < 1) state.caveArrayLv = 1;
+          if (!state.spiritVeinLv || state.spiritVeinLv < 1) state.spiritVeinLv = 1;
+          if (state.mineCooldown === undefined) state.mineCooldown = 0;
+          if (state.towerTributeCooldown === undefined) state.towerTributeCooldown = 0;
           if (state.encounterCharges === undefined) state.encounterCharges = 3;
           if (state.daoHeart === undefined) state.daoHeart = 0;
           state.relics = Object.assign({}, parsed.relics || {});
@@ -2624,11 +2681,10 @@
         state.bodyQi = Math.min(bRealm.maxQi * 2.0, beforeBody + Math.round(qiGain * 0.25));
       }
       const qiGot = (state.qi - beforeQi) + ((state.bodyQi || 0) - beforeBody);
-      const ziyanMult = 1 + ((state.companionAffinity.ziyan || 0) * 0.01);
-      const stonePerSec = Math.max(1, Math.round((1 + state.realmIndex * 2 + (state.treasureLevels.shenfeng || 1)) * ziyanMult * (1 + getCastleBonuses().stoneMult)));
+      const stonePerSec = getStoneRatePerSec();
       const stoneGot = Math.round(stonePerSec * capped * eff);
       state.stones += stoneGot;
-      const dustGot = Math.floor((capped / 8) * 2 * eff * (1 + getSectPassiveFor('lingshou')) * (1 + getCastleBonuses().roamDustMult));
+      const dustGot = Math.floor((capped / 8) * getRoamDustGain() * eff);
       state.spiritDust = (state.spiritDust || 0) + dustGot;
       const origin = getOrigin();
       const yinyueMult = 1 + ((state.companionAffinity.yinyue || 0) * 0.01);
@@ -2796,6 +2852,33 @@
     }
     function getDaoHeartMult() {
       return 1 + Math.min(3.0, (state.daoHeart || 0) * 0.015);
+    }
+    const SPIRIT_VEIN_NAMES = [
+      '1階・下品靈脈', '2階・中品靈脈', '3階・上品靈脈', '4階・極品靈脈', '5階・地煞靈脈',
+      '6階・天罡靈脈', '7階・紫府靈脈', '8階・太清靈脈', '9階・九轉龍脈', '10階・乾坤祖脈',
+      '11階・星辰仙脈', '12階・太乙仙脈', '13階・大羅仙脈', '14階・混沌聖脈', '15階・鴻蒙造化脈'
+    ];
+    function getStoneRatePerSec() {
+      const rIdx = Math.max(state.realmIndex || 0, state.bodyRealmIndex || 0);
+      const shenfeng = state.treasureLevels.shenfeng || 1;
+      const veinLv = Math.max(1, state.spiritVeinLv || 1);
+      const floor = state.towerFloor || 1;
+      const base = 3 + rIdx * 8 + Math.round(Math.pow(rIdx, 1.75) * 3) + shenfeng * 5 + (veinLv - 1) * 18 + floor * 2;
+      const ziyanMult = 1 + ((state.companionAffinity.ziyan || 0) * 0.01);
+      const castleMult = 1 + getCastleBonuses().stoneMult;
+      const beastMult = 1 + getBeastBonuses().stoneMult;
+      const lawMult = 1 + getLawBonuses().dropMult;
+      return Math.max(2, Math.round(base * ziyanMult * castleMult * beastMult * lawMult));
+    }
+    function getRoamDustGain() {
+      const rIdx = Math.max(state.realmIndex || 0, state.bodyRealmIndex || 0);
+      const veinLv = Math.max(1, state.spiritVeinLv || 1);
+      const floor = state.towerFloor || 1;
+      const base = 5 + rIdx * 4 + (veinLv - 1) * 4 + Math.floor(floor * 0.6);
+      const sectMult = 1 + getSectPassiveFor('lingshou');
+      const castleMult = 1 + getCastleBonuses().roamDustMult;
+      const lawMult = 1 + getLawBonuses().dropMult;
+      return Math.max(4, Math.round(base * sectMult * castleMult * lawMult));
     }
     function addActiveQi(amount) {
       const realm = getActiveRealm();
@@ -3835,10 +3918,11 @@
       const yuanwaoMult = 1 + ((state.companionAffinity.yuanwao || 0) * 0.015);
       const dropMult = (origin.dropBonus || 1.0) * yuanwaoMult * (1 + getSectPassiveFor('lingshou')) * (1 + getCastleBonuses().dropMult) * (1 + getLawBonuses().dropMult) * (1 + getBeastBonuses().stoneMult);
 
-      const stoneReward = Math.round((35 + loc.minRealm * 85) * dropMult);
+      const stoneReward = Math.round((80 + loc.minRealm * 220) * dropMult);
+      const dustReward = Math.round((18 + loc.minRealm * 14) * dropMult);
       const qiReward = Math.round((45 + loc.minRealm * 150) * dropMult);
       state.stones += stoneReward;
-      state.spiritDust = (state.spiritDust || 0) + 10 + Math.round(10 * getSectPassiveFor('lingshou'));
+      state.spiritDust = (state.spiritDust || 0) + dustReward;
       progressSectTask('adventure2', 1);
       state.adventureWins = (state.adventureWins || 0) + 1;
       addSectContribution(3);
@@ -3848,7 +3932,7 @@
         state.qi = Math.min(getMagicRealm().maxQi * 2.0, state.qi + qiReward);
       }
 
-      let lootMessages = [`石+${formatNum(stoneReward)}`, `塵+10`];
+      let lootMessages = [`石+${formatNum(stoneReward)}`, `塵+${formatNum(dustReward)}`];
 
       const seedHerb = HERBS.find(h => h.id === loc.seedDropId);
       if (seedHerb) {
@@ -4246,6 +4330,132 @@
       saveState();
     }
 
+    function upgradeSpiritVein() {
+      const lv = Math.max(1, state.spiritVeinLv || 1);
+      if (lv >= 15) { showToast('⛏️ 洞府靈脈已臻 15 階鴻蒙造化脈！'); return; }
+      const cost = Math.round(150 * Math.pow(1.65, lv - 1));
+      if ((state.stones || 0) < cost) { showToast(`需 ${formatNum(cost)} 靈石升階靈脈！`); return; }
+      state.stones -= cost;
+      state.spiritVeinLv = lv + 1;
+      const vName = SPIRIT_VEIN_NAMES[state.spiritVeinLv - 1] || `${state.spiritVeinLv}階靈脈`;
+      playSound('breakthrough');
+      addLog(`⛏️ 洞府靈脈升至【${vName}】，靈石與靈塵產量大幅提升！`, true);
+      showToast(`⛏️ 升至【${vName}】！`);
+      renderAll();
+      saveState();
+    }
+
+    function handleMineSpiritVein() {
+      if ((state.mineCooldown || 0) > 0) {
+        showToast(`⛏️ 靈脈聚氣中，還需 ${state.mineCooldown} 秒`);
+        return;
+      }
+      const crit = Math.random() < 0.25;
+      const mult = crit ? 2 : 1;
+      const stoneGain = Math.max(180, getStoneRatePerSec() * 25) * mult;
+      const dustGain = Math.max(25, getRoamDustGain() * 3) * mult;
+      state.stones = (state.stones || 0) + stoneGain;
+      state.spiritDust = (state.spiritDust || 0) + dustGain;
+      state.mineCooldown = 15;
+      playSound(crit ? 'breakthrough' : 'dew');
+      spawnFloatingText(`⛏️ 💎+${formatNum(stoneGain)} ✨+${formatNum(dustGain)}`, crit ? 'text-[#9e2a22]' : 'text-[#236c53]');
+      showToast(`${crit ? '🌟 挖出極品伴生礦脈（雙倍）！' : '⛏️ 靈脈採掘：'}靈石 +${formatNum(stoneGain)}、靈塵 +${formatNum(dustGain)}！`);
+      renderAll();
+      saveState();
+    }
+
+    function handleDewToResources() {
+      if ((state.dew || 0) < 1) {
+        showToast('💧 掌天綠液不足 1 滴！');
+        return;
+      }
+      state.dew -= 1;
+      const stoneGain = Math.max(800, getStoneRatePerSec() * 120);
+      const dustGain = Math.max(90, getRoamDustGain() * 10);
+      state.stones = (state.stones || 0) + stoneGain;
+      state.spiritDust = (state.spiritDust || 0) + dustGain;
+      playSound('breakthrough');
+      const msg = `💧 綠液點化靈脈：獲 💎靈石 +${formatNum(stoneGain)}、✨靈塵 +${formatNum(dustGain)}！`;
+      addLog(msg, true);
+      showToast(msg);
+      renderAll();
+      saveState();
+    }
+
+    function handleClaimTowerTribute() {
+      if ((state.towerTributeCooldown || 0) > 0) {
+        showToast(`🎁 鎮塔俸祿凝聚中，還需 ${state.towerTributeCooldown} 秒`);
+        return;
+      }
+      const floor = state.towerFloor || 1;
+      const lawMult = 1 + getLawBonuses().dropMult;
+      const stoneGain = Math.round((200 + floor * 95) * lawMult);
+      const dustGain = Math.round((30 + floor * 10) * lawMult);
+      state.stones = (state.stones || 0) + stoneGain;
+      state.spiritDust = (state.spiritDust || 0) + dustGain;
+      state.towerTributeCooldown = 45;
+      playSound('breakthrough');
+      const msg = `🗼 領取鎮妖塔（第 ${floor} 層）鎮守俸祿：💎靈石 +${formatNum(stoneGain)}、✨靈塵 +${formatNum(dustGain)}！`;
+      addLog(msg, false);
+      showToast(msg);
+      renderAll();
+      saveState();
+    }
+
+    function handleSellSurplusHerbs() {
+      let totalStones = 0;
+      let totalDust = 0;
+      let soldCount = 0;
+      HERBS.forEach((h, idx) => {
+        const cur = state.herbs[h.id] || 0;
+        if (cur > 3) {
+          const sellAmt = cur - 3;
+          state.herbs[h.id] = 3;
+          const unitStone = Math.round(35 * Math.pow(1.65, idx));
+          const unitDust = Math.round(4 * Math.pow(1.45, idx));
+          totalStones += sellAmt * unitStone;
+          totalDust += sellAmt * unitDust;
+          soldCount += sellAmt;
+        }
+      });
+      if (soldCount <= 0) {
+        showToast('🌿 每種靈草需超過 3 株才可出售多餘庫存（已自動為你保留各 3 株煉丹底材）！');
+        return;
+      }
+      state.stones = (state.stones || 0) + totalStones;
+      state.spiritDust = (state.spiritDust || 0) + totalDust;
+      playSound('breakthrough');
+      const msg = `🏮 天南坊市售出多餘靈草 ${soldCount} 株：獲 💎靈石 +${formatNum(totalStones)}、✨靈塵 +${formatNum(totalDust)}！`;
+      addLog(msg, true);
+      showToast(msg);
+      renderAll();
+      saveState();
+    }
+
+    function handleExchangeStoneDust(mode) {
+      if (mode === 'stoneToDust') {
+        if ((state.stones || 0) < 500) {
+          showToast('💎 靈石不足 500！');
+          return;
+        }
+        state.stones -= 500;
+        state.spiritDust = (state.spiritDust || 0) + 60;
+        playSound('dew');
+        showToast('🔥 碎石煉塵：-500 靈石 ➔ ✨靈塵 +60！');
+      } else {
+        if ((state.spiritDust || 0) < 50) {
+          showToast('✨ 靈塵不足 50！');
+          return;
+        }
+        state.spiritDust -= 50;
+        state.stones = (state.stones || 0) + 600;
+        playSound('dew');
+        showToast('💎 聚塵化石：-50 靈塵 ➔ 💎靈石 +600！');
+      }
+      renderAll();
+      saveState();
+    }
+
     // =========================================================================
     // 9. UI Rendering (Separating Initial DOM Build from Live 1-Second Updates!)
     // =========================================================================
@@ -4546,6 +4756,39 @@
       if (encChargesEl) encChargesEl.textContent = `機緣 ${state.encounterCharges || 0}/5`;
       if (encBtn) {
         encBtn.textContent = (state.encounterCharges || 0) > 0 ? `🗺️ 神識探查奇遇 (${state.encounterCharges})` : '🗺️ 推演奇遇 (30塵)';
+      }
+
+      // Spirit Vein & Tower Tribute Live UI
+      const veinLv = Math.max(1, state.spiritVeinLv || 1);
+      const veinName = SPIRIT_VEIN_NAMES[veinLv - 1] || `${veinLv}階靈脈`;
+      const veinTitleEl = document.getElementById('spirit-vein-title');
+      const veinRateEl = document.getElementById('spirit-vein-rate');
+      const upVeinBtn = document.getElementById('btn-upgrade-vein');
+      const mineVeinBtn = document.getElementById('btn-mine-vein');
+      if (veinTitleEl) veinTitleEl.textContent = `⛏️ 洞府靈脈・${veinName}`;
+      if (veinRateEl) veinRateEl.textContent = `💎+${formatNum(getStoneRatePerSec() * (state.speedMult || 1))}/秒 ｜ ✨+${formatNum(getRoamDustGain() * (state.speedMult || 1))}/8秒`;
+      if (upVeinBtn) {
+        if (veinLv >= 15) {
+          upVeinBtn.textContent = '已滿15階';
+          upVeinBtn.disabled = true;
+        } else {
+          const vCost = Math.round(150 * Math.pow(1.65, veinLv - 1));
+          upVeinBtn.textContent = `⬆️ 升階 (${formatNum(vCost)}石)`;
+          upVeinBtn.disabled = false;
+        }
+      }
+      if (mineVeinBtn) {
+        const estStone = Math.max(180, getStoneRatePerSec() * 25);
+        const estDust = Math.max(25, getRoamDustGain() * 3);
+        mineVeinBtn.textContent = (state.mineCooldown || 0) > 0
+          ? `⛏️ 聚氣中 (${state.mineCooldown}s)`
+          : `⛏️ 採掘 (+${formatNum(estStone)}石/+${formatNum(estDust)}塵)`;
+      }
+      const tribTributeBtn = document.getElementById('btn-claim-tower-tribute');
+      if (tribTributeBtn) {
+        tribTributeBtn.textContent = (state.towerTributeCooldown || 0) > 0
+          ? `🎁 俸祿(${state.towerTributeCooldown}s)`
+          : '🎁 領鎮塔俸祿';
       }
 
       const unlockedRelicCount = Object.keys(state.relics || {}).filter(k => state.relics[k] > 0).length;
@@ -5225,20 +5468,22 @@
 
         if (state.moonCooldown > 0) state.moonCooldown = Math.max(0, state.moonCooldown - 1);
         if (state.injuryTimer > 0) state.injuryTimer = Math.max(0, state.injuryTimer - 1);
-        const ziyanMult = 1 + ((state.companionAffinity.ziyan || 0) * 0.01);
-        const stoneGain = Math.max(1, Math.round((1 + state.realmIndex * 2 + (state.treasureLevels.shenfeng || 1)) * mult * ziyanMult * (1 + getCastleBonuses().stoneMult)));
+        if (state.mineCooldown > 0) state.mineCooldown = Math.max(0, state.mineCooldown - 1);
+        if (state.towerTributeCooldown > 0) state.towerTributeCooldown = Math.max(0, state.towerTributeCooldown - 1);
+        const stoneGain = getStoneRatePerSec() * mult;
         state.stones += stoneGain;
 
         roamTickCounter += 1;
         if (roamTickCounter >= 8) {
           roamTickCounter = 0;
-          state.spiritDust = (state.spiritDust || 0) + Math.round(2 * mult * (1 + getSectPassiveFor('lingshou')) * (1 + getCastleBonuses().roamDustMult));
+          const dustGain = getRoamDustGain() * mult;
+          state.spiritDust = (state.spiritDust || 0) + dustGain;
           const highestIdx = Math.max(state.realmIndex || 0, state.bodyRealmIndex || 0);
           const unlockedLocs = LOCATIONS.filter(l => highestIdx >= l.minRealm);
           const roamLoc = unlockedLocs[unlockedLocs.length - 1] || LOCATIONS[0];
           const reqBadge = document.getElementById('tribulation-req-badge');
           if (reqBadge) {
-            reqBadge.textContent = `🚶 漫遊：${roamLoc.name}（靈塵+2/8秒）`;
+            reqBadge.textContent = `🚶 漫遊：${roamLoc.name}（✨靈塵+${formatNum(dustGain)}/8秒・💎+${formatNum(stoneGain)}/秒）`;
           }
         }
 
@@ -5450,6 +5695,8 @@
         const savedActiveBeast = state.activeBeastId || 'beetle_king';
         const savedLaws = Object.assign({}, state.daoLaws || {});
         const savedDaoHeart = state.daoHeart || 0;
+        const savedCaveLv = state.caveArrayLv || 1;
+        const savedVeinLv = state.spiritVeinLv || 1;
         state = createDefaultState();
         state.reincarnationCount = nextReinc;
         state.relics = savedRelics;
@@ -5459,6 +5706,8 @@
         state.activeBeastId = savedActiveBeast;
         state.daoLaws = savedLaws;
         state.daoHeart = savedDaoHeart;
+        state.caveArrayLv = savedCaveLv;
+        state.spiritVeinLv = savedVeinLv;
         ensureCastles();
         if (savedSect && savedSect.id) { state.sect = savedSect; ensureSectState(); }
         state.gachaTokens = 3 + nextReinc;
@@ -5476,6 +5725,26 @@
         renderLogs();
         saveState();
       });
+
+      // Spirit Vein & Market Event Listeners
+      const upVeinBtn = document.getElementById('btn-upgrade-vein');
+      if (upVeinBtn) upVeinBtn.addEventListener('click', upgradeSpiritVein);
+      const mineVeinBtn = document.getElementById('btn-mine-vein');
+      if (mineVeinBtn) mineVeinBtn.addEventListener('click', handleMineSpiritVein);
+      const dewVeinBtn = document.getElementById('btn-dew-to-vein');
+      if (dewVeinBtn) dewVeinBtn.addEventListener('click', handleDewToResources);
+      const claimTributeBtn = document.getElementById('btn-claim-tower-tribute');
+      if (claimTributeBtn) claimTributeBtn.addEventListener('click', handleClaimTowerTribute);
+      const sellHerbsBtn1 = document.getElementById('btn-alchemy-sell-herbs');
+      if (sellHerbsBtn1) sellHerbsBtn1.addEventListener('click', handleSellSurplusHerbs);
+      const sellHerbsBtn2 = document.getElementById('btn-market-sell-herbs');
+      if (sellHerbsBtn2) sellHerbsBtn2.addEventListener('click', handleSellSurplusHerbs);
+      const s2dBtn = document.getElementById('btn-market-stone-to-dust');
+      if (s2dBtn) s2dBtn.addEventListener('click', () => handleExchangeStoneDust('stoneToDust'));
+      const d2sBtn = document.getElementById('btn-market-dust-to-stone');
+      if (d2sBtn) d2sBtn.addEventListener('click', () => handleExchangeStoneDust('dustToStone'));
+      const mktDewBtn = document.getElementById('btn-market-dew-exchange');
+      if (mktDewBtn) mktDewBtn.addEventListener('click', handleDewToResources);
 
       // New Content Systems Event Listeners
       const upCaveBtn = document.getElementById('btn-upgrade-cave-array');
