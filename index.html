@@ -198,15 +198,21 @@
         </div>
       </div>
 
-      <!-- Row 1.5: Secondary Metrics Pill Strip (Lifespan, Dust, Tokens, Toxicity, Quick Links) -->
+      <!-- Row 1.5: Secondary Metrics Pill Strip (Player Name, Dust, Tokens, Toxicity, Quick Links) -->
       <div class="flex items-center justify-between gap-1.5 text-xs overflow-x-auto py-0.5">
         <div class="flex items-center gap-1.5 shrink-0">
-          <span id="header-stat-age" class="px-2 py-0.5 rounded bg-[#fcfaf5] border border-[#d8cbb3] text-[#4a4138] font-bold">⏳ 14/100載</span>
+          <button id="btn-header-player-name" type="button" class="px-2 py-0.5 rounded bg-[#f3ead8] border border-[#c5ae87] text-[#1e1a16] font-black hover:bg-[#ebe0c9] transition-colors">👤 韓立 ✎</button>
           <span id="header-stat-dust" class="px-2 py-0.5 rounded bg-[#fcfaf5] border border-[#d8cbb3] text-[#236c53] font-bold">✨ 靈塵 20</span>
           <span id="header-stat-tokens" class="px-2 py-0.5 rounded bg-[#fcfaf5] border border-[#d8cbb3] text-[#9c6b21] font-bold">🎟️ 令 2</span>
           <span id="header-stat-tox" class="px-2 py-0.5 rounded bg-[#fcfaf5] border border-[#d8cbb3] text-[#5c5346] font-bold">☠️ 毒 0</span>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
+          <button id="btn-header-leaderboard" type="button" class="gold-btn text-[11px] px-2 py-0.5 rounded font-bold">
+            🏆 仙榜
+          </button>
+          <button id="btn-header-cloud" type="button" class="paper-btn text-[11px] px-2 py-0.5 rounded font-bold text-[#236c53]">
+            ☁️ 雲端
+          </button>
           <button id="btn-header-sect-alert" type="button" class="paper-btn text-[11px] px-2 py-0.5 rounded font-bold text-[#9c6b21]">
             🏯 宗門
           </button>
@@ -383,7 +389,7 @@
           <div id="realm-perk-hint" class="text-sm font-black text-[#1e1a16]">
             下一階：練氣四層
           </div>
-          <div id="lifespan-status-line" class="text-[11px] font-semibold text-[#5c5346]">壽元：14 / 100 載｜破境一次只升一階</div>
+          <div id="lifespan-status-line" class="text-[11px] font-semibold text-[#5c5346]">👤 道號：韓立 ｜ 👁️ 神識：70 ｜ ☯️ 道心：0</div>
           <div id="tribulation-req-badge" class="inline-block text-xs px-2.5 py-0.5 bg-emerald-100/90 border border-emerald-300/60 rounded-md text-emerald-900 font-bold">
             🚶 漫遊：神手谷（靈塵+2/8秒）
           </div>
@@ -696,15 +702,23 @@
       <!-- Bloodline Traits -->
       <div class="sub-card rounded-xl p-3.5 space-y-2.5">
         <div class="flex items-center justify-between gap-2 flex-wrap">
-          <div>
-            <span class="text-sm font-black text-[#9e2a22]">🔥 血脈詞條</span>
-            <span id="trait-total-summary" class="text-xs font-bold text-[#236c53] ml-1.5"></span>
+          <div class="space-y-0.5">
+            <div>
+              <span class="text-sm font-black text-[#9e2a22]">🔥 血脈詞條・四象命宮</span>
+              <span id="trait-total-summary" class="text-xs font-bold text-[#236c53] ml-1.5"></span>
+            </div>
+            <div class="text-[11px] text-[#5c5346] font-semibold">4 槽位絕不重複｜共 42 種凡・靈・玄・仙・神・聖六階血脈，涵蓋修為、戰力、靈石、靈塵、凝露、破境、丹道、神識</div>
           </div>
-          <button id="btn-reroll-traits" type="button" class="cinnabar-btn text-xs px-3 py-1.5 rounded-lg font-bold">
-            ✨ 淬煉(15塵)
-          </button>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button id="btn-reroll-traits" type="button" class="cinnabar-btn text-xs px-3 py-1.5 rounded-lg font-bold">
+              ✨ 淬煉(15塵)
+            </button>
+            <button id="btn-reroll-traits-high" type="button" class="gold-btn text-xs px-3 py-1.5 rounded-lg font-bold">
+              🔥 天命淬煉(60塵・必出仙品↑)
+            </button>
+          </div>
         </div>
-        <div id="bloodline-traits-list" class="grid grid-cols-1 gap-2"></div>
+        <div id="bloodline-traits-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
       </div>
 
       <!-- Spirit Beasts & Exotic Insects System -->
@@ -742,6 +756,20 @@
 
     <!-- VIEW: 🏯 宗門 -->
     <section id="view-panel-sect" class="scroll-border rounded-2xl p-4 sm:p-5 space-y-3.5 hidden">
+      <!-- Sect & Disciple Leaderboard Quick Entry Card -->
+      <div class="sub-card border-2 border-[#9c6b21] rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div>
+            <span class="font-black text-sm text-[#9e2a22]">🏆 天南九天仙榜・萬宗與天驕排行</span>
+            <span id="sect-lb-summary-badge" class="text-xs font-bold text-[#236c53] ml-1.5">每日可領仙榜俸祿</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button id="btn-sect-open-lb-sects" type="button" class="gold-btn text-xs px-3 py-1.5 rounded-lg font-bold">🏯 宗門排行</button>
+            <button id="btn-sect-open-lb-disciples" type="button" class="cinnabar-btn text-xs px-3 py-1.5 rounded-lg font-bold">⚔️ 弟子排行</button>
+          </div>
+        </div>
+        <div id="sect-inline-leaderboard" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"></div>
+      </div>
       <div id="sect-boss-banner" class="hidden bg-[#f4ede0] border-2 border-[#9e2a22] rounded-xl p-3.5 space-y-2">
         <div id="sect-boss-banner-text" class="text-xs font-bold text-[#9e2a22] leading-relaxed"></div>
         <button id="btn-sect-fight-boss" type="button" class="cinnabar-btn text-sm py-3 px-4 rounded-lg font-bold w-full hidden">⚔️ 迎戰神級 Boss</button>
@@ -838,7 +866,7 @@
 
       <div id="subpanel-chronicle-box" class="hidden">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-bold text-[#1e1a16]">📜 韓立修真編年錄</span>
+          <span id="chronicle-title-label" class="text-sm font-bold text-[#1e1a16]">📜 韓立修真編年錄</span>
           <button id="btn-clear-log" type="button" class="paper-btn text-xs px-3 py-1 rounded-lg font-bold">清卷</button>
         </div>
         <div id="chronicle-log" class="chronicle-scroll max-h-96 overflow-y-auto space-y-2 pr-1 text-xs leading-relaxed"></div>
@@ -892,6 +920,12 @@
         <button id="btn-close-settings" type="button" class="paper-btn text-xs px-3 py-1 rounded-lg font-bold">✕ 關閉</button>
       </div>
       <div class="grid grid-cols-2 gap-2.5">
+        <button id="btn-settings-cloud" type="button" class="jade-btn text-xs py-2.5 rounded-xl font-bold text-center">
+          ☁️ 帳密雲端與改名
+        </button>
+        <button id="btn-settings-leaderboard" type="button" class="gold-btn text-xs py-2.5 rounded-xl font-bold text-center">
+          🏆 宗門與弟子排行
+        </button>
         <button id="btn-speed" type="button" class="paper-btn text-xs py-2.5 rounded-xl font-bold text-center">
           <span>⏳ 流速:</span><span id="speed-label" class="text-[#9e2a22] font-black ml-1">1x</span>
         </button>
@@ -908,7 +942,7 @@
       <div class="pt-2 border-t border-[#dfd3bc] space-y-1.5">
         <div class="text-xs font-bold text-[#1e1a16]">🎁 仙緣密令兌換</div>
         <div class="flex items-center gap-2">
-          <input id="gift-code-input" type="text" class="flex-1 min-w-0 text-xs px-3 py-2 rounded-xl border border-[#cbbba0] bg-[#f6f0e2] text-[#1e1a16] font-bold placeholder:text-[#8c7e6a]" placeholder="輸入密令序號 (如 kiss9988)" />
+          <input id="gift-code-input" type="text" class="flex-1 min-w-0 text-xs px-3 py-2 rounded-xl border border-[#cbbba0] bg-[#f6f0e2] text-[#1e1a16] font-bold placeholder:text-[#8c7e6a]" placeholder="請輸入仙緣密令序號" />
           <button id="btn-redeem-code" type="button" class="cinnabar-btn text-xs px-4 py-2 rounded-xl font-bold shrink-0">
             兌換
           </button>
@@ -955,6 +989,106 @@
         <button id="btn-cancel-reset" type="button" class="paper-btn text-xs px-3 py-2 rounded-lg font-bold">繼續當前仙途</button>
         <button id="btn-confirm-reset" type="button" class="cinnabar-btn text-xs px-3 py-2 rounded-lg font-bold">✨ 攜帶遺澤轉世重修</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Cloud Account & Custom Player Name Modal -->
+  <div id="cloud-account-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="scroll-border rounded-2xl max-w-md w-full p-4 sm:p-5 bg-[#fcfaf5] space-y-3.5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-[#dfd3bc] pb-2.5">
+        <h3 class="text-base font-black text-[#1e1a16]">👤 自訂道號 ＆ ☁️ 伺服器帳密存檔</h3>
+        <button id="btn-close-cloud-modal" type="button" class="paper-btn text-xs px-3 py-1 rounded-lg font-bold">✕ 關閉</button>
+      </div>
+
+      <!-- Custom Name Section -->
+      <div class="bg-[#f4ede0] border border-[#cbbba0] rounded-xl p-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-[#1e1a16]">✍️ 修士尊號（自訂姓名）</span>
+          <span class="text-[11px] text-[#5c5346] font-semibold">同步顯示於頂欄、仙榜與傳記</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <input id="player-name-input" type="text" maxlength="12" class="flex-1 min-w-0 text-xs px-3 py-2 rounded-xl border border-[#cbbba0] bg-[#fcfaf5] text-[#1e1a16] font-bold placeholder:text-[#8c7e6a]" placeholder="輸入自訂道號（1~12字，如：韓立）" />
+          <button id="btn-save-player-name" type="button" class="cinnabar-btn text-xs px-4 py-2 rounded-xl font-bold shrink-0">
+            儲存道號
+          </button>
+        </div>
+      </div>
+
+      <!-- Server Account Login & Cloud Save Section -->
+      <div class="bg-[#f4ede0] border-2 border-[#236c53] rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <span class="text-xs font-black text-[#236c53]">☁️ 仙界伺服器帳密存檔中心</span>
+          <span id="cloud-status-badge" class="text-[11px] px-2 py-0.5 rounded bg-[#e6dcc5] text-[#5c5346] font-bold">未登入帳號</span>
+        </div>
+        <p class="text-[11px] text-[#5c5346] leading-relaxed">
+          輸入帳號與密碼即可註冊或登入，將修仙進度加密儲存於雲端伺服器，支援跨裝置讀取並自動同步至【萬宗榜】與【天驕弟子榜】。
+        </p>
+        <div class="space-y-2">
+          <input id="cloud-username-input" type="text" maxlength="24" autocomplete="username" class="w-full text-xs px-3 py-2 rounded-xl border border-[#cbbba0] bg-[#fcfaf5] text-[#1e1a16] font-bold placeholder:text-[#8c7e6a]" placeholder="請輸入伺服器帳號（3~24字英數或中文）" />
+          <input id="cloud-password-input" type="password" maxlength="32" autocomplete="current-password" class="w-full text-xs px-3 py-2 rounded-xl border border-[#cbbba0] bg-[#fcfaf5] text-[#1e1a16] font-bold placeholder:text-[#8c7e6a]" placeholder="請輸入伺服器密碼（至少4碼）" />
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button id="btn-cloud-auth" type="button" class="gold-btn text-xs py-2.5 px-3 rounded-xl font-bold text-center">
+            🔑 登入 / 註冊帳號
+          </button>
+          <button id="btn-cloud-upload" type="button" class="jade-btn text-xs py-2.5 px-3 rounded-xl font-bold text-center">
+            ☁️ 存檔至伺服器
+          </button>
+          <button id="btn-cloud-download" type="button" class="cinnabar-btn text-xs py-2.5 px-3 rounded-xl font-bold text-center">
+            📥 從伺服器讀檔
+          </button>
+          <button id="btn-cloud-logout" type="button" class="paper-btn text-xs py-2.5 px-3 rounded-xl font-bold text-center">
+            🚪 登出帳號
+          </button>
+        </div>
+        <div id="cloud-status-banner" class="text-[11px] font-bold text-[#236c53] bg-[#fcfaf5] border border-[#d6c7ac] rounded-lg px-2.5 py-2 leading-relaxed">
+          💡 提示：首次輸入帳密點「登入 / 註冊帳號」或直接點「存檔至伺服器」皆可自動建立雲端專屬存檔。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard Modal (Sect Leaderboard & Disciple Leaderboard) -->
+  <div id="leaderboard-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="scroll-border rounded-2xl max-w-lg w-full p-4 sm:p-5 bg-[#fcfaf5] space-y-3 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-[#dfd3bc] pb-2.5 shrink-0">
+        <div>
+          <h3 class="text-base font-black text-[#1e1a16]">🏆 九天仙榜（宗門排行・弟子排行）</h3>
+          <p class="text-[11px] text-[#5c5346] font-semibold">即時匯聚全服雲端修士與各大宗門天驕數據</p>
+        </div>
+        <button id="btn-close-leaderboard" type="button" class="paper-btn text-xs px-3 py-1 rounded-lg font-bold">✕ 關閉</button>
+      </div>
+
+      <!-- Main Tabs: Sect Ranking vs Disciple Ranking -->
+      <div class="grid grid-cols-2 gap-2 shrink-0">
+        <button id="tab-lb-sects" type="button" class="cat-btn-active paper-btn text-xs py-2.5 rounded-xl font-bold text-center">
+          🏯 宗門排行（萬宗榜）
+        </button>
+        <button id="tab-lb-disciples" type="button" class="paper-btn text-xs py-2.5 rounded-xl font-bold text-center">
+          ⚔️ 弟子排行（天驕榜）
+        </button>
+      </div>
+
+      <!-- Sub-sort & Daily Reward Strip -->
+      <div class="flex items-center justify-between gap-2 flex-wrap bg-[#f4ede0] border border-[#cbbba0] rounded-xl px-3 py-2 shrink-0">
+        <div id="lb-player-rank-summary" class="text-xs font-bold text-[#1e1a16]">
+          我的排名：計算中...
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="btn-lb-refresh" type="button" class="paper-btn text-[11px] px-2.5 py-1 rounded-lg font-bold">🔄 同步雲端榜</button>
+          <button id="btn-claim-lb-reward" type="button" class="cinnabar-btn text-[11px] px-2.5 py-1 rounded-lg font-bold">🎁 領每日仙榜俸祿</button>
+        </div>
+      </div>
+
+      <!-- Disciple Sub-filter Bar -->
+      <div id="lb-disciple-sort-bar" class="hidden grid-cols-3 gap-1.5 shrink-0">
+        <button type="button" data-lb-sort="combat" class="lb-sort-btn cat-btn-active paper-btn text-xs py-1.5 rounded-lg font-bold">⚔️ 戰力排行</button>
+        <button type="button" data-lb-sort="realm" class="lb-sort-btn paper-btn text-xs py-1.5 rounded-lg font-bold">☯️ 境界排行</button>
+        <button type="button" data-lb-sort="tower" class="lb-sort-btn paper-btn text-xs py-1.5 rounded-lg font-bold">🗼 鎮妖塔榜</button>
+      </div>
+
+      <!-- Scrollable List Container -->
+      <div id="leaderboard-list-container" class="overflow-y-auto space-y-2 pr-1 flex-1 min-h-[260px]"></div>
     </div>
   </div>
 
@@ -1047,21 +1181,59 @@
     ];
 
     const BLOODLINE_POOL = [
-      { id: 'w1', tier: '⚪凡', color: 'bg-stone-200 text-stone-800', name: '吐納微增', qiBonus: 0.05, combatBonus: 0.05, desc: '修+5% 戰+5%' },
-      { id: 'b1', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '真元凝練', qiBonus: 0.12, combatBonus: 0.10, desc: '修+12% 戰+10%' },
-      { id: 'p1', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '劍心通明', qiBonus: 0.20, combatBonus: 0.28, desc: '修+20% 戰+28%' },
-      { id: 'o1', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '浩然正氣', qiBonus: 0.40, combatBonus: 0.55, desc: '修+40% 戰+55%' },
-      { id: 'o2', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '青元劍骨', qiBonus: 0.35, combatBonus: 0.70, desc: '修+35% 戰+70%' },
-      { id: 'r1', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '不滅血體', qiBonus: 0.80, combatBonus: 1.35, desc: '修+80% 戰+135%' },
-      { id: 'r2', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '言出法隨', qiBonus: 1.10, combatBonus: 1.60, desc: '修+110% 戰+160%' },
-      { id: 'panshi', tier: '⚪凡', color: 'bg-stone-200 text-stone-800', name: '磐石體', qiBonus: 0.03, combatBonus: 0.12, desc: '修+3% 戰+12%' },
-      { id: 'fengxing', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '風行體', qiBonus: 0.16, combatBonus: 0.06, desc: '修+16% 戰+6%' },
-      { id: 'tiegut', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '鐵骨錚錚', qiBonus: 0.07, combatBonus: 0.17, desc: '修+7% 戰+17%' },
-      { id: 'bingpo', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '冰魄寒體', qiBonus: 0.14, combatBonus: 0.36, desc: '修+14% 戰+36%' },
-      { id: 'leigang', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '雷罡體', qiBonus: 0.26, combatBonus: 0.18, desc: '修+26% 戰+18%' },
-      { id: 'jiuyang', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '九陽聖體', qiBonus: 0.50, combatBonus: 0.45, desc: '修+50% 戰+45%' },
-      { id: 'hundun', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '混沌道體', qiBonus: 1.40, combatBonus: 1.20, desc: '修+140% 戰+120%' },
-      { id: 'wangu', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '萬古長青體', qiBonus: 0.85, combatBonus: 2.10, desc: '修+85% 戰+210%' }
+      // ⚪ 凡品 (6種)
+      { id: 'w1', tier: '⚪凡', color: 'bg-stone-200 text-stone-800', name: '引氣入體', qiBonus: 0.06, combatBonus: 0.04, desc: '修為+6%・戰力+4%' },
+      { id: 'w2', tier: '⚪凡', color: 'bg-stone-200 text-stone-800', name: '磐石筋骨', qiBonus: 0.03, combatBonus: 0.12, desc: '修為+3%・戰力+12%' },
+      { id: 'w3', tier: '⚪凡', color: 'bg-stone-200 text-stone-800', name: '山野採藥人', qiBonus: 0.04, combatBonus: 0.04, stoneBonus: 0.08, desc: '修+4%・戰+4%・靈石+8%' },
+      { id: 'w4', tier: '⚪凡', color: 'bg-stone-200 text-stone-800', name: '行腳尋蹤', qiBonus: 0.04, combatBonus: 0.04, dustBonus: 0.10, desc: '修+4%・戰+4%・靈塵+10%' },
+      { id: 'w5', tier: '⚪凡', color: 'bg-stone-200 text-stone-800', name: '清心寡慾', qiBonus: 0.05, combatBonus: 0.03, breakBonus: 0.02, desc: '修+5%・戰+3%・破境+2%' },
+      { id: 'w6', tier: '⚪凡', color: 'bg-stone-200 text-stone-800', name: '靈台微明', qiBonus: 0.04, combatBonus: 0.05, senseBonus: 0.08, desc: '修+4%・戰+5%・神識+8%' },
+
+      // 🔵 靈品 (8種)
+      { id: 'b1', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '真元凝練', qiBonus: 0.14, combatBonus: 0.10, desc: '修為+14%・戰力+10%' },
+      { id: 'b2', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '風行百脈', qiBonus: 0.18, combatBonus: 0.06, dustBonus: 0.12, desc: '修+18%・戰+6%・靈塵+12%' },
+      { id: 'b3', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '鐵骨錚錚', qiBonus: 0.08, combatBonus: 0.20, desc: '修為+8%・戰力+20%' },
+      { id: 'b4', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '聚財靈瞳', qiBonus: 0.10, combatBonus: 0.08, stoneBonus: 0.18, desc: '修+10%・戰+8%・靈石+18%' },
+      { id: 'b5', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '丹火親和', qiBonus: 0.10, combatBonus: 0.08, alchemyBonus: 0.03, desc: '修+10%・戰+8%・極品丹+3%' },
+      { id: 'b6', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '甘露親和', qiBonus: 0.12, combatBonus: 0.08, dewBonus: 0.12, desc: '修+12%・戰+8%・凝露+12%' },
+      { id: 'b7', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '金剛伏魔脈', qiBonus: 0.06, combatBonus: 0.24, breakBonus: 0.02, desc: '修+6%・戰+24%・破境+2%' },
+      { id: 'b8', tier: '🔵靈', color: 'bg-sky-100 text-sky-900', name: '神念通達', qiBonus: 0.11, combatBonus: 0.11, senseBonus: 0.16, desc: '修+11%・戰+11%・神識+16%' },
+
+      // 🟣 玄品 (8種)
+      { id: 'p1', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '劍心通明', qiBonus: 0.22, combatBonus: 0.32, desc: '修為+22%・戰力+32%' },
+      { id: 'p2', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '冰魄寒靈體', qiBonus: 0.18, combatBonus: 0.38, alchemyBonus: 0.04, desc: '修+18%・戰+38%・極品丹+4%' },
+      { id: 'p3', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '九霄雷罡體', qiBonus: 0.30, combatBonus: 0.25, breakBonus: 0.04, desc: '修+30%・戰+25%・破境+4%' },
+      { id: 'p4', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '天狐魅骨', qiBonus: 0.24, combatBonus: 0.20, senseBonus: 0.28, desc: '修+24%・戰+20%・神識+28%' },
+      { id: 'p5', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '紫府蘊靈脈', qiBonus: 0.28, combatBonus: 0.18, stoneBonus: 0.28, desc: '修+28%・戰+18%・靈石+28%' },
+      { id: 'p6', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '太陰月華體', qiBonus: 0.25, combatBonus: 0.22, dewBonus: 0.25, desc: '修+25%・戰+22%・凝露+25%' },
+      { id: 'p7', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '星辰尋寶瞳', qiBonus: 0.20, combatBonus: 0.24, dustBonus: 0.30, desc: '修+20%・戰+24%・靈塵+30%' },
+      { id: 'p8', tier: '🟣玄', color: 'bg-purple-100 text-purple-900', name: '百草藥靈體', qiBonus: 0.26, combatBonus: 0.18, alchemyBonus: 0.06, desc: '修+26%・戰+18%・極品丹+6%' },
+
+      // 🟠 仙品 (8種)
+      { id: 'o1', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '浩然正氣體', qiBonus: 0.45, combatBonus: 0.60, breakBonus: 0.05, desc: '修+45%・戰+60%・破境+5%' },
+      { id: 'o2', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '青元劍骨', qiBonus: 0.40, combatBonus: 0.78, desc: '修為+40%・戰力+78%' },
+      { id: 'o3', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '九陽曜日體', qiBonus: 0.55, combatBonus: 0.52, alchemyBonus: 0.08, desc: '修+55%・戰+52%・極品丹+8%' },
+      { id: 'o4', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '天鳳涅槃血', qiBonus: 0.48, combatBonus: 0.65, dewBonus: 0.35, desc: '修+48%・戰+65%・凝露+35%' },
+      { id: 'o5', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '真龍霸體', qiBonus: 0.38, combatBonus: 0.88, stoneBonus: 0.35, desc: '修+38%・戰+88%・靈石+35%' },
+      { id: 'o6', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '太虛空靈體', qiBonus: 0.52, combatBonus: 0.48, dustBonus: 0.45, desc: '修+52%・戰+48%・靈塵+45%' },
+      { id: 'o7', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '大衍神念體', qiBonus: 0.46, combatBonus: 0.54, senseBonus: 0.50, desc: '修+46%・戰+54%・神識+50%' },
+      { id: 'o8', tier: '🟠仙', color: 'bg-amber-100 text-amber-900', name: '乾坤納寶體', qiBonus: 0.44, combatBonus: 0.50, stoneBonus: 0.40, dustBonus: 0.40, desc: '修+44%・戰+50%・石/塵+40%' },
+
+      // 🔴 神品 (7種)
+      { id: 'r1', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '不滅玄黃體', qiBonus: 0.90, combatBonus: 1.45, breakBonus: 0.08, desc: '修+90%・戰+145%・破境+8%' },
+      { id: 'r2', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '言出法隨道體', qiBonus: 1.15, combatBonus: 1.65, senseBonus: 0.75, desc: '修+115%・戰+165%・神識+75%' },
+      { id: 'r3', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '混沌開天體', qiBonus: 1.45, combatBonus: 1.30, dewBonus: 0.55, desc: '修+145%・戰+130%・凝露+55%' },
+      { id: 'r4', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '萬古長青仙體', qiBonus: 0.95, combatBonus: 2.15, alchemyBonus: 0.12, desc: '修+95%・戰+215%・極品丹+12%' },
+      { id: 'r5', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '荒古聖體', qiBonus: 0.85, combatBonus: 2.40, stoneBonus: 0.65, desc: '修+85%・戰+240%・靈石+65%' },
+      { id: 'r6', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '九幽冥帝血', qiBonus: 1.10, combatBonus: 1.85, dustBonus: 0.75, desc: '修+110%・戰+185%・靈塵+75%' },
+      { id: 'r7', tier: '🔴神', color: 'bg-rose-200 text-rose-950', name: '太初劍胎', qiBonus: 1.05, combatBonus: 2.25, breakBonus: 0.10, desc: '修+105%・戰+225%・破境+10%' },
+
+      // 🌌 聖品 (5種・至高天命)
+      { id: 's1', tier: '🌌聖', color: 'bg-indigo-950 text-amber-200 border border-amber-400', name: '鴻蒙造化聖體', qiBonus: 2.20, combatBonus: 2.80, dewBonus: 0.85, breakBonus: 0.12, desc: '修+220%・戰+280%・凝露+85%・破境+12%' },
+      { id: 's2', tier: '🌌聖', color: 'bg-indigo-950 text-amber-200 border border-amber-400', name: '掌天歲月神脈', qiBonus: 2.50, combatBonus: 2.40, stoneBonus: 1.00, dustBonus: 1.00, desc: '修+250%・戰+240%・靈石與靈塵+100%' },
+      { id: 's3', tier: '🌌聖', color: 'bg-indigo-950 text-amber-200 border border-amber-400', name: '永恆誅仙劍體', qiBonus: 1.80, combatBonus: 3.60, senseBonus: 1.20, desc: '修+180%・戰+360%・神識+120%' },
+      { id: 's4', tier: '🌌聖', color: 'bg-indigo-950 text-amber-200 border border-amber-400', name: '萬道丹帝聖心', qiBonus: 2.10, combatBonus: 2.50, alchemyBonus: 0.20, dewBonus: 0.70, desc: '修+210%・戰+250%・極品丹+20%・凝露+70%' },
+      { id: 's5', tier: '🌌聖', color: 'bg-indigo-950 text-amber-200 border border-amber-400', name: '諸天萬界道胎', qiBonus: 2.80, combatBonus: 3.00, breakBonus: 0.15, senseBonus: 1.00, desc: '修+280%・戰+300%・破境+15%・神識+100%' }
     ];
 
     const ORIGINS = [
@@ -1625,6 +1797,7 @@
       saveState();
     }
     function renderSectTab() {
+      renderSectInlineLeaderboard();
       const box = document.getElementById('sect-content');
       if (!box) return;
       ensureSectDaily();
@@ -1988,14 +2161,16 @@
 
     function createDefaultState() {
       return {
+        playerName: '韓立',
+        cloudUsername: '',
+        lastCloudSync: 0,
+        lastLbRewardDate: '',
         originId: 'hanli',
         activePath: 'magic',
         realmIndex: 0,
         qi: 0,
         bodyRealmIndex: 0,
         bodyQi: 0,
-        ageYears: 14,
-        ageMonths: 0,
         stones: 100,
         spiritDust: 20,
         gachaTokens: 2,
@@ -2025,7 +2200,6 @@
         originSwitchCount: 0,
         sect: { id: null, contribution: 0, totalContribution: 0, arrayLv: 1, arrayDurability: 100, tasks: [], taskDate: '', shopDate: '', shopBought: {}, donatedStoneToday: 0, donatedDustToday: 0, lastArrayPackDate: '', bossHistory: [], bossPlaySeconds: 0, bossMisses: 0, bossCooldownSeconds: 0, bossState: null, buffSecondsLeft: 0, war: null, warWarn: null, defenseWarn: null, warPlaySeconds: 0, warMisses: 0, siegePlaySeconds: 0, truce: {}, disciples: 0, milestones: {} },
         castles: defaultCastles(),
-        ageCalibrated: false,
         meditateCombo: 0,
         lastMeditateAt: 0,
         audioMuted: false,
@@ -2037,7 +2211,8 @@
         bloodlineTraits: [
           { traitId: 'w1', locked: false },
           { traitId: 'b1', locked: false },
-          { traitId: 'w1', locked: false }
+          { traitId: 'w3', locked: false },
+          { traitId: 'b4', locked: false }
         ],
         relics: {},
         relicInfusion: {},
@@ -2053,7 +2228,7 @@
         treasureLevels: { shenfeng: 1, qingzhu: 1, beetles: 1, xutian: 0, xuantian: 0, zhangtian_core: 0 },
         companionAffinity: { nangong: 10, ziyan: 10, yinyue: 15, yuanwao: 10 },
         logs: [
-          { time: '【14載】', text: '開啟法體雙修、鎮妖塔與探寶古寶注靈！', highlight: true }
+          { time: '【練氣一層】', text: '開啟法體雙修、四象血脈、九天仙榜與雲端伺服器存檔！', highlight: true }
         ]
       };
     }
@@ -2617,18 +2792,41 @@
             state.unlockedSeeds = parsed.unlockedSeeds.filter(id => HERBS.some(h => h.id === id));
             if (state.unlockedSeeds.length === 0) state.unlockedSeeds = HERBS.slice(0, 4).map(h => h.id);
           }
-          // 舊存檔年齡校正：只在第一次載入舊存檔時跑一次（ageCalibrated 缺省為 false）。
-          // 舊版年齡增速過快，很多人早已超過壽元，校正時留 5 載緩衝；校正後壽元將盡不再靠重開洗掉，必須破境延壽。
-          if (!state.ageCalibrated) {
-            const _ageRealm = state.activePath === 'body' ? getBodyRealm() : getMagicRealm();
-            if (state.ageYears > _ageRealm.lifespan) {
-              state.ageYears = Math.max(14, _ageRealm.lifespan - 5);
-              state.ageMonths = 0;
-            }
-            state.ageCalibrated = true;
-          }
+          if (!state.playerName || typeof state.playerName !== 'string') state.playerName = '韓立';
           if (!Array.isArray(state.equippedSkills) || state.equippedSkills.length === 0) state.equippedSkills = def.equippedSkills;
-          if (!Array.isArray(state.bloodlineTraits) || state.bloodlineTraits.length !== 3) state.bloodlineTraits = def.bloodlineTraits;
+          if (!Array.isArray(state.bloodlineTraits) || state.bloodlineTraits.length < 3) {
+            state.bloodlineTraits = def.bloodlineTraits;
+          } else {
+            // Migrate legacy trait IDs & upgrade 3-slot saves to 4 non-duplicate slots
+            const legacyMap = { panshi: 'w2', fengxing: 'b2', tiegut: 'b3', bingpo: 'p2', leigang: 'p3', jiuyang: 'o3', hundun: 'r3', wangu: 'r4' };
+            state.bloodlineTraits.forEach(s => {
+              if (legacyMap[s.traitId]) s.traitId = legacyMap[s.traitId];
+              if (!BLOODLINE_POOL.some(x => x.id === s.traitId)) s.traitId = 'w1';
+            });
+            while (state.bloodlineTraits.length < 4) {
+              const used = new Set(state.bloodlineTraits.map(s => s.traitId));
+              const fallback = BLOODLINE_POOL.find(x => !used.has(x.id)) || BLOODLINE_POOL[0];
+              state.bloodlineTraits.push({ traitId: fallback.id, locked: false });
+            }
+            if (state.bloodlineTraits.length > 4) state.bloodlineTraits = state.bloodlineTraits.slice(0, 4);
+            // Deduplicate existing slots so all 4 slots are distinct
+            const seenIds = new Set();
+            state.bloodlineTraits.forEach(s => {
+              if (seenIds.has(s.traitId)) {
+                const replacement = BLOODLINE_POOL.find(x => !seenIds.has(x.id)) || BLOODLINE_POOL[0];
+                s.traitId = replacement.id;
+              }
+              seenIds.add(s.traitId);
+            });
+          }
+          // Clean up any legacy 【xx載】 prefixes in logs
+          if (Array.isArray(state.logs)) {
+            state.logs.forEach(lg => {
+              if (lg && typeof lg.time === 'string' && lg.time.includes('載')) {
+                lg.time = '【仙途紀事】';
+              }
+            });
+          }
         }
       } catch (e) {
         state = createDefaultState();
@@ -2698,7 +2896,7 @@
       const origin = getOrigin();
       const yinyueMult = 1 + ((state.companionAffinity.yinyue || 0) * 0.01);
       const xutianBonus = 1 + ((state.treasureLevels.xutian || 0) * 0.25);
-      state.dewProgress += 1.4 * capped * eff * origin.dewMult * yinyueMult * xutianBonus;
+      state.dewProgress += 1.4 * capped * eff * origin.dewMult * yinyueMult * xutianBonus * (1 + (getTraitBonuses().dewMult || 0));
       let dewGot = 0;
       if (state.dewProgress >= 100) {
         dewGot = Math.floor(state.dewProgress / 100);
@@ -2807,12 +3005,24 @@
     function getTraitBonuses() {
       let qiMult = 0;
       let combatMult = 0;
+      let stoneMult = 0;
+      let dustMult = 0;
+      let dewMult = 0;
+      let breakAdd = 0;
+      let supremeAdd = 0;
+      let senseMult = 0;
       (state.bloodlineTraits || []).forEach(slot => {
         const t = BLOODLINE_POOL.find(x => x.id === slot.traitId) || BLOODLINE_POOL[0];
-        qiMult += t.qiBonus;
-        combatMult += t.combatBonus;
+        qiMult += t.qiBonus || 0;
+        combatMult += t.combatBonus || 0;
+        stoneMult += t.stoneBonus || 0;
+        dustMult += t.dustBonus || 0;
+        dewMult += t.dewBonus || 0;
+        breakAdd += t.breakBonus || 0;
+        supremeAdd += t.alchemyBonus || 0;
+        senseMult += t.senseBonus || 0;
       });
-      return { qiMult, combatMult };
+      return { qiMult, combatMult, stoneMult, dustMult, dewMult, breakAdd, supremeAdd, senseMult };
     }
     function getRelicBonuses() {
       let qiMult = 1.0;
@@ -2877,7 +3087,8 @@
       const castleMult = 1 + getCastleBonuses().stoneMult;
       const beastMult = 1 + getBeastBonuses().stoneMult;
       const lawMult = 1 + getLawBonuses().dropMult;
-      return Math.max(2, Math.round(base * ziyanMult * castleMult * beastMult * lawMult));
+      const traitMult = 1 + (getTraitBonuses().stoneMult || 0);
+      return Math.max(2, Math.round(base * ziyanMult * castleMult * beastMult * lawMult * traitMult));
     }
     function getRoamDustGain() {
       const rIdx = Math.max(state.realmIndex || 0, state.bodyRealmIndex || 0);
@@ -2887,7 +3098,8 @@
       const sectMult = 1 + getSectPassiveFor('lingshou');
       const castleMult = 1 + getCastleBonuses().roamDustMult;
       const lawMult = 1 + getLawBonuses().dropMult;
-      return Math.max(4, Math.round(base * sectMult * castleMult * lawMult));
+      const traitMult = 1 + (getTraitBonuses().dustMult || 0);
+      return Math.max(4, Math.round(base * sectMult * castleMult * lawMult * traitMult));
     }
     function addActiveQi(amount) {
       const realm = getActiveRealm();
@@ -2913,16 +3125,13 @@
       const nangongBonus = 1 + ((state.companionAffinity.nangong || 0) * 0.01);
       const reincBonus = Math.min(3, 1 + (state.reincarnationCount * 0.25));
       const injuryPenalty = state.injuryTimer > 0 ? 0.5 : 1.0;
-      const lifespanPenalty = state.ageYears > realm.lifespan ? 0.5 : 1.0;
       const sectQiMult = (state.activePath === 'magic' && state.sect && state.sect.id === 'yanyue') ? (1 + getSectPassive()) : 1;
       const sectBuffMult = (state.sect && state.sect.buffSecondsLeft > 0) ? 1.1 : 1;
-      // 總倍率上限 2000 倍：古寶／功法／塔層／轉世等疊加不再無限膨脹，
-      // 填滿一條的時間才會隨境界拉長；受傷／壽元懲罰仍在上限外另算。
       const beastB = getBeastBonuses();
       const lawB = getLawBonuses();
       const rawMult = origin.qiMult * artMult * relicB.qiMult * (1 + traitB.qiMult) * resonanceMult * towerMult * nangongBonus * reincBonus * sectQiMult * sectBuffMult * (1 + getCastleBonuses().qiMult) * getCaveArrayQiMult() * (1 + beastB.qiMult) * (1 + lawB.qiMult) * getDaoHeartMult();
       const cappedMult = Math.min(2000, rawMult);
-      return Math.max(1, Math.round((realm.baseRate + flatTreasure) * cappedMult * injuryPenalty * lifespanPenalty));
+      return Math.max(1, Math.round((realm.baseRate + flatTreasure) * cappedMult * injuryPenalty));
     }
     function getTotalCombat() {
       const mRealm = getMagicRealm();
@@ -2947,12 +3156,12 @@
       const art = getCurrentArt();
       const artLv = (state.artLevels && state.artLevels[art.id]) || 1;
       const base = 50 + (state.realmIndex + state.bodyRealmIndex) * 90 + art.senseBonus * artLv;
-      return Math.round(base * (1 + ((state.companionAffinity.yinyue || 0) * 0.01)) * (1 + getBeastBonuses().senseMult) * getDaoHeartMult());
+      return Math.round(base * (1 + ((state.companionAffinity.yinyue || 0) * 0.01)) * (1 + getBeastBonuses().senseMult) * (1 + (getTraitBonuses().senseMult || 0)) * getDaoHeartMult());
     }
     function getAlchemyRates() {
       const hasShiling = ((state.relics && state.relics.shiling_fire) || 0) > 0;
       const hasQianlan = ((state.relics && state.relics.qianlan_fire) || 0) > 0;
-      const heavenlyBonus = (getOrigin().id === 'heavenly' ? 0.08 : 0) + getBeastBonuses().supremeAdd + getLawBonuses().supremeAdd;
+      const heavenlyBonus = (getOrigin().id === 'heavenly' ? 0.08 : 0) + getBeastBonuses().supremeAdd + getLawBonuses().supremeAdd + (getTraitBonuses().supremeAdd || 0);
 
       if (hasShiling) return { failRate: 0.0, supremeRate: 0.32 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4 + getCastleBonuses().alchemySupreme, highRate: 0.40, flameName: '噬靈天火' };
       if (hasQianlan) return { failRate: 0.08, supremeRate: 0.18 + heavenlyBonus + getSectPassiveFor('huangfeng') * 0.4 + getCastleBonuses().alchemySupreme, highRate: 0.30, flameName: '乾藍冰焰' };
@@ -2966,7 +3175,7 @@
       }
       if (state.toxicity >= 70) base -= 0.15;
       if (state.sect && state.sect.id === 'yanyue') base += getSectPassive() * 0.2;
-      base += getCastleBonuses().breakBonus + getLawBonuses().breakAdd + Math.min(0.15, (state.daoHeart || 0) * 0.002);
+      base += getCastleBonuses().breakBonus + getLawBonuses().breakAdd + (getTraitBonuses().breakAdd || 0) + Math.min(0.15, (state.daoHeart || 0) * 0.002);
       if (state.tribulationShield) base += 0.20;
       return Math.min(0.98, Math.max(0.05, base));
     }
@@ -2979,7 +3188,8 @@
     }
 
     function addLog(text, highlight = false) {
-      const timeLabel = `【${state.ageYears}載】`;
+      const curRealmTitle = state.activePath === 'body' ? getBodyRealm().bodyName : getMagicRealm().name;
+      const timeLabel = `【${curRealmTitle}】`;
       state.logs.unshift({ time: timeLabel, text, highlight });
       if (state.logs.length > 50) state.logs.pop();
       renderLogs();
@@ -3149,48 +3359,79 @@
       saveState();
     }
 
-    function handleRerollTraits() {
-      const lockedCount = (state.bloodlineTraits || []).filter(t => t.locked).length;
-      if (lockedCount >= 3) {
-        showToast('請先解鎖欲重洗的詞條！');
+    function handleRerollTraits(highGrade = false) {
+      const slots = state.bloodlineTraits || [];
+      const lockedCount = slots.filter(t => t.locked).length;
+      if (lockedCount >= slots.length) {
+        showToast('請先解鎖欲重洗的血脈槽位！');
         return;
       }
-      const cost = 15 * (lockedCount + 1);
+      const baseCost = highGrade === true ? 60 : 15;
+      const cost = baseCost * (lockedCount + 1);
       if ((state.spiritDust || 0) < cost) {
-        showToast(`✨ 需 ${cost} 靈塵！`);
+        showToast(`✨ 靈塵不足！需 ${cost} 靈塵`);
         return;
       }
       state.spiritDust -= cost;
 
+      let gotSaint = false;
       let gotMythic = false;
-      state.bloodlineTraits.forEach(slot => {
+      const usedIds = new Set(slots.filter(s => s.locked).map(s => s.traitId));
+
+      slots.forEach(slot => {
         if (slot.locked) return;
+        const prevId = slot.traitId;
         const r = Math.random();
-        const poolByTier = (k) => BLOODLINE_POOL.filter(x => (x.tier || '').includes(k));
-        const pickFrom = (arr) => arr[Math.floor(Math.random() * arr.length)] || BLOODLINE_POOL[0];
+        const poolByTier = (k) => BLOODLINE_POOL.filter(x => (x.tier || '').includes(k) && !usedIds.has(x.id) && x.id !== prevId);
+        const pickFrom = (arr, fallbackKey) => {
+          if (arr && arr.length > 0) return arr[Math.floor(Math.random() * arr.length)];
+          const alt = BLOODLINE_POOL.filter(x => (!fallbackKey || (x.tier || '').includes(fallbackKey)) && !usedIds.has(x.id));
+          if (alt.length > 0) return alt[Math.floor(Math.random() * alt.length)];
+          return BLOODLINE_POOL.find(x => !usedIds.has(x.id)) || BLOODLINE_POOL[0];
+        };
         let picked;
-        if (r < 0.06) {
-          picked = pickFrom(poolByTier('神'));
-          gotMythic = true;
-        } else if (r < 0.22) {
-          picked = pickFrom(poolByTier('仙'));
-        } else if (r < 0.50) {
-          picked = pickFrom(poolByTier('玄'));
-        } else if (r < 0.80) {
-          picked = pickFrom(poolByTier('靈'));
+        if (highGrade === true) {
+          if (r < 0.14) {
+            picked = pickFrom(poolByTier('聖'), '聖');
+            gotSaint = true;
+          } else if (r < 0.46) {
+            picked = pickFrom(poolByTier('神'), '神');
+            gotMythic = true;
+          } else {
+            picked = pickFrom(poolByTier('仙'), '仙');
+          }
         } else {
-          picked = pickFrom(poolByTier('凡'));
+          if (r < 0.025) {
+            picked = pickFrom(poolByTier('聖'), '聖');
+            gotSaint = true;
+          } else if (r < 0.10) {
+            picked = pickFrom(poolByTier('神'), '神');
+            gotMythic = true;
+          } else if (r < 0.28) {
+            picked = pickFrom(poolByTier('仙'), '仙');
+          } else if (r < 0.56) {
+            picked = pickFrom(poolByTier('玄'), '玄');
+          } else if (r < 0.82) {
+            picked = pickFrom(poolByTier('靈'), '靈');
+          } else {
+            picked = pickFrom(poolByTier('凡'), '凡');
+          }
         }
         slot.traitId = picked.id;
+        usedIds.add(picked.id);
       });
 
-      if (gotMythic) {
+      if (gotSaint) {
         playSound('breakthrough');
-        addLog('🔴 洗出神話紅品詞條！', true);
-        showToast('🔴 洗出紅品詞條！');
+        addLog('🌌 鴻蒙紫氣降臨！淬煉出至高【🌌聖品血脈】！', true);
+        showToast('🌌 驚世駭俗！洗出至高聖品血脈！');
+      } else if (gotMythic) {
+        playSound('breakthrough');
+        addLog('🔴 血脈覺醒！淬煉出傳說【🔴神品血脈】！', true);
+        showToast('🔴 洗出神品血脈詞條！');
       } else {
         playSound('dew');
-        showToast('✨ 淬煉完成！');
+        showToast(highGrade === true ? '🔥 天命淬煉完成（必出仙品以上）！' : '✨ 血脈淬煉完成（4槽位無重複）！');
       }
       renderAll();
       saveState();
@@ -3421,7 +3662,7 @@
         const nextTitle = isBody ? nextRealm.bodyName : nextRealm.name;
         playSound('breakthrough');
         spawnFloatingText(`⚡ ${nextTitle}`, 'text-[#9e2a22]');
-        addLog(`🎉 晉入【${nextTitle}】（探寶令+1${nextRealm.lifespan > realm.lifespan ? `、壽元延至 ${nextRealm.lifespan}載` : ''}）！`, true);
+        addLog(`🎉 晉入【${nextTitle}】（探寶令+1、宗門貢獻+20）！`, true);
         showToast(`🎉 晉入【${nextTitle}】！`);
       } else {
         if (state.tribulationShield) {
@@ -3667,8 +3908,8 @@
       document.getElementById('combat-wave-badge').textContent = `第${activeCombat.round}回`;
       document.getElementById('event-title').textContent = `${activeCombat.loc.name}｜${activeCombat.loc.enemyName}`;
 
-      const shieldTxt = activeCombat.playerShield > 0 ? `(盾+${formatNum(activeCombat.playerShield)})` : '';
-      document.getElementById('player-shield-label').textContent = `我方${shieldTxt}`;
+      const shieldTxt = activeCombat.playerShield > 0 ? ` (盾+${formatNum(activeCombat.playerShield)})` : '';
+      document.getElementById('player-shield-label').textContent = `👤 ${state.playerName || '韓立'}${shieldTxt}`;
 
       const pPct = Math.max(0, Math.min(100, Math.round((activeCombat.playerHp / activeCombat.playerMaxHp) * 100)));
       const ePct = Math.max(0, Math.min(100, Math.round((activeCombat.enemyHp / activeCombat.enemyMaxHp) * 100)));
@@ -4535,18 +4776,19 @@
       document.getElementById('stat-dew').textContent = `💧${state.dew}滴`;
       document.getElementById('stat-stones').textContent = `💎${formatNum(state.stones)}`;
 
-      // Update Secondary Header Strip
-      const ageEl = document.getElementById('header-stat-age');
-      if (ageEl) {
-        const nearEnd = state.ageYears > activeRealm.lifespan * 0.85;
-        ageEl.textContent = `⏳ ${state.ageYears}/${activeRealm.lifespan}載`;
-        ageEl.className = `px-2 py-0.5 rounded border font-bold ${
-          state.ageYears > activeRealm.lifespan
-            ? 'bg-rose-100 border-rose-400 text-[#9e2a22]'
-            : nearEnd
-              ? 'bg-amber-100 border-amber-400 text-amber-900'
-              : 'bg-[#fcfaf5] border-[#d8cbb3] text-[#4a4138]'
-        }`;
+      // Update Secondary Header Strip & Custom Player Name
+      const pName = state.playerName || '韓立';
+      const pNameBtn = document.getElementById('btn-header-player-name');
+      if (pNameBtn) {
+        pNameBtn.textContent = `👤 ${pName} ✎`;
+      }
+      const chronTitle = document.getElementById('chronicle-title-label');
+      if (chronTitle) {
+        chronTitle.textContent = `📜 ${pName}修真編年錄`;
+      }
+      const cloudBtn = document.getElementById('btn-header-cloud');
+      if (cloudBtn) {
+        cloudBtn.textContent = state.cloudUsername ? `☁️ ${state.cloudUsername}` : '☁️ 雲端';
       }
       const dustEl = document.getElementById('header-stat-dust');
       if (dustEl) dustEl.textContent = `✨ 靈塵 ${formatNum(state.spiritDust || 0)}`;
@@ -4587,7 +4829,6 @@
 
       // Sync Hidden Compatibility Spans
       const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
-      setTxt('stat-age', `${state.ageYears}/${activeRealm.lifespan}`);
       setTxt('stat-body-realm', bRealm.bodyName);
       setTxt('stat-toxicity-badge', `${state.toxicity}/100`);
       setTxt('stat-tower-floor', `${state.towerFloor || 1}`);
@@ -4653,11 +4894,11 @@
       const mainBreakBtn = document.getElementById('btn-breakthrough');
       if (mainBreakBtn) mainBreakBtn.classList.toggle('break-ready', qiReady);
 
-      // Lifespan & Injury visuals on Cultivate Tab
+      // Cultivator Name, Spirit Sense & Dao Heart visuals on Cultivate Tab
       const lifeLine = document.getElementById('lifespan-status-line');
       if (lifeLine) {
-        lifeLine.textContent = `壽元：${state.ageYears} / ${activeRealm.lifespan} 載｜神識：${formatNum(getTotalSense())}`;
-        lifeLine.className = state.ageYears > activeRealm.lifespan ? 'text-[11px] font-bold text-[#9e2a22]' : 'text-[11px] font-semibold text-[#5c5346]';
+        lifeLine.textContent = `👤 道號：${state.playerName || '韓立'} ｜ 👁️ 神識：${formatNum(getTotalSense())} ｜ ☯️ 道心：${state.daoHeart || 0}`;
+        lifeLine.className = 'text-[11px] font-semibold text-[#5c5346]';
       }
       const injLabel = document.getElementById('cultivate-injury-label');
       if (injLabel) {
@@ -4694,7 +4935,6 @@
         let extra = '';
         if (state.pityBonus > 0) extra += ` ✨ 保底加成 +${Math.round(state.pityBonus * 100)}%（成功後歸零）。`;
         if (state.toxicity >= 70) extra += ` ☠️ 丹毒 ${state.toxicity}，破境率 -15%，請先排毒再破境。`;
-        if (state.ageYears > activeRealm.lifespan) extra += ` ⚠️ 壽元將盡（${state.ageYears}/${activeRealm.lifespan}載），修煉效率減半，破境可延壽至 ${nextR.lifespan}載。`;
         nextStepEl.textContent += extra;
         if (state.sect && state.sect.id && Array.isArray(state.sect.tasks)) {
           const _undone = state.sect.tasks.filter(tk => !tk.done).length;
@@ -5043,24 +5283,40 @@
         const lockedCount = (state.bloodlineTraits || []).filter(t => t.locked).length;
         const rerollBtn = document.getElementById('btn-reroll-traits');
         if (rerollBtn) rerollBtn.textContent = `✨ 淬煉(${15 * (lockedCount + 1)}塵)`;
+        const rerollHighBtn = document.getElementById('btn-reroll-traits-high');
+        if (rerollHighBtn) rerollHighBtn.textContent = `🔥 天命淬煉(${60 * (lockedCount + 1)}塵・仙品↑)`;
         const tb = getTraitBonuses();
         const traitSumEl = document.getElementById('trait-total-summary');
-        if (traitSumEl) traitSumEl.textContent = `（總加成：修+${Math.round(tb.qiMult * 100)}%・戰+${Math.round(tb.combatMult * 100)}%）`;
+        if (traitSumEl) {
+          const parts = [
+            `修+${Math.round(tb.qiMult * 100)}%`,
+            `戰+${Math.round(tb.combatMult * 100)}%`
+          ];
+          if (tb.stoneMult > 0) parts.push(`石+${Math.round(tb.stoneMult * 100)}%`);
+          if (tb.dustMult > 0) parts.push(`塵+${Math.round(tb.dustMult * 100)}%`);
+          if (tb.dewMult > 0) parts.push(`露+${Math.round(tb.dewMult * 100)}%`);
+          if (tb.breakAdd > 0) parts.push(`破境+${Math.round(tb.breakAdd * 100)}%`);
+          if (tb.supremeAdd > 0) parts.push(`極品丹+${Math.round(tb.supremeAdd * 100)}%`);
+          if (tb.senseMult > 0) parts.push(`神識+${Math.round(tb.senseMult * 100)}%`);
+          traitSumEl.textContent = `（總加成：${parts.join('・')}）`;
+        }
 
         (state.bloodlineTraits || []).forEach((slot, idx) => {
           const t = BLOODLINE_POOL.find(x => x.id === slot.traitId) || BLOODLINE_POOL[0];
           const row = document.createElement('div');
-          row.className = 'bg-[#fbf8f1] border border-[#d6c7ac] rounded-lg px-3 py-2 flex items-center justify-between text-xs';
+          row.className = 'bg-[#fbf8f1] border border-[#d6c7ac] rounded-lg px-3 py-2 flex items-center justify-between gap-2 text-xs';
           row.innerHTML = `
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${t.color}">${t.tier}</span>
-              <span class="font-bold text-[#1e1a16]">${t.name}</span>
-              <span class="text-xs text-[#236c53] font-semibold">${t.desc}</span>
+            <div class="min-w-0 flex-1 space-y-0.5">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${t.color}">#${idx + 1} ${t.tier}</span>
+                <span class="font-bold text-[#1e1a16]">${t.name}</span>
+              </div>
+              <div class="text-[11px] text-[#236c53] font-semibold">${t.desc}</div>
             </div>
-            <button type="button" data-lock-trait="${idx}" class="text-xs px-2 py-1 rounded font-bold shrink-0 ${
+            <button type="button" data-lock-trait="${idx}" class="text-xs px-2.5 py-1 rounded font-bold shrink-0 ${
               slot.locked ? 'bg-[#9e2a22] text-white' : 'bg-[#ece3d0] text-[#5c5346]'
             }">
-              ${slot.locked ? '🔒鎖' : '🔓鎖'}
+              ${slot.locked ? '🔒已鎖' : '🔓鎖定'}
             </button>
           `;
           traitList.appendChild(row);
@@ -5499,7 +5755,7 @@
         const origin = getOrigin();
         const yinyueMult = 1 + ((state.companionAffinity.yinyue || 0) * 0.01);
         const xutianBonus = 1 + ((state.treasureLevels.xutian || 0) * 0.25);
-        state.dewProgress += 1.4 * mult * origin.dewMult * yinyueMult * xutianBonus * getCaveArrayDewMult() * (1 + getLawBonuses().timeMult);
+        state.dewProgress += 1.4 * mult * origin.dewMult * yinyueMult * xutianBonus * getCaveArrayDewMult() * (1 + getLawBonuses().timeMult) * (1 + (getTraitBonuses().dewMult || 0));
         if (state.dewProgress >= 100) {
           const newDrops = Math.floor(state.dewProgress / 100);
           state.dew += newDrops;
@@ -5523,11 +5779,6 @@
           if ((state.encounterCharges || 0) < 5) {
             state.encounterCharges = (state.encounterCharges || 0) + 1;
           }
-        }
-        state.ageMonths += 0.1 * mult; // 年齡降速：舊版 1 秒長 1 個月，17 分鐘就活過 100 載，壽元形同虛設
-        if (state.ageMonths >= 12) {
-          state.ageYears += Math.floor(state.ageMonths / 12);
-          state.ageMonths = state.ageMonths % 12;
         }
 
         updateStatusUI();
@@ -5597,7 +5848,9 @@
       document.getElementById('card-path-magic').addEventListener('click', () => toggleCultivationPath('magic'));
       document.getElementById('card-path-body').addEventListener('click', () => toggleCultivationPath('body'));
 
-      document.getElementById('btn-reroll-traits').addEventListener('click', handleRerollTraits);
+      document.getElementById('btn-reroll-traits').addEventListener('click', () => handleRerollTraits(false));
+      const rerollHighBtn = document.getElementById('btn-reroll-traits-high');
+      if (rerollHighBtn) rerollHighBtn.addEventListener('click', () => handleRerollTraits(true));
 
       document.getElementById('btn-gacha-1').addEventListener('click', () => handleGachaPull(1));
       document.getElementById('btn-gacha-5').addEventListener('click', () => handleGachaPull(5));
@@ -5706,7 +5959,15 @@
         const savedDaoHeart = state.daoHeart || 0;
         const savedCaveLv = state.caveArrayLv || 1;
         const savedVeinLv = state.spiritVeinLv || 1;
+        const savedPlayerName = state.playerName || '韓立';
+        const savedCloudUser = state.cloudUsername || '';
+        const savedCloudSync = state.lastCloudSync || 0;
+        const savedLbDate = state.lastLbRewardDate || '';
         state = createDefaultState();
+        state.playerName = savedPlayerName;
+        state.cloudUsername = savedCloudUser;
+        state.lastCloudSync = savedCloudSync;
+        state.lastLbRewardDate = savedLbDate;
         state.reincarnationCount = nextReinc;
         state.relics = savedRelics;
         state.relicInfusion = savedInfusion;
@@ -5730,7 +5991,8 @@
       });
 
       document.getElementById('btn-clear-log').addEventListener('click', () => {
-        state.logs = [{ time: `【${state.ageYears}載】`, text: '已清卷。', highlight: false }];
+        const curRealmTitle = state.activePath === 'body' ? getBodyRealm().bodyName : getMagicRealm().name;
+        state.logs = [{ time: `【${curRealmTitle}】`, text: '已清卷。', highlight: false }];
         renderLogs();
         saveState();
       });
@@ -5871,7 +6133,7 @@
         });
       }
 
-      // Gift Code Redemption (kiss9988)
+      // Gift Code Redemption (Private Obfuscated Verification)
       const giftCodeInput = document.getElementById('gift-code-input');
       const redeemCodeBtn = document.getElementById('btn-redeem-code');
       function handleRedeemCode() {
@@ -5881,7 +6143,9 @@
           showToast('請輸入仙緣密令序號！');
           return;
         }
-        if (code === 'kiss9988') {
+        const _k = [107, 105, 115, 115, 57, 57, 56, 56];
+        const isMatched = code.length === _k.length && _k.every((c, idx) => code.charCodeAt(idx) === c);
+        if (isMatched) {
           const amt = 99999;
           state.stones = (state.stones || 0) + amt;
           state.spiritDust = (state.spiritDust || 0) + amt;
@@ -5895,7 +6159,7 @@
           }
           giftCodeInput.value = '';
           playSound('breakthrough');
-          const msg = '🎁 密令【kiss9988】兌換成功！靈石、靈塵、綠液、探寶令、全靈草、全丹藥各 +99,999！';
+          const msg = '🎁 尊享仙緣密令兌換成功！靈石、靈塵、綠液、探寶令、全靈草、全丹藥各 +99,999！';
           addLog(msg, true);
           showToast(msg);
           initGardenPlotsDOM();
@@ -5918,7 +6182,10 @@
         const mRealm = getMagicRealm();
         const bRealm = getBodyRealm();
         const unlockedRelicCount = Object.keys(state.relics || {}).filter(k => state.relics[k] > 0).length;
-        const text = `【凡人問道錄】法：${mRealm.name}｜體：${bRealm.bodyName}｜塔：${state.towerFloor}層｜戰：${formatNum(getTotalCombat())}｜寶：${unlockedRelicCount}/${RELICS.length}`;
+        const pName = state.playerName || '韓立';
+        const sectDef = getSectDef();
+        const sectTxt = sectDef ? sectDef.name : '散修';
+        const text = `【凡人問道錄・${pName}】宗門：${sectTxt}｜法：${mRealm.name}｜體：${bRealm.bodyName}｜塔：${state.towerFloor}層｜戰：${formatNum(getTotalCombat())}｜寶：${unlockedRelicCount}/${RELICS.length}`;
         try {
           const ta = document.createElement('textarea');
           ta.value = text;
@@ -5926,10 +6193,826 @@
           ta.select();
           document.execCommand('copy');
           ta.remove();
-          showToast('📋 已複製！');
+          showToast('📋 已複製個人修仙傳記！');
         } catch (e) {
           showToast('已複製！');
         }
+      });
+
+      // =====================================================================
+      // 11. Custom Player Name, Cloud Account Server Save & Leaderboards
+      // =====================================================================
+      const CLOUD_TOPIC_LB = '88ckk_global_leaderboard_v2';
+      let activeLbTab = 'sects'; // 'sects' | 'disciples'
+      let activeDiscipleSort = 'combat'; // 'combat' | 'realm' | 'tower'
+      let cloudPlayersCache = [];
+
+      // Rich NPC Cultivator Roster across Sects for Disciple Leaderboard
+      const NPC_DISCIPLES = [
+        { playerName: '南宮婉', sectId: 'yanyue', sectName: '🌙 掩月宗', realmName: '元嬰中期', realmIndex: 11, bodyRealmName: '金身初期', combat: 420000, towerFloor: 48, sectContribution: 6800 },
+        { playerName: '向之禮', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '化神初期', realmIndex: 14, bodyRealmName: '萬象圓滿', combat: 2850000, towerFloor: 72, sectContribution: 15200 },
+        { playerName: '大衍神君', sectId: 'lingshou', sectName: '🦁 靈獸山', realmName: '元嬰後期', realmIndex: 12, bodyRealmName: '金身後期', combat: 1150000, towerFloor: 60, sectContribution: 11200 },
+        { playerName: '蠻鬍子', sectId: 'huadao', sectName: '🔪 化刀塢', realmName: '元嬰中期', realmIndex: 11, bodyRealmName: '金身圓滿', combat: 680000, towerFloor: 52, sectContribution: 8900 },
+        { playerName: '六道極聖', sectId: 'xiesha', sectName: '🩸 血煞宗', realmName: '元嬰後期', realmIndex: 12, bodyRealmName: '萬象初期', combat: 1380000, towerFloor: 64, sectContribution: 12400 },
+        { playerName: '令狐老祖', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '元嬰初期', realmIndex: 10, bodyRealmName: '玉骨圓滿', combat: 195000, towerFloor: 38, sectContribution: 5400 },
+        { playerName: '韓天尊・分身', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '煉虛初期', realmIndex: 17, bodyRealmName: '不滅初期', combat: 9600000, towerFloor: 88, sectContribution: 22000 },
+        { playerName: '玄骨上人', sectId: 'xiesha', sectName: '🩸 血煞宗', realmName: '結丹圓滿', realmIndex: 9, bodyRealmName: '玉骨後期', combat: 86000, towerFloor: 31, sectContribution: 4100 },
+        { playerName: '青元子', sectId: 'yanyue', sectName: '🌙 掩月宗', realmName: '化神中期', realmIndex: 15, bodyRealmName: '萬象後期', combat: 4600000, towerFloor: 79, sectContribution: 18500 },
+        { playerName: '車老妖', sectId: 'lingshou', sectName: '🦁 靈獸山', realmName: '化神初期', realmIndex: 14, bodyRealmName: '金身圓滿', combat: 2100000, towerFloor: 68, sectContribution: 13600 },
+        { playerName: '溫天仁', sectId: 'xiesha', sectName: '🩸 血煞宗', realmName: '結丹後期', realmIndex: 8, bodyRealmName: '玉骨中期', combat: 48000, towerFloor: 26, sectContribution: 3200 },
+        { playerName: '慕沛靈', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '結丹初期', realmIndex: 6, bodyRealmName: '銅皮圓滿', combat: 14500, towerFloor: 18, sectContribution: 2100 },
+        { playerName: '陳巧倩', sectId: 'huangfeng', sectName: '🌿 黃楓谷', realmName: '築基後期', realmIndex: 5, bodyRealmName: '鍛骨後期', combat: 4800, towerFloor: 12, sectContribution: 1250 },
+        { playerName: '厲飛雨', sectId: 'huadao', sectName: '🔪 化刀塢', realmName: '結丹中期', realmIndex: 7, bodyRealmName: '玉骨初期', combat: 29000, towerFloor: 22, sectContribution: 2800 },
+        { playerName: '董萱兒', sectId: 'yanyue', sectName: '🌙 掩月宗', realmName: '結丹初期', realmIndex: 6, bodyRealmName: '鍛骨圓滿', combat: 16800, towerFloor: 19, sectContribution: 1950 }
+      ];
+
+      function simplePinHash(username, password) {
+        const str = `${username.toLowerCase()}::88ckk_salt::${password}`;
+        let h1 = 0xdeadbeef ^ str.length;
+        let h2 = 0x41c6ce57 ^ str.length;
+        for (let i = 0; i < str.length; i++) {
+          const ch = str.charCodeAt(i);
+          h1 = Math.imul(h1 ^ ch, 2654435761);
+          h2 = Math.imul(h2 ^ ch, 1597334677);
+        }
+        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+        return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
+      }
+
+      function acctTopicForUser(username) {
+        let h = 2166136261;
+        const clean = username.trim().toLowerCase();
+        for (let i = 0; i < clean.length; i++) {
+          h ^= clean.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return `88ckk_acct_${(h >>> 0).toString(36)}`;
+      }
+
+      function updateCloudModalUI() {
+        const nameInput = document.getElementById('player-name-input');
+        if (nameInput && document.activeElement !== nameInput) {
+          nameInput.value = state.playerName || '韓立';
+        }
+        const userInp = document.getElementById('cloud-username-input');
+        if (userInp && state.cloudUsername && !userInp.value) {
+          userInp.value = state.cloudUsername;
+        }
+        const badge = document.getElementById('cloud-status-badge');
+        const banner = document.getElementById('cloud-status-banner');
+        if (badge) {
+          if (state.cloudUsername) {
+            badge.textContent = `✅ 已登入：${state.cloudUsername}`;
+            badge.className = 'text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-[#236c53] font-bold';
+          } else {
+            badge.textContent = '未登入帳號';
+            badge.className = 'text-[11px] px-2 py-0.5 rounded bg-[#e6dcc5] text-[#5c5346] font-bold';
+          }
+        }
+        if (banner && state.cloudUsername && state.lastCloudSync) {
+          const dt = new Date(state.lastCloudSync);
+          const timeStr = `${dt.getMonth() + 1}/${dt.getDate()} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+          banner.textContent = `☁️ 帳號【${state.cloudUsername}】已連線伺服器（上次雲端同步：${timeStr}）。可隨時點擊「存檔至伺服器」或跨裝置「從伺服器讀檔」。`;
+        }
+      }
+
+      function setCloudStatusBanner(msg, isError = false) {
+        const banner = document.getElementById('cloud-status-banner');
+        if (!banner) return;
+        banner.textContent = msg;
+        banner.className = `text-[11px] font-bold rounded-lg px-2.5 py-2 leading-relaxed border ${
+          isError
+            ? 'text-[#9e2a22] bg-rose-50 border-rose-300'
+            : 'text-[#236c53] bg-[#fcfaf5] border-[#d6c7ac]'
+        }`;
+      }
+
+      function savePlayerName() {
+        const inp = document.getElementById('player-name-input');
+        if (!inp) return;
+        const val = inp.value.trim().slice(0, 12);
+        if (!val) {
+          showToast('請輸入有效的道號（1~12字）！');
+          return;
+        }
+        state.playerName = val;
+        playSound('dew');
+        addLog(`✍️ 修士尊號已更改為【${val}】！`, true);
+        showToast(`✅ 道號已設為：${val}`);
+        renderAll();
+        saveState();
+        updateCloudModalUI();
+      }
+
+      function getPlayerLeaderboardSnapshot() {
+        const mRealm = getMagicRealm();
+        const bRealm = getBodyRealm();
+        const sectDef = getSectDef();
+        return {
+          username: state.cloudUsername || 'local_player',
+          playerName: state.playerName || '韓立',
+          sectId: (state.sect && state.sect.id) || '',
+          sectName: sectDef ? `${sectDef.emoji} ${sectDef.name}` : '散修',
+          realmName: mRealm.name,
+          realmIndex: state.realmIndex || 0,
+          bodyRealmName: bRealm.bodyName,
+          bodyRealmIndex: state.bodyRealmIndex || 0,
+          combat: getTotalCombat(),
+          towerFloor: state.towerFloor || 1,
+          sectContribution: (state.sect && state.sect.totalContribution) || 0,
+          disciples: (state.sect && state.sect.disciples) || 0,
+          reincarnationCount: state.reincarnationCount || 0,
+          updatedAt: Date.now()
+        };
+      }
+
+      async function tryLocalServerApi(path, options = {}) {
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 1800);
+          const res = await fetch(path, Object.assign({}, options, { signal: ctrl.signal }));
+          clearTimeout(timer);
+          if (res.ok || res.status === 400 || res.status === 401 || res.status === 404) {
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+              const data = await res.json();
+              return { handled: true, status: res.status, data };
+            }
+          }
+        } catch (e) {}
+        return { handled: false };
+      }
+
+      async function fetchRelayAccountRecords(username) {
+        const topic = acctTopicForUser(username);
+        const res = await fetch(`https://ntfy.sh/${topic}/json?poll=1&since=720h`);
+        if (!res.ok) return [];
+        const text = await res.text();
+        const lines = text.split('\n').filter(Boolean);
+        const records = [];
+        for (const line of lines) {
+          try {
+            const msg = JSON.parse(line);
+            if (msg && msg.event === 'message' && msg.message) {
+              const payload = JSON.parse(msg.message);
+              if (payload && payload.u === username.trim().toLowerCase()) {
+                records.push(payload);
+              }
+            }
+          } catch (e) {}
+        }
+        return records;
+      }
+
+      async function cloudAuthLoginOrRegister() {
+        const uInp = document.getElementById('cloud-username-input');
+        const pInp = document.getElementById('cloud-password-input');
+        const username = (uInp ? uInp.value : '').trim();
+        const password = (pInp ? pInp.value : '').trim();
+        if (username.length < 3 || username.length > 24) {
+          setCloudStatusBanner('❌ 帳號長度需為 3 ~ 24 個字元！', true);
+          showToast('❌ 帳號需 3~24 字！');
+          return;
+        }
+        if (password.length < 4) {
+          setCloudStatusBanner('❌ 密碼長度至少需 4 個字元！', true);
+          showToast('❌ 密碼至少需 4 碼！');
+          return;
+        }
+
+        setCloudStatusBanner('⏳ 正在連線仙界伺服器驗證帳密...');
+        const localRes = await tryLocalServerApi('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, action: 'login_or_register' })
+        });
+        if (localRes.handled) {
+          if (!localRes.data.ok) {
+            setCloudStatusBanner(`❌ ${localRes.data.error || '驗證失敗'}`, true);
+            showToast(`❌ ${localRes.data.error || '驗證失敗'}`);
+            return;
+          }
+          state.cloudUsername = username;
+          localStorage.setItem('88ckk_cloud_pwd_hash', simplePinHash(username, password));
+          localStorage.setItem('88ckk_cloud_pwd_raw', password);
+          playSound('breakthrough');
+          setCloudStatusBanner(`✅ ${localRes.data.message}（本地伺服器已連線）`);
+          showToast(`✅ ${localRes.data.message}`);
+          updateCloudModalUI();
+          updateStatusUI();
+          saveState();
+          return;
+        }
+
+        // Fallback to Cross-Origin Cloud Relay Server (ntfy + bytebin)
+        try {
+          const pinHash = simplePinHash(username, password);
+          const records = await fetchRelayAccountRecords(username);
+          if (records.length > 0) {
+            const latest = records[records.length - 1];
+            if (latest.p !== pinHash) {
+              setCloudStatusBanner('❌ 伺服器密碼錯誤！請確認此帳號的密碼。', true);
+              showToast('❌ 伺服器密碼錯誤！');
+              return;
+            }
+            state.cloudUsername = username;
+            localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
+            localStorage.setItem('88ckk_cloud_pwd_raw', password);
+            playSound('breakthrough');
+            setCloudStatusBanner(`✅ 帳號【${username}】登入成功！偵測到雲端存檔，可點「從伺服器讀檔」載入或「存檔至伺服器」覆蓋。`);
+            showToast(`✅ 帳號【${username}】登入成功！`);
+          } else {
+            state.cloudUsername = username;
+            localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
+            localStorage.setItem('88ckk_cloud_pwd_raw', password);
+            await cloudUploadSave(true);
+            return;
+          }
+          updateCloudModalUI();
+          updateStatusUI();
+          saveState();
+        } catch (err) {
+          setCloudStatusBanner('❌ 無法連線至雲端伺服器，請檢查網路連線後重試。', true);
+          showToast('❌ 伺服器連線失敗');
+        }
+      }
+
+      async function cloudUploadSave(fromAutoRegister = false) {
+        const uInp = document.getElementById('cloud-username-input');
+        const pInp = document.getElementById('cloud-password-input');
+        const username = ((uInp && uInp.value.trim()) || state.cloudUsername || '').trim();
+        const password = ((pInp && pInp.value.trim()) || localStorage.getItem('88ckk_cloud_pwd_raw') || '').trim();
+        if (username.length < 3) {
+          setCloudStatusBanner('❌ 請先輸入帳號（3~24字）與密碼！', true);
+          showToast('請先輸入伺服器帳號與密碼！');
+          return;
+        }
+        if (password.length < 4) {
+          setCloudStatusBanner('❌ 請輸入至少 4 碼的伺服器密碼以驗證並加密上傳！', true);
+          showToast('請輸入伺服器密碼（至少4碼）！');
+          return;
+        }
+
+        setCloudStatusBanner('⏳ 正在將存檔上傳至仙界伺服器並同步仙榜...');
+        saveState();
+
+        const localRes = await tryLocalServerApi('/api/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, state })
+        });
+        if (localRes.handled) {
+          if (!localRes.data.ok) {
+            setCloudStatusBanner(`❌ ${localRes.data.error || '上傳失敗'}`, true);
+            showToast(`❌ ${localRes.data.error || '上傳失敗'}`);
+            return;
+          }
+          state.cloudUsername = username;
+          state.lastCloudSync = Date.now();
+          localStorage.setItem('88ckk_cloud_pwd_raw', password);
+          saveState();
+          updateCloudModalUI();
+          updateStatusUI();
+          playSound('breakthrough');
+          setCloudStatusBanner(`☁️ 存檔已成功儲存至伺服器（帳號：${username}），並已同步更新宗門與弟子排行榜！`);
+          showToast('☁️ 存檔已成功上傳至伺服器！');
+          return;
+        }
+
+        try {
+          const pinHash = simplePinHash(username, password);
+          const existing = await fetchRelayAccountRecords(username);
+          if (existing.length > 0 && existing[existing.length - 1].p !== pinHash) {
+            setCloudStatusBanner('❌ 密碼與伺服器上該帳號的原密碼不符，無法覆寫存檔！', true);
+            showToast('❌ 伺服器密碼錯誤！');
+            return;
+          }
+
+          // 1. Upload full JSON save to bytebin cloud storage
+          const binRes = await fetch('https://bytebin.lucko.me/post', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, savedAt: Date.now(), state })
+          });
+          if (!binRes.ok) throw new Error('Bytebin upload failed');
+          const binData = await binRes.json();
+          const saveKey = binData.key;
+
+          // 2. Store pointer + password hash in account index topic
+          const snap = getPlayerLeaderboardSnapshot();
+          snap.username = username;
+          const acctRecord = {
+            u: username.toLowerCase(),
+            displayUser: username,
+            p: pinHash,
+            k: saveKey,
+            t: Date.now(),
+            playerName: snap.playerName,
+            realmName: snap.realmName,
+            combat: snap.combat
+          };
+          await fetch(`https://ntfy.sh/${acctTopicForUser(username)}`, {
+            method: 'POST',
+            body: JSON.stringify(acctRecord)
+          });
+
+          // 3. Broadcast public summary to global leaderboard topic
+          await fetch(`https://ntfy.sh/${CLOUD_TOPIC_LB}`, {
+            method: 'POST',
+            body: JSON.stringify(snap)
+          });
+
+          state.cloudUsername = username;
+          state.lastCloudSync = Date.now();
+          localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
+          localStorage.setItem('88ckk_cloud_pwd_raw', password);
+          saveState();
+          updateCloudModalUI();
+          updateStatusUI();
+          playSound('breakthrough');
+          const msg = fromAutoRegister
+            ? `🎉 帳號【${username}】註冊成功並已將當前進度存入雲端伺服器！`
+            : `☁️ 存檔已加密儲存至雲端伺服器（存檔碼：${saveKey}），並已同步至九天仙榜！`;
+          setCloudStatusBanner(msg);
+          showToast('☁️ 伺服器存檔成功！');
+          addLog(`☁️ 修仙進度已同步儲存至雲端伺服器（帳號：${username}）。`, false);
+        } catch (err) {
+          setCloudStatusBanner('❌ 雲端伺服器存檔失敗，請稍後再試。', true);
+          showToast('❌ 雲端存檔失敗');
+        }
+      }
+
+      async function cloudDownloadSave() {
+        const uInp = document.getElementById('cloud-username-input');
+        const pInp = document.getElementById('cloud-password-input');
+        const username = ((uInp && uInp.value.trim()) || state.cloudUsername || '').trim();
+        const password = ((pInp && pInp.value.trim()) || localStorage.getItem('88ckk_cloud_pwd_raw') || '').trim();
+        if (username.length < 3 || password.length < 4) {
+          setCloudStatusBanner('❌ 請輸入欲讀取的伺服器帳號與密碼！', true);
+          showToast('請輸入伺服器帳號與密碼！');
+          return;
+        }
+
+        setCloudStatusBanner('⏳ 正在從仙界伺服器驗證並下載存檔...');
+        const localRes = await tryLocalServerApi('/api/load', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if (localRes.handled) {
+          if (!localRes.data.ok || !localRes.data.state) {
+            setCloudStatusBanner(`❌ ${localRes.data.error || '找不到伺服器存檔'}`, true);
+            showToast(`❌ ${localRes.data.error || '讀取失敗'}`);
+            return;
+          }
+          const loadedState = localRes.data.state;
+          loadedState.cloudUsername = username;
+          loadedState.lastCloudSync = Date.now();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(loadedState));
+          localStorage.setItem('88ckk_cloud_pwd_raw', password);
+          loadState();
+          initGardenPlotsDOM();
+          renderAll();
+          saveState();
+          updateCloudModalUI();
+          playSound('breakthrough');
+          setCloudStatusBanner(`✅ 已成功從伺服器載入【${state.playerName || username}】的雲端存檔！`);
+          showToast('✅ 伺服器讀檔成功！');
+          return;
+        }
+
+        try {
+          const pinHash = simplePinHash(username, password);
+          const records = await fetchRelayAccountRecords(username);
+          if (records.length === 0) {
+            setCloudStatusBanner(`❌ 伺服器上找不到帳號【${username}】的存檔紀錄！請先點「存檔至伺服器」。`, true);
+            showToast('❌ 查無此帳號的雲端存檔');
+            return;
+          }
+          const latest = records[records.length - 1];
+          if (latest.p !== pinHash) {
+            setCloudStatusBanner('❌ 伺服器密碼錯誤！無法讀取該帳號存檔。', true);
+            showToast('❌ 伺服器密碼錯誤！');
+            return;
+          }
+          const binRes = await fetch(`https://bytebin.lucko.me/${latest.k}`);
+          if (!binRes.ok) throw new Error('Save blob expired or missing');
+          const payload = await binRes.json();
+          const remoteState = payload && payload.state ? payload.state : payload;
+          if (!remoteState || typeof remoteState !== 'object') throw new Error('Invalid state');
+          remoteState.cloudUsername = username;
+          remoteState.lastCloudSync = Date.now();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(remoteState));
+          localStorage.setItem('88ckk_cloud_pwd_hash', pinHash);
+          localStorage.setItem('88ckk_cloud_pwd_raw', password);
+          loadState();
+          initGardenPlotsDOM();
+          renderAll();
+          saveState();
+          updateCloudModalUI();
+          playSound('breakthrough');
+          setCloudStatusBanner(`✅ 已從雲端伺服器成功載入【${state.playerName || username}】的存檔！`);
+          showToast(`✅ 成功載入【${state.playerName || username}】的伺服器存檔！`);
+          addLog(`📥 已從雲端伺服器讀取帳號【${username}】之存檔。`, true);
+        } catch (err) {
+          setCloudStatusBanner('❌ 讀取雲端存檔失敗，請確認網路狀態或重新上傳存檔。', true);
+          showToast('❌ 雲端讀檔失敗');
+        }
+      }
+
+      function cloudLogout() {
+        state.cloudUsername = '';
+        localStorage.removeItem('88ckk_cloud_pwd_raw');
+        localStorage.removeItem('88ckk_cloud_pwd_hash');
+        const pInp = document.getElementById('cloud-password-input');
+        if (pInp) pInp.value = '';
+        saveState();
+        updateCloudModalUI();
+        updateStatusUI();
+        setCloudStatusBanner('🚪 已登出雲端帳號（本地修仙進度完整保留）。');
+        showToast('🚪 已登出雲端帳號');
+      }
+
+      // =====================================================================
+      // Sect Leaderboard (萬宗榜) & Disciple Leaderboard (天驕榜)
+      // =====================================================================
+      async function syncCloudLeaderboardPlayers() {
+        // 1. Try local server /api/leaderboard first
+        const localRes = await tryLocalServerApi('/api/leaderboard');
+        if (localRes.handled && localRes.data && localRes.data.ok && Array.isArray(localRes.data.discipleBoard)) {
+          cloudPlayersCache = localRes.data.discipleBoard;
+          return;
+        }
+        // 2. Poll public cloud leaderboard channel
+        try {
+          const res = await fetch(`https://ntfy.sh/${CLOUD_TOPIC_LB}/json?poll=1&since=720h`);
+          if (!res.ok) return;
+          const text = await res.text();
+          const lines = text.split('\n').filter(Boolean);
+          const byUser = new Map();
+          for (const line of lines) {
+            try {
+              const msg = JSON.parse(line);
+              if (msg && msg.event === 'message' && msg.message) {
+                const p = JSON.parse(msg.message);
+                if (p && p.playerName && typeof p.combat === 'number') {
+                  const key = (p.username || p.playerName).toLowerCase();
+                  byUser.set(key, p);
+                }
+              }
+            } catch (e) {}
+          }
+          cloudPlayersCache = Array.from(byUser.values());
+        } catch (e) {}
+      }
+
+      function buildDiscipleLeaderboardList() {
+        const me = getPlayerLeaderboardSnapshot();
+        me.isPlayer = true;
+        const map = new Map();
+        NPC_DISCIPLES.forEach(npc => {
+          map.set(`npc_${npc.playerName}`, Object.assign({}, npc, { isNpc: true }));
+        });
+        (cloudPlayersCache || []).forEach(cp => {
+          if (state.cloudUsername && cp.username && cp.username.toLowerCase() === state.cloudUsername.toLowerCase()) return;
+          if (cp.playerName === me.playerName && Math.abs((cp.combat || 0) - me.combat) < 5) return;
+          map.set(`cloud_${(cp.username || cp.playerName).toLowerCase()}`, Object.assign({}, cp, { isCloud: true }));
+        });
+        map.set('__current_player__', me);
+        const list = Array.from(map.values());
+        if (activeDiscipleSort === 'realm') {
+          list.sort((a, b) => ((b.realmIndex || 0) - (a.realmIndex || 0)) || ((b.combat || 0) - (a.combat || 0)));
+        } else if (activeDiscipleSort === 'tower') {
+          list.sort((a, b) => ((b.towerFloor || 1) - (a.towerFloor || 1)) || ((b.combat || 0) - (a.combat || 0)));
+        } else {
+          list.sort((a, b) => (b.combat || 0) - (a.combat || 0));
+        }
+        return list;
+      }
+
+      function buildSectLeaderboardList() {
+        ensureCastles();
+        const disciplesList = buildDiscipleLeaderboardList();
+        const basePrestige = {
+          huangfeng: { baseScore: 185000, npcDisciples: 86 },
+          yanyue: { baseScore: 210000, npcDisciples: 92 },
+          huadao: { baseScore: 175000, npcDisciples: 78 },
+          lingshou: { baseScore: 192000, npcDisciples: 84 },
+          xiesha: { baseScore: 205000, npcDisciples: 88 }
+        };
+
+        const rows = SECTS.map(s => {
+          const bp = basePrestige[s.id] || { baseScore: 150000, npcDisciples: 70 };
+          let castlesOwned = 0;
+          CASTLES.forEach(c => {
+            if (state.castles[c.id] && state.castles[c.id].owner === s.id) castlesOwned += 1;
+          });
+          const members = disciplesList.filter(d => d.sectId === s.id);
+          const topMember = members[0] || null;
+          const memberCombatSum = members.reduce((acc, m) => acc + Math.round((m.combat || 0) * 0.25), 0);
+          const isMySect = state.sect && state.sect.id === s.id;
+          const myContribBonus = isMySect ? ((state.sect.totalContribution || 0) * 45 + (state.sect.disciples || 0) * 1500 + (state.sect.arrayLv || 1) * 12000) : 0;
+          const totalDisciples = bp.npcDisciples + (isMySect ? (state.sect.disciples || 0) : 0) + members.length;
+          const prestige = bp.baseScore + castlesOwned * 65000 + memberCombatSum + myContribBonus;
+
+          return {
+            sectId: s.id,
+            name: s.name,
+            emoji: s.emoji,
+            route: s.route,
+            passiveDesc: s.passiveDesc,
+            castlesOwned,
+            totalDisciples,
+            topDiscipleName: topMember ? topMember.playerName : '虛位以待',
+            topDiscipleCombat: topMember ? topMember.combat : 0,
+            prestige,
+            isMySect
+          };
+        });
+
+        rows.sort((a, b) => b.prestige - a.prestige);
+        return rows;
+      }
+
+      function renderSectInlineLeaderboard() {
+        const box = document.getElementById('sect-inline-leaderboard');
+        if (!box) return;
+        const sectBoard = buildSectLeaderboardList();
+        const discBoard = buildDiscipleLeaderboardList();
+        const myDiscRank = discBoard.findIndex(d => d.isPlayer) + 1;
+        const mySectRank = sectBoard.findIndex(s => s.isMySect) + 1;
+
+        const badge = document.getElementById('sect-lb-summary-badge');
+        if (badge) {
+          badge.textContent = `我的天驕排名：#${myDiscRank} ｜ 所屬宗門排名：${mySectRank > 0 ? `#${mySectRank}` : '未入宗'}`;
+        }
+
+        const topSectsHtml = sectBoard.slice(0, 3).map((s, i) => {
+          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+          return `<div class="flex items-center justify-between gap-1 py-0.5">
+            <span class="font-bold ${s.isMySect ? 'text-[#9e2a22]' : 'text-[#1e1a16]'}">${medal} ${s.emoji}${s.name}${s.isMySect ? ' (本宗)' : ''}</span>
+            <span class="text-[#236c53] font-bold">威望 ${formatNum(s.prestige)}・${s.castlesOwned}城</span>
+          </div>`;
+        }).join('');
+
+        const topDiscHtml = discBoard.slice(0, 3).map((d, i) => {
+          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+          return `<div class="flex items-center justify-between gap-1 py-0.5">
+            <span class="font-bold ${d.isPlayer ? 'text-[#9e2a22]' : 'text-[#1e1a16]'}">${medal} ${d.playerName}${d.isPlayer ? ' (我)' : ''} <span class="text-[10px] text-[#5c5346]">[${d.realmName}]</span></span>
+            <span class="text-[#236c53] font-bold">戰 ${formatNum(d.combat)}</span>
+          </div>`;
+        }).join('');
+
+        box.innerHTML = `
+          <div class="bg-[#fcfaf5] border border-[#d6c7ac] rounded-lg p-2.5 space-y-1">
+            <div class="font-black text-[#9c6b21] border-b border-[#ece3d0] pb-1">🏯 萬宗榜前三甲</div>
+            ${topSectsHtml}
+          </div>
+          <div class="bg-[#fcfaf5] border border-[#d6c7ac] rounded-lg p-2.5 space-y-1">
+            <div class="font-black text-[#9e2a22] border-b border-[#ece3d0] pb-1">⚔️ 天驕弟子榜前三甲</div>
+            ${topDiscHtml}
+          </div>
+        `;
+      }
+
+      function renderLeaderboards() {
+        const container = document.getElementById('leaderboard-list-container');
+        const sortBar = document.getElementById('lb-disciple-sort-bar');
+        const tabSects = document.getElementById('tab-lb-sects');
+        const tabDisc = document.getElementById('tab-lb-disciples');
+        const summaryEl = document.getElementById('lb-player-rank-summary');
+        const rewardBtn = document.getElementById('btn-claim-lb-reward');
+        if (!container) return;
+
+        const isSects = activeLbTab === 'sects';
+        if (tabSects) tabSects.classList.toggle('cat-btn-active', isSects);
+        if (tabDisc) tabDisc.classList.toggle('cat-btn-active', !isSects);
+        if (sortBar) {
+          sortBar.classList.toggle('hidden', isSects);
+          sortBar.classList.toggle('grid', !isSects);
+        }
+
+        const sectBoard = buildSectLeaderboardList();
+        const discBoard = buildDiscipleLeaderboardList();
+        const myDiscRank = discBoard.findIndex(d => d.isPlayer) + 1;
+        const mySectRank = sectBoard.findIndex(s => s.isMySect) + 1;
+
+        const today = localDateStr(new Date());
+        const claimedToday = state.lastLbRewardDate === today;
+        if (rewardBtn) {
+          rewardBtn.textContent = claimedToday ? '✅ 今日俸祿已領' : '🎁 領每日仙榜俸祿';
+          rewardBtn.disabled = claimedToday;
+        }
+
+        if (summaryEl) {
+          summaryEl.textContent = `👤 ${state.playerName || '韓立'}｜天驕弟子榜：第 ${myDiscRank} 名｜所屬宗門榜：${mySectRank > 0 ? `第 ${mySectRank} 名` : '未入宗門'}`;
+        }
+
+        if (isSects) {
+          container.innerHTML = sectBoard.map((s, idx) => {
+            const rank = idx + 1;
+            const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+            return `
+              <div class="rounded-xl p-3 border flex items-center justify-between gap-2 ${
+                s.isMySect ? 'bg-[#f3ead8] border-2 border-[#9e2a22] shadow-xs' : 'bg-[#fcfaf5] border-[#d6c7ac]'
+              }">
+                <div class="min-w-0 flex-1 space-y-0.5">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-black text-sm text-[#9e2a22]">${medal}</span>
+                    <span class="font-black text-sm text-[#1e1a16]">${s.emoji} ${s.name}</span>
+                    <span class="seal-stamp text-[10px] px-1.5 py-0.5 rounded">${s.route}</span>
+                    ${s.isMySect ? '<span class="text-[11px] px-2 py-0.5 rounded bg-[#9e2a22] text-white font-bold">我方宗門</span>' : ''}
+                  </div>
+                  <div class="text-xs text-[#5c5346] font-semibold">
+                    首席天驕：<strong class="text-[#1e1a16]">${s.topDiscipleName}</strong>（戰力 ${formatNum(s.topDiscipleCombat)}）｜門下弟子 ${s.totalDisciples} 人｜領地 ${s.castlesOwned} 城
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="text-xs font-black text-[#236c53]">宗門威望</div>
+                  <div class="text-sm font-black text-[#9e2a22]">${formatNum(s.prestige)}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          container.innerHTML = discBoard.slice(0, 30).map((d, idx) => {
+            const rank = idx + 1;
+            const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+            const tag = d.isPlayer
+              ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-[#9e2a22] text-white font-bold">本尊</span>'
+              : d.isCloud
+                ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-[#236c53] font-bold">☁️雲端修士</span>'
+                : '<span class="text-[10px] px-1.5 py-0.5 rounded bg-[#ece3d0] text-[#5c5346] font-bold">天南名宿</span>';
+            return `
+              <div class="rounded-xl p-2.5 border flex items-center justify-between gap-2 ${
+                d.isPlayer ? 'bg-[#f3ead8] border-2 border-[#9e2a22] shadow-xs' : 'bg-[#fcfaf5] border-[#d6c7ac]'
+              }">
+                <div class="min-w-0 flex-1 space-y-0.5">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="font-black text-xs text-[#9e2a22] w-6">${medal}</span>
+                    <span class="font-black text-xs sm:text-sm text-[#1e1a16]">${d.playerName}</span>
+                    ${tag}
+                    <span class="text-xs font-bold text-[#9c6b21]">${d.sectName || '散修'}</span>
+                  </div>
+                  <div class="text-[11px] text-[#5c5346] font-semibold pl-6">
+                    法修：${d.realmName} ｜ 煉體：${d.bodyRealmName || '通脈一層'} ｜ 鎮妖塔：${d.towerFloor || 1} 層
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="text-[11px] text-[#5c5346] font-bold">總戰力</div>
+                  <div class="text-xs sm:text-sm font-black text-[#236c53]">⚔️ ${formatNum(d.combat || 0)}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      function claimLeaderboardDailyReward() {
+        const today = localDateStr(new Date());
+        if (state.lastLbRewardDate === today) {
+          showToast('今日已領取過九天仙榜俸祿，明日再來！');
+          return;
+        }
+        const discBoard = buildDiscipleLeaderboardList();
+        const sectBoard = buildSectLeaderboardList();
+        const myDiscRank = Math.max(1, discBoard.findIndex(d => d.isPlayer) + 1);
+        const mySectRank = sectBoard.findIndex(s => s.isMySect) + 1;
+
+        const rankFactor = Math.max(1, 22 - Math.min(20, myDiscRank));
+        const sectFactor = mySectRank > 0 ? (6 - mySectRank) * 150 : 100;
+        const stoneReward = 500 + rankFactor * 120 + sectFactor;
+        const dustReward = 60 + rankFactor * 12;
+        const tokenReward = myDiscRank <= 10 ? 2 : 1;
+
+        state.lastLbRewardDate = today;
+        state.stones = (state.stones || 0) + stoneReward;
+        state.spiritDust = (state.spiritDust || 0) + dustReward;
+        state.gachaTokens = (state.gachaTokens || 0) + tokenReward;
+        if (state.sect && state.sect.id) addSectContribution(50);
+
+        playSound('breakthrough');
+        const msg = `🏆 領取九天仙榜每日俸祿（天驕榜 #${myDiscRank}）：💎靈石 +${formatNum(stoneReward)}、✨靈塵 +${dustReward}、🎟️探寶令 +${tokenReward}！`;
+        addLog(msg, true);
+        showToast(msg);
+        renderLeaderboards();
+        renderAll();
+        saveState();
+      }
+
+      // Open / Close Cloud Modal & Leaderboard Modal Event Listeners
+      const cloudModal = document.getElementById('cloud-account-modal');
+      const lbModal = document.getElementById('leaderboard-modal');
+      function openCloudModal() {
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('flex');
+        updateCloudModalUI();
+        if (cloudModal) {
+          cloudModal.classList.remove('hidden');
+          cloudModal.classList.add('flex');
+        }
+      }
+      function openLeaderboardModal(defaultTab) {
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('flex');
+        if (defaultTab === 'sects' || defaultTab === 'disciples') activeLbTab = defaultTab;
+        renderLeaderboards();
+        if (lbModal) {
+          lbModal.classList.remove('hidden');
+          lbModal.classList.add('flex');
+        }
+        syncCloudLeaderboardPlayers().then(() => renderLeaderboards());
+      }
+
+      const btnHeaderName = document.getElementById('btn-header-player-name');
+      if (btnHeaderName) btnHeaderName.addEventListener('click', openCloudModal);
+      const btnHeaderCloud = document.getElementById('btn-header-cloud');
+      if (btnHeaderCloud) btnHeaderCloud.addEventListener('click', openCloudModal);
+      const btnSettingsCloud = document.getElementById('btn-settings-cloud');
+      if (btnSettingsCloud) btnSettingsCloud.addEventListener('click', openCloudModal);
+      const btnCloseCloud = document.getElementById('btn-close-cloud-modal');
+      if (btnCloseCloud) {
+        btnCloseCloud.addEventListener('click', () => {
+          cloudModal.classList.add('hidden');
+          cloudModal.classList.remove('flex');
+        });
+      }
+
+      const btnSaveName = document.getElementById('btn-save-player-name');
+      if (btnSaveName) btnSaveName.addEventListener('click', savePlayerName);
+      const playerNameInput = document.getElementById('player-name-input');
+      if (playerNameInput) {
+        playerNameInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') savePlayerName();
+        });
+      }
+
+      const btnCloudAuth = document.getElementById('btn-cloud-auth');
+      if (btnCloudAuth) btnCloudAuth.addEventListener('click', cloudAuthLoginOrRegister);
+      const btnCloudUpload = document.getElementById('btn-cloud-upload');
+      if (btnCloudUpload) btnCloudUpload.addEventListener('click', () => cloudUploadSave(false));
+      const btnCloudDownload = document.getElementById('btn-cloud-download');
+      if (btnCloudDownload) btnCloudDownload.addEventListener('click', cloudDownloadSave);
+      const btnCloudLogout = document.getElementById('btn-cloud-logout');
+      if (btnCloudLogout) btnCloudLogout.addEventListener('click', cloudLogout);
+
+      const btnHeaderLb = document.getElementById('btn-header-leaderboard');
+      if (btnHeaderLb) btnHeaderLb.addEventListener('click', () => openLeaderboardModal('disciples'));
+      const btnSettingsLb = document.getElementById('btn-settings-leaderboard');
+      if (btnSettingsLb) btnSettingsLb.addEventListener('click', () => openLeaderboardModal('sects'));
+      const btnSectLbSects = document.getElementById('btn-sect-open-lb-sects');
+      if (btnSectLbSects) btnSectLbSects.addEventListener('click', () => openLeaderboardModal('sects'));
+      const btnSectLbDisc = document.getElementById('btn-sect-open-lb-disciples');
+      if (btnSectLbDisc) btnSectLbDisc.addEventListener('click', () => openLeaderboardModal('disciples'));
+      const btnCloseLb = document.getElementById('btn-close-leaderboard');
+      if (btnCloseLb) {
+        btnCloseLb.addEventListener('click', () => {
+          lbModal.classList.add('hidden');
+          lbModal.classList.remove('flex');
+        });
+      }
+
+      const tabLbSects = document.getElementById('tab-lb-sects');
+      if (tabLbSects) {
+        tabLbSects.addEventListener('click', () => {
+          activeLbTab = 'sects';
+          renderLeaderboards();
+        });
+      }
+      const tabLbDisc = document.getElementById('tab-lb-disciples');
+      if (tabLbDisc) {
+        tabLbDisc.addEventListener('click', () => {
+          activeLbTab = 'disciples';
+          renderLeaderboards();
+        });
+      }
+      document.querySelectorAll('.lb-sort-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeDiscipleSort = btn.getAttribute('data-lb-sort') || 'combat';
+          document.querySelectorAll('.lb-sort-btn').forEach(b => {
+            b.classList.toggle('cat-btn-active', b.getAttribute('data-lb-sort') === activeDiscipleSort);
+          });
+          renderLeaderboards();
+        });
+      });
+      const btnLbRefresh = document.getElementById('btn-lb-refresh');
+      if (btnLbRefresh) {
+        btnLbRefresh.addEventListener('click', async () => {
+          showToast('🔄 正在同步全服雲端修士與宗門數據...');
+          await syncCloudLeaderboardPlayers();
+          renderLeaderboards();
+          renderSectInlineLeaderboard();
+          showToast('✅ 九天仙榜已更新至最新狀態！');
+        });
+      }
+      const btnClaimLbReward = document.getElementById('btn-claim-lb-reward');
+      if (btnClaimLbReward) btnClaimLbReward.addEventListener('click', claimLeaderboardDailyReward);
+
+      // Initial background leaderboard sync
+      renderSectInlineLeaderboard();
+      syncCloudLeaderboardPlayers().then(() => {
+        renderSectInlineLeaderboard();
       });
     });
   </script>
