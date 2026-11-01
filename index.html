@@ -3715,20 +3715,36 @@
     function handleBatchConsumePill() {
       const available = PILLS.some(p => (state.pills[p.id] || 0) > 0);
       if (!available) { showToast('無丹藥！請先煉丹'); return; }
-      if (state.toxicity >= 80) { showToast('☠️ 丹毒已滿(80)！請按排毒鈕（修煉頁就有）'); return; }
+      if (state.toxicity >= 80 && state.stones < 60) { showToast('☠️ 丹毒已滿(80)且靈石不足！請補靈石或手動排毒'); return; }
       const ordered = PILLS.slice().sort((a, b) => b.qiGain - a.qiGain);
-      let eaten = 0, totalQi = 0;
+      const realm = getActiveRealm();
+      const qiCap = realm.maxQi * 2.0;
+      const curQi = () => state.activePath === 'body' ? (state.bodyQi || 0) : state.qi;
+      const clearAmt = getOrigin().id === 'heavenly' ? 90 : 45;
+      let eaten = 0, totalQi = 0, detoxed = 0, stonesSpent = 0;
+      let capped = false, stonesOut = false;
       const startTox = state.toxicity;
-      while (state.toxicity < 80) {
+      for (let guard = 0; guard < 5000000; guard++) {
         const next = ordered.find(p => (state.pills[p.id] || 0) > 0);
         if (!next) break;
+        if (curQi() >= qiCap) { capped = true; break; }
+        if (state.toxicity >= 80) {
+          if (state.stones < 60) { stonesOut = true; break; }
+          state.stones -= 60; stonesSpent += 60; detoxed += 1;
+          state.toxicity = Math.max(0, state.toxicity - clearAmt);
+          continue;
+        }
         const r = consumePillCore(next.id);
         if (!r) break;
         eaten += 1; totalQi += r.actualQi;
       }
-      if (eaten === 0) { showToast('☠️ 丹毒已滿(80)！請按排毒鈕（修煉頁就有）'); return; }
+      if (eaten === 0) {
+        showToast(capped ? '修為已滿！先破境再服丹' : '☠️ 丹毒已滿(80)！請按排毒鈕（修煉頁就有）');
+        return;
+      }
+      const remaining = PILLS.reduce((s, p) => s + (state.pills[p.id] || 0), 0);
       playSound('dew');
-      const msg = `💊 一鍵服丹：吃了 ${eaten} 顆，修為 ＋${formatNum(totalQi)}，毒性 ${startTox}→${state.toxicity}。`;
+      const msg = `💊 一鍵服丹：吃了 ${eaten} 顆，修為 ＋${formatNum(totalQi)}，毒性 ${startTox}→${state.toxicity}${detoxed > 0 ? `，自動排毒 ${detoxed} 次（${formatNum(stonesSpent)}石）` : ''}${capped ? '，修為已滿請破境' : ''}${stonesOut ? '，靈石不足停下' : ''}。剩餘丹藥 ${remaining} 顆。`;
       addLog(msg, true);
       showToast(msg);
       renderAll();
@@ -5245,7 +5261,7 @@
       const flameDesc = document.getElementById('flame-bonus-desc');
       if (flameDesc) {
         const r = getAlchemyRates();
-        flameDesc.textContent = `${r.flameName}（極品率 ${Math.round(r.supremeRate * 100)}%）`;
+        flameDesc.textContent = `${r.flameName}（失敗 ${Math.round(r.failRate * 100)}%・極品 ${Math.round(r.supremeRate * 100)}%・上品 ${Math.round(r.highRate * 100)}%）`;
       }
 
       updateGardenLiveDOM();
@@ -5505,14 +5521,14 @@
           const upCost = Math.round((art.cost + 120) * Math.pow(1.65, lv));
 
           const card = document.createElement('div');
-          card.className = 'bg-[#fbf8f1] border border-[#d6c7ac] rounded-xl p-3 flex items-center justify-between gap-2';
+          card.className = 'bg-[#fbf8f1] rounded-xl p-3 space-y-2';
           card.innerHTML = `
-            <div class="min-w-0 flex-1 flex items-center gap-2">
-              <span class="font-bold text-sm text-[#1e1a16]">${art.name}</span>
-              <span class="text-xs px-1.5 py-0.5 bg-[#efe7d6] rounded font-bold text-[#9e2a22]">${lv}層</span>
-              <span class="text-xs font-bold text-[#236c53]">x${effBonus.toFixed(1)}</span>
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-bold text-sm text-[#1e1a16] truncate min-w-0 flex-1">${art.name}</span>
+              <span class="text-xs px-1.5 py-0.5 bg-[#efe7d6] rounded font-bold text-[#9e2a22] shrink-0">${lv}層</span>
+              <span class="text-xs font-bold text-[#236c53] whitespace-nowrap shrink-0">x${effBonus.toFixed(1)}</span>
             </div>
-            <div class="flex items-center gap-1.5 shrink-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
               <button type="button" data-art-id="${art.id}" class="${isCurrent ? 'jade-btn' : 'ink-btn'} text-xs px-2.5 py-1.5 rounded-lg font-bold">
                 ${isCurrent ? '運轉中' : isUnlocked ? '運轉' : `參悟(${formatNum(art.cost)})`}
               </button>
@@ -5579,14 +5595,14 @@
           const lv = state.treasureLevels[t.id] || 0;
           const cost = Math.round(t.baseCost * Math.pow(1.6, lv));
           const card = document.createElement('div');
-          card.className = 'bg-[#fbf8f1] border border-[#d6c7ac] rounded-xl p-3 flex items-center justify-between gap-2';
+          card.className = 'bg-[#fbf8f1] rounded-xl p-3 space-y-2';
           card.innerHTML = `
-            <div class="min-w-0 flex-1 flex items-center gap-2">
-              <span class="font-bold text-sm text-[#1e1a16]">${t.name}</span>
-              <span class="text-xs font-black text-[#9e2a22]">${lv}階</span>
-              <span class="text-xs text-[#236c53] font-semibold">戰+${formatNum(lv * t.combatBonus)}</span>
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-bold text-sm text-[#1e1a16] truncate min-w-0 flex-1">${t.name}</span>
+              <span class="text-xs font-black text-[#9e2a22] shrink-0">${lv}階</span>
+              <span class="text-xs text-[#236c53] font-semibold whitespace-nowrap shrink-0">戰+${formatNum(lv * t.combatBonus)}</span>
             </div>
-            <div class="flex items-center gap-1.5 shrink-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
               <button type="button" data-treasure-id="${t.id}" class="cinnabar-btn text-xs px-2.5 py-1.5 rounded-lg font-bold">
                 +1階(${formatNum(cost)})
               </button>
@@ -5615,14 +5631,14 @@
       COMPANIONS.forEach(c => {
         const aff = state.companionAffinity[c.id] || 0;
         const card = document.createElement('div');
-        card.className = 'bg-[#fbf8f1] border border-[#d6c7ac] rounded-xl p-3 flex items-center justify-between gap-2';
+        card.className = 'bg-[#fbf8f1] rounded-xl p-3 space-y-2';
         card.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="font-bold text-sm text-[#1e1a16]">${c.name}</span>
-            <span class="text-xs px-2 py-0.5 bg-rose-100 text-rose-900 rounded font-bold">緣 ${aff}</span>
-            <span class="text-xs text-[#236c53] font-bold">${c.bonusDesc}+${aff}%</span>
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="font-bold text-sm text-[#1e1a16] truncate min-w-0 flex-1">${c.name}</span>
+            <span class="text-xs px-2 py-0.5 bg-rose-100 text-rose-900 rounded font-bold shrink-0">緣 ${aff}</span>
+            <span class="text-xs text-[#236c53] font-bold truncate min-w-0">${c.bonusDesc}+${aff}%</span>
           </div>
-          <div class="flex items-center gap-1.5 shrink-0">
+          <div class="flex items-center gap-1.5 flex-wrap">
             <button type="button" data-comp-id="${c.id}" class="paper-btn text-xs py-1.5 px-2.5 rounded-lg font-bold">
               論道 (80石)
             </button>
