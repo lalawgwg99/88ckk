@@ -905,7 +905,16 @@
           🔄 重入輪迴
         </button>
       </div>
-      <div class="grid grid-cols-2 gap-2.5 pt-1 border-t border-[#dfd3bc]">
+      <div class="pt-2 border-t border-[#dfd3bc] space-y-1.5">
+        <div class="text-xs font-bold text-[#1e1a16]">🎁 仙緣密令兌換</div>
+        <div class="flex items-center gap-2">
+          <input id="gift-code-input" type="text" class="flex-1 min-w-0 text-xs px-3 py-2 rounded-xl border border-[#cbbba0] bg-[#f6f0e2] text-[#1e1a16] font-bold placeholder:text-[#8c7e6a]" placeholder="輸入密令序號 (如 kiss9988)" />
+          <button id="btn-redeem-code" type="button" class="cinnabar-btn text-xs px-4 py-2 rounded-xl font-bold shrink-0">
+            兌換
+          </button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2.5 pt-2 border-t border-[#dfd3bc]">
         <button id="btn-export-save" type="button" class="ink-btn text-xs py-2.5 rounded-xl font-bold text-center">
           💾 匯出存檔
         </button>
@@ -5859,6 +5868,49 @@
           } catch (err) {
             showToast('❌ 存檔格式錯誤，無法匯入！');
           }
+        });
+      }
+
+      // Gift Code Redemption (kiss9988)
+      const giftCodeInput = document.getElementById('gift-code-input');
+      const redeemCodeBtn = document.getElementById('btn-redeem-code');
+      function handleRedeemCode() {
+        if (!giftCodeInput) return;
+        const code = giftCodeInput.value.trim().toLowerCase();
+        if (!code) {
+          showToast('請輸入仙緣密令序號！');
+          return;
+        }
+        if (code === 'kiss9988') {
+          const amt = 99999;
+          state.stones = (state.stones || 0) + amt;
+          state.spiritDust = (state.spiritDust || 0) + amt;
+          state.dew = (state.dew || 0) + amt;
+          state.gachaTokens = (state.gachaTokens || 0) + amt;
+          state.unlockedSeeds = HERBS.map(h => h.id);
+          HERBS.forEach(h => { state.herbs[h.id] = (state.herbs[h.id] || 0) + amt; });
+          PILLS.forEach(p => { state.pills[p.id] = (state.pills[p.id] || 0) + amt; });
+          if (state.sect && state.sect.id) {
+            addSectContribution(amt);
+          }
+          giftCodeInput.value = '';
+          playSound('breakthrough');
+          const msg = '🎁 密令【kiss9988】兌換成功！靈石、靈塵、綠液、探寶令、全靈草、全丹藥各 +99,999！';
+          addLog(msg, true);
+          showToast(msg);
+          initGardenPlotsDOM();
+          renderAll();
+          saveState();
+          settingsModal.classList.add('hidden');
+          settingsModal.classList.remove('flex');
+        } else {
+          showToast('❌ 無效的仙緣密令序號！');
+        }
+      }
+      if (redeemCodeBtn) redeemCodeBtn.addEventListener('click', handleRedeemCode);
+      if (giftCodeInput) {
+        giftCodeInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') handleRedeemCode();
         });
       }
 
