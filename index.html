@@ -193,6 +193,24 @@
     .flash-bad { animation: flashBad 0.3s ease-out; }
     @keyframes flashGood { 0% { box-shadow: 0 0 0 4px rgba(35,108,83,0.55); } 100% { box-shadow: none; } }
     @keyframes flashBad { 0% { box-shadow: 0 0 0 4px rgba(158,42,34,0.55); } 100% { box-shadow: none; } }
+    .char-idle { animation: charBob 2.4s ease-in-out infinite; }
+    @keyframes charBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    .char-attack { animation: charLungeR 0.45s ease-out; }
+    @keyframes charLungeR { 0% { transform: translateX(0); } 35% { transform: translateX(14px); } 100% { transform: translateX(0); } }
+    .char-attack-left { animation: charLungeL 0.45s ease-out; }
+    @keyframes charLungeL { 0% { transform: translateX(0); } 35% { transform: translateX(-14px); } 100% { transform: translateX(0); } }
+    .char-attack-big { animation: charLungeBig 0.6s ease-out; }
+    @keyframes charLungeBig { 0% { transform: translateX(0) scale(1); } 35% { transform: translateX(-22px) scale(1.15); } 100% { transform: translateX(0) scale(1); } }
+    .char-hit { animation: charShake 0.4s ease-out; }
+    @keyframes charShake { 0%, 100% { transform: translateX(0); filter: none; } 20% { transform: translateX(-4px); filter: brightness(1.6); } 40% { transform: translateX(4px); } 60% { transform: translateX(-3px); } }
+    .char-cast { animation: charGlow 0.5s ease-out; }
+    @keyframes charGlow { 0% { filter: none; } 40% { filter: drop-shadow(0 0 8px rgba(72,35,255,0.8)) brightness(1.4); } 100% { filter: none; } }
+    .char-heal { animation: charHeal 0.5s ease-out; }
+    @keyframes charHeal { 0% { filter: none; } 40% { filter: drop-shadow(0 0 8px rgba(35,108,83,0.8)) brightness(1.3); } 100% { filter: none; } }
+    .char-guard { animation: charGuard 0.5s ease-out; }
+    @keyframes charGuard { 0% { filter: none; } 40% { filter: drop-shadow(0 0 6px rgba(90,140,200,0.9)) brightness(1.25); } 100% { filter: none; } }
+    .char-charge { animation: charCharge 0.8s ease-in-out infinite; }
+    @keyframes charCharge { 0%, 100% { transform: scale(1); filter: none; } 50% { transform: scale(1.12); filter: drop-shadow(0 0 10px rgba(158,42,34,0.9)) brightness(1.3); } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -732,6 +750,18 @@
             <div class="w-full bg-[#dfd3bc] h-2 rounded-full overflow-hidden">
               <div id="enemy-hp-bar" class="bg-[#9e2a22] h-full transition-all duration-200" style="width:100%"></div>
             </div>
+          </div>
+        </div>
+
+        <div id="combat-stage" class="bg-[#fcfaf5] rounded-xl border border-[#d6c7ac] px-3 py-2 flex items-center justify-between">
+          <div class="text-center w-16">
+            <div id="combat-player-char" class="char-idle text-5xl leading-none">🧙</div>
+            <div id="combat-player-name" class="text-[10px] font-bold text-[#236c53] mt-1 truncate">我方</div>
+          </div>
+          <div class="text-xl">⚔️</div>
+          <div class="text-center w-16">
+            <div id="combat-enemy-char" class="char-idle text-5xl leading-none">👹</div>
+            <div id="combat-enemy-name" class="text-[10px] font-bold text-[#9e2a22] mt-1 truncate">敵方</div>
           </div>
         </div>
 
@@ -4150,6 +4180,10 @@
       document.getElementById('player-hp-bar').style.width = `${pPct}%`;
       document.getElementById('enemy-hp-bar').style.width = `${ePct}%`;
 
+      document.getElementById('combat-player-char').textContent = '🧙';
+      document.getElementById('combat-enemy-char').textContent = combatEnemyEmoji(activeCombat);
+      document.getElementById('combat-player-name').textContent = state.playerName || '韓立';
+      document.getElementById('combat-enemy-name').textContent = (activeCombat.loc && activeCombat.loc.enemyName) || '敵方';
       document.getElementById('event-desc').textContent = statusMsg;
 
       const choicesEl = document.getElementById('event-choices');
@@ -4317,6 +4351,7 @@
         spawnFloatingText('⚡打斷！', 'text-[#236c53]');
         combatFlash('flash-good');
         combatVibrate(50);
+        setEnemyChargingVisual(false);
       }
       directDmg = Math.round(directDmg * getBreakMult(activeCombat));
       if (activeCombat.enemyGuard) {
@@ -4325,6 +4360,8 @@
         notes.push('🛡️敵人護盾格擋');
       }
       activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - directDmg);
+      playCharAnim('player', (sk.ailment && ['paralysis', 'sleep', 'freeze'].includes(sk.ailment)) ? 'char-cast' : 'char-attack');
+      if (directDmg > 0) playCharAnim('enemy', 'char-hit');
 
       // 本命靈獸協同出戰（啼魂改上麻痺層，其餘不變）
       const beastId = state.activeBeastId || 'beetle_king';
@@ -4396,10 +4433,12 @@
       const tick = calcAilmentTick(activeCombat, playerBaseAtk, mastery);
       if (tick.dotDmg > 0) {
         activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - tick.dotDmg);
+        playCharAnim('enemy', 'char-hit');
         turnDmg += tick.dotDmg;
         notes.push(`☠️異常-${formatNum(tick.dotDmg)}`);
         if (tick.heal > 0) {
           activeCombat.playerHp = Math.min(activeCombat.playerMaxHp, activeCombat.playerHp + tick.heal);
+          playCharAnim('player', 'char-heal');
           notes.push(`血+${formatNum(tick.heal)}`);
         }
       }
@@ -4427,6 +4466,7 @@
         if (activeCombat.enemyCharging) {
           activeCombat.enemyCharging = false;
           activeCombat.enemyPattern = 0;
+          setEnemyChargingVisual(false);
           enemyNote = '⚡打斷蓄力！大招取消';
         } else {
           enemyNote = '敵被控場！';
@@ -4454,11 +4494,13 @@
         const kind = nextEnemyKind(activeCombat);
         if (kind === 'guard') {
           activeCombat.enemyGuard = true;
+          playCharAnim('enemy', 'char-guard');
           activeCombat.enemyPattern = ((activeCombat.enemyPattern || 0) + 1) % 3;
           enemyNote = '🛡️敵人架起護盾！';
         } else if (kind === 'charge') {
           activeCombat.enemyCharging = true;
           if (activeCombat.live) activeCombat.live.chargeMs = 3000;
+          setEnemyChargingVisual(true);
           enemyNote = '⚡敵人蓄力中！下回合大招';
         } else {
           const effAtk = Math.round(activeCombat.enemyAtk * getWeakenMult(activeCombat) * (activeCombat.enemyRage ? 1.5 : 1));
@@ -4467,6 +4509,9 @@
             activeCombat.enemyPattern = 0;
             const _ul = fireUnleash(activeCombat, effAtk);
             if (!activeCombat) return;
+            setEnemyChargingVisual(false);
+            playCharAnim('enemy', 'char-attack-big');
+            playCharAnim('player', 'char-hit');
             enemyNote = `💥敵人大招-${formatNum(_ul.dealt)}`;
             if (_ul.leech > 0) enemyNote += `｜古仙吸血+${formatNum(_ul.leech)}`;
           } else {
@@ -4484,6 +4529,8 @@
               totalEnemyDmg += rawEnemyDmg;
               if (activeCombat.playerHp <= 0) break;
             }
+            playCharAnim('enemy', 'char-attack-left');
+            if (totalEnemyDmg > 0) playCharAnim('player', 'char-hit');
             enemyNote = `敵反擊-${formatNum(totalEnemyDmg)}`;
             if (activeCombat.isBoss && activeCombat.bossId === 'guxian' && totalEnemyDmg > 0) {
               const leech = Math.round(totalEnemyDmg * 0.25);
@@ -4572,6 +4619,29 @@
       return;
     }
 
+    // 戰鬥舞台人物動作：立繪 emoji＋CSS 動作（攻擊／受擊／施法／護盾／蓄力／回血）
+    function combatEnemyEmoji(c) {
+      if (!c) return '👹';
+      if (c.isBoss) return '👹';
+      if (c.isTower) return '👻';
+      if (c.isSiege || c.isDefense) return '🥷';
+      return '🐲';
+    }
+    function playCharAnim(side, cls) {
+      const el = document.getElementById(side === 'player' ? 'combat-player-char' : 'combat-enemy-char');
+      if (!el) return;
+      el.classList.remove(cls);
+      if (el.offsetWidth !== undefined) { void el.offsetWidth; }
+      el.classList.add(cls);
+      setTimeout(() => el.classList.remove(cls), 600);
+    }
+    function setEnemyChargingVisual(on) {
+      const el = document.getElementById('combat-enemy-char');
+      if (!el) return;
+      if (on) el.classList.add('char-charge');
+      else el.classList.remove('char-charge');
+    }
+
     // 回合制外殼（連招、一鍵決戰、舊測試共用）：出招＋敵人階段一次走完
     function executeCombatSkill(skillId) {
       if (!activeCombat) return;
@@ -4646,6 +4716,9 @@
           c.enemyPattern = 0;
           const _ul = fireUnleash(c);
           if (!activeCombat) return;
+          setEnemyChargingVisual(false);
+          playCharAnim('enemy', 'char-attack-big');
+          playCharAnim('player', 'char-hit');
           renderCombatBox(`💥敵人大招-${formatNum(_ul.dealt)}${_ul.leech > 0 ? `｜古仙吸血+${formatNum(_ul.leech)}` : ''}｜👁️下回合：${enemyIntentLabel(activeCombat)}`);
           updateStatusUI();
         }
