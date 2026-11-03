@@ -1208,20 +1208,85 @@
       };
     }
 
+    // 廢柴技能流：12 招全是狀態異常（直傷低、靠疊層＋精通翻身）。ailment：狀態 id；stacks：上幾層；minRealm：解鎖境界。
     const DIVINE_SKILLS = [
-      { id: 'zhenyuan_shield', name: '🛡️ 真元護體', mult: 1.1, shieldPct: 0.35, desc: '護盾+35%' },
-      { id: 'dingshen_talisman', name: '⚡ 定身符咒', mult: 1.35, stunChance: 0.45, desc: '45%定身' },
-      { id: 'sanmei_fire', name: '🔥 三昧真火', mult: 1.85, desc: '1.85倍法傷' },
-      { id: 'fengxue_art', name: '❄️ 風雪之術', mult: 2.10, desc: '2.1倍群傷' },
-      { id: 'xiuluo_slash', name: '🩸 修羅斬', mult: 1.75, lifesteal: 0.45, desc: '吸血45%' },
-      { id: 'jinghua_shuiyue', name: '🌸 鏡花水月', mult: 2.65, costStone: 15, desc: '2.65倍絕殺（耗15靈石）' },
-      { id: 'hunyuan_shenlei', name: '混沌神雷', mult: 2.90, costStone: 30, desc: '2.9倍絕殺（耗30靈石）' },
-      { id: 'xuehai_kuangtao', name: '血海狂濤', mult: 1.60, lifesteal: 0.70, desc: '吸血70%' },
-      { id: 'hanshuang_dongjie', name: '寒霜凍結', mult: 1.15, stunChance: 0.65, desc: '65%定身' },
-      { id: 'xuanwu_huti', name: '玄武護體', mult: 0.80, shieldPct: 0.65, desc: '護盾+65%' },
-      { id: 'jifeng_lianzhan', name: '疾風連斬', mult: 1.95, desc: '1.95倍法傷' },
-      { id: 'shihun_zhou', name: '噬魂咒', mult: 1.30, lifesteal: 0.30, stunChance: 0.25, desc: '吸血30%＋25%定身' }
+      { id: 'duwu', name: '☠️ 蝕骨毒霧', mult: 0.35, ailment: 'poison', stacks: 2, minRealm: 0, desc: '上毒2層・每層每回合蝕血' },
+      { id: 'malei', name: '⚡ 雷罡麻痺', mult: 0.35, ailment: 'paralysis', stacks: 2, minRealm: 0, desc: '麻痺2層・有機率讓敵動不了' },
+      { id: 'mihun', name: '💤 迷魂香', mult: 0.30, ailment: 'sleep', stacks: 2, minRealm: 0, desc: '睡眠2層・有機率讓敵動不了' },
+      { id: 'xuezhou', name: '🩸 血煞咒', mult: 0.40, ailment: 'bleed', stacks: 2, minRealm: 3, desc: '流血2層・流血回血20%' },
+      { id: 'xuruo', name: '🥀 虛弱咒', mult: 0.35, ailment: 'weaken', stacks: 2, minRealm: 5, desc: '虛弱2層・敵攻下降' },
+      { id: 'shijia', name: '🧪 蝕甲咒', mult: 0.40, ailment: 'break', stacks: 2, minRealm: 8, desc: '蝕甲2層・敵承傷上升' },
+      { id: 'hunluan', name: '🌀 混亂咒', mult: 0.35, ailment: 'confuse', stacks: 2, minRealm: 11, desc: '混亂2層・敵有機率自傷' },
+      { id: 'fenyan', name: '🔥 焚焰咒', mult: 0.45, ailment: 'burn', stacks: 2, minRealm: 16, desc: '燃燒2層・每層猛烈蝕血' },
+      { id: 'bingfeng', name: '❄️ 冰封咒', mult: 0.40, ailment: 'freeze', stacks: 2, minRealm: 20, desc: '冰凍2層・有機率凍住敵人' },
+      { id: 'zhuzhou', name: '👁️ 詛咒', mult: 0.40, ailment: 'curse', stacks: 2, minRealm: 24, desc: '詛咒2層・每層重蝕血' },
+      { id: 'liansuo', name: '🔗 連鎖毒咒', mult: 0.30, ailment: 'chain', stacks: 0, costStone: 15, minRealm: 28, desc: '已上異常各+1層（耗15靈石）' },
+      { id: 'wandu', name: '☠️ 萬毒歸宗', mult: 0.50, ailment: 'detonate', stacks: 3, costStone: 30, minRealm: 33, desc: '上毒3層＋引爆全異常（耗30靈石）' },
     ];
+
+    // 狀態異常定義：dot＝每層每回合傷害（佔 baseAtk 比例）；ctrl＝每層控場機率；atkDown／dmgUp＝每層效果；max＝疊層上限。
+    const AILMENTS = {
+      poison: { name: '毒', dot: 0.20, max: 10 },
+      bleed: { name: '血', dot: 0.25, max: 10, leech: 0.20 },
+      burn: { name: '燃', dot: 0.30, max: 10 },
+      curse: { name: '咒', dot: 0.30, max: 10 },
+      paralysis: { name: '麻', ctrl: 0.12, max: 10 },
+      sleep: { name: '眠', ctrl: 0.15, max: 10 },
+      freeze: { name: '凍', ctrl: 0.18, max: 10 },
+      weaken: { name: '弱', atkDown: 0.08, max: 5 },
+      break: { name: '破', dmgUp: 0.10, max: 5 },
+      confuse: { name: '亂', selfChance: 0.10, max: 10 },
+    };
+    function getStatusMastery() {
+      const realmId = state.activePath === 'body' ? (state.bodyRealmIndex || 0) : (state.realmIndex || 0);
+      const relicCount = Object.keys(state.relics || {}).filter(k => (state.relics[k] || 0) > 0).length;
+      return 1 + realmId * 0.05 + relicCount * 0.01;
+    }
+    function getAilmentStacks(c, id) { return ((c.ailments || {})[id] || 0); }
+    function addAilmentStacks(c, id, n) {
+      if (!c.ailments) c.ailments = {};
+      const def = AILMENTS[id];
+      if (!def) return 0;
+      const before = c.ailments[id] || 0;
+      c.ailments[id] = Math.min(def.max, before + n);
+      return c.ailments[id] - before;
+    }
+    function getBreakMult(c) { return 1 + 0.10 * Math.min(5, getAilmentStacks(c, 'break')); }
+    function getWeakenMult(c) { return Math.max(0.6, 1 - 0.08 * Math.min(5, getAilmentStacks(c, 'weaken'))); }
+    function getControlChance(c) {
+      let p = 1;
+      [['paralysis', 0.12], ['sleep', 0.15], ['freeze', 0.18]].forEach(([id, per]) => {
+        const n = getAilmentStacks(c, id);
+        if (n > 0) p *= Math.pow(1 - per, n);
+      });
+      const chance = 1 - p;
+      if (c.isBoss && c.bossId === 'hunmo') return Math.min(0.95, chance * 2);
+      return Math.min(0.75, chance);
+    }
+    function calcDotDamage(c, baseAtk, mastery) {
+      const resist = c.ailmentResist || 0;
+      const breakMult = getBreakMult(c);
+      let total = 0;
+      [['poison', 0.20], ['bleed', 0.25], ['burn', 0.30], ['curse', 0.30]].forEach(([id, rate]) => {
+        const n = getAilmentStacks(c, id);
+        if (n > 0) total += Math.round(baseAtk * rate * n * mastery * breakMult * (1 - resist));
+      });
+      return total;
+    }
+    function calcAilmentTick(c, baseAtk, mastery) {
+      const dotDmg = calcDotDamage(c, baseAtk, mastery);
+      let bleedPortion = 0;
+      const bn = getAilmentStacks(c, 'bleed');
+      if (bn > 0) bleedPortion = Math.round(baseAtk * 0.25 * bn * mastery * getBreakMult(c) * (1 - (c.ailmentResist || 0)));
+      const heal = Math.round(bleedPortion * 0.20);
+      let controlled = false;
+      const cc = getControlChance(c);
+      if (cc > 0 && Math.random() <= cc) controlled = true;
+      let selfDmg = 0;
+      const cf = getAilmentStacks(c, 'confuse');
+      if (cf > 0 && Math.random() <= Math.min(0.5, 0.10 * cf)) selfDmg = Math.round(c.enemyAtk * 0.5);
+      return { dotDmg, heal, controlled, selfDmg };
+    }
 
     const BLOODLINE_POOL = [
       // ⚪ 凡品 (6種)
@@ -2023,7 +2088,7 @@
     // 1.6 神級 Boss 隨機襲擊宗門（Phase 2）
     // =========================================================================
     const SECT_BOSSES = [
-      { id: 'hunmo', name: '混沌古魔', emoji: '👹', desc: '血厚攻高，定身抗性低（定身成功率加倍）' },
+      { id: 'hunmo', name: '混沌古魔', emoji: '👹', desc: '血厚攻高，控場抗性低（控場成功率加倍）' },
       { id: 'tiandao', name: '天道化身', emoji: '☀️', desc: '攻擊頻率高，每回合反擊兩次' },
       { id: 'guxian', name: '古仙殘念', emoji: '👻', desc: '反擊吸血（回血 25%）' }
     ];
@@ -2124,7 +2189,8 @@
         enemyHp,
         enemyMaxHp: enemyHp,
         enemyAtk,
-        enemyStunned: false
+        ailments: {},
+        ailmentResist: boss.id === 'hunmo' ? 0.10 : 0.40
       };
       switchMobileView('adventure');
       renderCombatBox(`👹 神級 Boss【${boss.name}】降臨！${boss.desc}。點神通或【⚡連招】出擊，宗門弟子會每回合助戰：`);
@@ -2208,7 +2274,7 @@
     // =========================================================================
     // 2. State & Persistence
     // =========================================================================
-    const STORAGE_KEY = 'mortal_cultivation_hardcore_v2';
+    const STORAGE_KEY = 'mortal_cultivation_hardcore_v3';
 
     function createDefaultState() {
       return {
@@ -2258,7 +2324,8 @@
         currentArtId: 'changchun',
         unlockedArts: ['changchun'],
         unlockedSeeds: HERBS.slice(0, 4).map(h => h.id), // 初始 4 種，其餘靠歷練解鎖
-        equippedSkills: ['zhenyuan_shield', 'dingshen_talisman', 'sanmei_fire', 'xiuluo_slash'],
+        equippedSkills: ['duwu', 'malei', 'mihun'],
+        saveVersion: 3,
         bloodlineTraits: [
           { traitId: 'w1', locked: false },
           { traitId: 'b1', locked: false },
@@ -2442,7 +2509,7 @@
       const enemyHp = Math.round(combat * (10 + (cur.defLv || 1)));
       const enemyAtk = Math.round(combat * 0.5 * (1 - reduction));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
-      activeCombat = { isSiege: true, castleId, loc: { name: '攻城戰', enemyName: `${castle.name}守軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, enemyStunned: false };
+      activeCombat = { isSiege: true, castleId, loc: { name: '攻城戰', enemyName: `${castle.name}守軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: 0 };
       switchMobileView('adventure');
       renderCombatBox(`🏯 攻城戰：進攻【${castle.emoji}${castle.name}】（城防 ${cur.defLv || 1} 級）！點神通或【⚡連招】出擊，宗門弟子會每回合助戰：`);
       playSound('plucked');
@@ -2482,7 +2549,7 @@
       const enemyAtk = Math.round(combat * 0.45 * (1 - reduction));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
       sc.defenseWarn.inCombat = true;
-      activeCombat = { isDefense: true, castleId: castle.id, loc: { name: '守城戰', enemyName: `${castle.name}攻城軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, enemyStunned: false };
+      activeCombat = { isDefense: true, castleId: castle.id, loc: { name: '守城戰', enemyName: `${castle.name}攻城軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: 0 };
       switchMobileView('adventure');
       renderCombatBox(`🛡️ 守城戰：【${castle.emoji}${castle.name}】遭到攻擊！點神通或【⚡連招】出擊，宗門弟子會每回合助戰：`);
       playSound('plucked');
@@ -3995,7 +4062,8 @@
         enemyHp,
         enemyMaxHp: enemyHp,
         enemyAtk,
-        enemyStunned: false
+        ailments: {},
+        ailmentResist: 0
       };
 
       renderCombatBox(`鎮妖塔第 ${floor} 層！點神通或【⚡連招】出擊：`);
@@ -4024,7 +4092,8 @@
         enemyHp: loc.enemyHp,
         enemyMaxHp: loc.enemyHp,
         enemyAtk: loc.enemyAtk,
-        enemyStunned: false
+        ailments: {},
+        ailmentResist: 0
       };
 
       renderCombatBox(`遭遇【${loc.enemyName}】！請出招：`);
@@ -4089,33 +4158,40 @@
 
       const sk = DIVINE_SKILLS.find(s => s.id === skillId) || DIVINE_SKILLS[0];
       const playerBaseAtk = Math.max(25, Math.round(getTotalCombat() * 0.48));
-      let dmgToEnemy = Math.round(playerBaseAtk * sk.mult);
+      const mastery = getStatusMastery();
+      if (!activeCombat.ailments) activeCombat.ailments = {};
       let notes = [sk.name];
+      let directDmg = Math.round(playerBaseAtk * sk.mult);
 
       if (sk.costStone && state.stones >= sk.costStone) {
         state.stones -= sk.costStone;
       } else if (sk.costStone) {
-        dmgToEnemy = playerBaseAtk;
+        directDmg = playerBaseAtk;
       }
 
-      if (sk.shieldPct) {
-        const sh = Math.round(activeCombat.playerMaxHp * sk.shieldPct);
-        activeCombat.playerShield += sh;
-        notes.push(`盾+${formatNum(sh)}`);
+      // 先上異常，直傷再吃蝕甲加成
+      if (sk.ailment === 'chain') {
+        let chained = 0;
+        Object.keys(activeCombat.ailments).forEach(id => {
+          if (activeCombat.ailments[id] > 0 && AILMENTS[id]) chained += addAilmentStacks(activeCombat, id, 1);
+        });
+        if (chained > 0) notes.push(`連鎖+${chained}層`);
+      } else if (sk.ailment === 'detonate') {
+        const added = addAilmentStacks(activeCombat, 'poison', sk.stacks);
+        if (added > 0) notes.push(`上毒${added}層`);
+        const boom = calcDotDamage(activeCombat, playerBaseAtk, mastery);
+        if (boom > 0) {
+          activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - boom);
+          notes.push(`💥引爆-${formatNum(boom)}`);
+        }
+      } else if (sk.ailment) {
+        const added = addAilmentStacks(activeCombat, sk.ailment, sk.stacks);
+        if (added > 0) notes.push(`${AILMENTS[sk.ailment].name}+${added}層`);
       }
-      const stunChance = sk.stunChance ? Math.min(0.95, sk.stunChance * ((activeCombat.isBoss && activeCombat.bossId === 'hunmo') ? 2 : 1)) : 0;
-      if (stunChance && Math.random() <= stunChance) {
-        activeCombat.enemyStunned = true;
-        notes.push('⚡定身');
-      }
-      if (sk.lifesteal) {
-        const heal = Math.round(dmgToEnemy * sk.lifesteal);
-        activeCombat.playerHp = Math.min(activeCombat.playerMaxHp, activeCombat.playerHp + heal);
-        notes.push(`血+${formatNum(heal)}`);
-      }
+      directDmg = Math.round(directDmg * getBreakMult(activeCombat));
+      activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - directDmg);
 
-      activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - dmgToEnemy);
-      // 本命靈獸協同出戰
+      // 本命靈獸協同出戰（啼魂改上麻痺層，其餘不變）
       const beastId = state.activeBeastId || 'beetle_king';
       const beastLv = (state.beastLevels && state.beastLevels[beastId]) || 0;
       const beastDef = SPIRIT_BEASTS.find(b => b.id === beastId);
@@ -4127,12 +4203,8 @@
         } else if (beastId === 'tihun_beast') {
           const bDmg = Math.round(playerBaseAtk * (0.28 + beastLv * 0.025));
           activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - bDmg);
-          if (Math.random() <= Math.min(0.65, 0.25 + beastLv * 0.015)) {
-            activeCombat.enemyStunned = true;
-            notes.push(`🐵啼魂震懾-${formatNum(bDmg)}`);
-          } else {
-            notes.push(`🐵啼魂-${formatNum(bDmg)}`);
-          }
+          const added = addAilmentStacks(activeCombat, 'paralysis', 1);
+          notes.push(added > 0 ? `🐵啼魂-${formatNum(bDmg)}・麻+1層` : `🐵啼魂-${formatNum(bDmg)}`);
         } else if (beastId === 'silver_wolf') {
           const bDmg = Math.round(playerBaseAtk * (0.30 + beastLv * 0.025));
           const bHeal = Math.round(bDmg * (0.25 + beastLv * 0.015));
@@ -4173,15 +4245,60 @@
         return;
       }
 
+      // 異常結算：DoT → 流血回血 → 控場 → 混亂自傷 → 敵反擊
+      const tick = calcAilmentTick(activeCombat, playerBaseAtk, mastery);
+      let turnDmg = directDmg;
+      if (tick.dotDmg > 0) {
+        activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - tick.dotDmg);
+        turnDmg += tick.dotDmg;
+        notes.push(`☠️異常-${formatNum(tick.dotDmg)}`);
+        if (tick.heal > 0) {
+          activeCombat.playerHp = Math.min(activeCombat.playerMaxHp, activeCombat.playerHp + tick.heal);
+          notes.push(`血+${formatNum(tick.heal)}`);
+        }
+      }
+      if (activeCombat.enemyHp <= 0) {
+        if (activeCombat.isBoss) {
+          handleBossVictory();
+        } else if (activeCombat.isSiege) {
+          handleSiegeVictory();
+        } else if (activeCombat.isDefense) {
+          handleDefenseVictory();
+        } else if (activeCombat.isTower) {
+          handleTowerVictory(activeCombat.floor);
+        } else {
+          handleCombatVictory(loc);
+        }
+        return;
+      }
       let enemyNote = '';
-      if (activeCombat.enemyStunned) {
-        activeCombat.enemyStunned = false;
-        enemyNote = '敵被定身！';
+      if (tick.controlled) {
+        enemyNote = '敵被控場！';
       } else {
+        if (tick.selfDmg > 0) {
+          activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - tick.selfDmg);
+          turnDmg += tick.selfDmg;
+          notes.push(`🌀混亂自傷-${formatNum(tick.selfDmg)}`);
+          if (activeCombat.enemyHp <= 0) {
+            if (activeCombat.isBoss) {
+              handleBossVictory();
+            } else if (activeCombat.isSiege) {
+              handleSiegeVictory();
+            } else if (activeCombat.isDefense) {
+              handleDefenseVictory();
+            } else if (activeCombat.isTower) {
+              handleTowerVictory(activeCombat.floor);
+            } else {
+              handleCombatVictory(loc);
+            }
+            return;
+          }
+        }
+        const effAtk = Math.round(activeCombat.enemyAtk * getWeakenMult(activeCombat));
         const atkCount = (activeCombat.isBoss && activeCombat.bossId === 'tiandao') ? 2 : 1;
         let totalEnemyDmg = 0;
         for (let a = 0; a < atkCount; a++) {
-          let rawEnemyDmg = Math.max(5, Math.round(activeCombat.enemyAtk * (0.85 + Math.random() * 0.25)));
+          let rawEnemyDmg = Math.max(5, Math.round(effAtk * (0.85 + Math.random() * 0.25)));
           if (activeCombat.playerShield > 0) {
             const absorbed = Math.min(activeCombat.playerShield, rawEnemyDmg);
             activeCombat.playerShield -= absorbed;
@@ -4247,13 +4364,13 @@
       }
 
       playSound('plucked');
-      renderCombatBox(`${notes.join(' ')} -${formatNum(dmgToEnemy)}｜${enemyNote}`);
+      renderCombatBox(`${notes.join(' ')} -${formatNum(turnDmg)}｜${enemyNote}`);
       updateStatusUI();
     }
 
     function autoFinishCombat() {
       if (!activeCombat) return;
-      const eq = (state.equippedSkills && state.equippedSkills.length > 0) ? state.equippedSkills : ['zhenyuan_shield'];
+      const eq = (state.equippedSkills && state.equippedSkills.length > 0) ? state.equippedSkills : ['duwu'];
       let safety = 0;
       while (activeCombat && safety < 200) {
         safety += 1;
@@ -4360,17 +4477,19 @@
     }
 
     // 與手動戰鬥同公式的瞬間模擬：攻擊、護盾、定身、吸血、鏡花水月耗石皆一致。
+    // 與手動戰鬥同公式的瞬間模擬：狀態異常結算（疊層／DoT／控場／虛弱／蝕甲）皆一致。
     function simulateTowerFloor(combat, floor, equipped, stonePool) {
       const enemyMaxHp = Math.round(140 * Math.pow(1.48, floor - 1));
       const enemyAtk = Math.round(15 * Math.pow(1.42, floor - 1));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
       const baseAtk = Math.max(25, Math.round(combat * 0.48));
+      const mastery = getStatusMastery();
       let playerHp = playerMaxHp;
       let shield = 0;
       let enemyHp = enemyMaxHp;
-      let stunned = false;
       let idx = 0;
       let rounds = 0;
+      const shim = { ailments: {}, enemyAtk, isBoss: false, bossId: null, ailmentResist: 0 };
       while (playerHp > 0 && enemyHp > 0 && rounds < 200) {
         rounds += 1;
         const sk = DIVINE_SKILLS.find(s => s.id === equipped[idx % equipped.length]) || DIVINE_SKILLS[0];
@@ -4383,9 +4502,15 @@
             dmg = baseAtk;
           }
         }
-        if (sk.shieldPct) shield += Math.round(playerMaxHp * sk.shieldPct);
-        if (sk.stunChance && Math.random() <= sk.stunChance) stunned = true;
-        if (sk.lifesteal) playerHp = Math.min(playerMaxHp, playerHp + Math.round(dmg * sk.lifesteal));
+        if (sk.ailment === 'chain') {
+          Object.keys(shim.ailments).forEach(id => { if (shim.ailments[id] > 0 && AILMENTS[id]) addAilmentStacks(shim, id, 1); });
+        } else if (sk.ailment === 'detonate') {
+          addAilmentStacks(shim, 'poison', sk.stacks);
+          enemyHp = Math.max(0, enemyHp - calcDotDamage(shim, baseAtk, mastery));
+        } else if (sk.ailment) {
+          addAilmentStacks(shim, sk.ailment, sk.stacks);
+        }
+        dmg = Math.round(dmg * getBreakMult(shim));
         enemyHp = Math.max(0, enemyHp - dmg);
         const beastId = state.activeBeastId || 'beetle_king';
         const beastLv = (state.beastLevels && state.beastLevels[beastId]) || 0;
@@ -4393,7 +4518,7 @@
           if (beastId === 'beetle_king') enemyHp = Math.max(0, enemyHp - Math.round(baseAtk * (0.35 + beastLv * 0.03)));
           else if (beastId === 'tihun_beast') {
             enemyHp = Math.max(0, enemyHp - Math.round(baseAtk * (0.28 + beastLv * 0.025)));
-            if (Math.random() <= Math.min(0.65, 0.25 + beastLv * 0.015)) stunned = true;
+            addAilmentStacks(shim, 'paralysis', 1);
           } else if (beastId === 'silver_wolf') {
             const bd = Math.round(baseAtk * (0.30 + beastLv * 0.025));
             enemyHp = Math.max(0, enemyHp - bd);
@@ -4405,17 +4530,27 @@
           }
         }
         if (enemyHp <= 0) break;
-        if (stunned) {
-          stunned = false;
-        } else {
-          let raw = Math.max(5, Math.round(enemyAtk * (0.85 + Math.random() * 0.25)));
-          if (shield > 0) {
-            const absorbed = Math.min(shield, raw);
-            shield -= absorbed;
-            raw -= absorbed;
-          }
-          playerHp = Math.max(0, playerHp - raw);
+        const tick = calcAilmentTick(shim, baseAtk, mastery);
+        if (tick.dotDmg > 0) {
+          enemyHp = Math.max(0, enemyHp - tick.dotDmg);
+          if (tick.heal > 0) playerHp = Math.min(playerMaxHp, playerHp + tick.heal);
         }
+        if (enemyHp <= 0) break;
+        if (tick.controlled) {
+          continue;
+        }
+        if (tick.selfDmg > 0) {
+          enemyHp = Math.max(0, enemyHp - tick.selfDmg);
+          if (enemyHp <= 0) break;
+        }
+        const effAtk = Math.round(enemyAtk * getWeakenMult(shim));
+        let raw = Math.max(5, Math.round(effAtk * (0.85 + Math.random() * 0.25)));
+        if (shield > 0) {
+          const absorbed = Math.min(shield, raw);
+          shield -= absorbed;
+          raw -= absorbed;
+        }
+        playerHp = Math.max(0, playerHp - raw);
       }
       return { win: enemyHp <= 0 && playerHp > 0, rounds };
     }
@@ -4427,7 +4562,7 @@
         activeCombat = null;
       }
       const combat = getTotalCombat();
-      const equipped = (state.equippedSkills && state.equippedSkills.length > 0) ? state.equippedSkills : ['zhenyuan_shield'];
+      const equipped = (state.equippedSkills && state.equippedSkills.length > 0) ? state.equippedSkills : ['duwu'];
       const startFloor = state.towerFloor || 1;
       const stonePool = { stones: state.stones };
       let cleared = 0;
@@ -4464,6 +4599,9 @@
     }
 
     function toggleEquipDivineSkill(skillId) {
+      const skDef = DIVINE_SKILLS.find(s => s.id === skillId);
+      const realmId = state.activePath === 'body' ? (state.bodyRealmIndex || 0) : (state.realmIndex || 0);
+      if (skDef && realmId < (skDef.minRealm || 0)) { showToast(`🔒 需達【${getRealmByIndex(skDef.minRealm).name}】才能上陣`); return; }
       const idx = state.equippedSkills.indexOf(skillId);
       if (idx >= 0) {
         if (state.equippedSkills.length <= 1) {
@@ -5375,19 +5513,21 @@
         DIVINE_SKILLS.forEach(sk => {
           const orderIdx = state.equippedSkills.indexOf(sk.id);
           const isEquipped = orderIdx >= 0;
+          const realmId = state.activePath === 'body' ? (state.bodyRealmIndex || 0) : (state.realmIndex || 0);
+          const locked = realmId < (sk.minRealm || 0);
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.className = `p-2.5 rounded-lg border text-left ${
-            isEquipped ? 'bg-[#f3ead8] border-2 border-[#9e2a22]' : 'bg-[#fbf8f1] border-[#d6c7ac]'
+            locked ? 'bg-[#ece3d0] border-[#d6c7ac] opacity-60' : (isEquipped ? 'bg-[#f3ead8] border-2 border-[#9e2a22]' : 'bg-[#fbf8f1] border-[#d6c7ac]')
           }`;
           btn.innerHTML = `
             <div class="flex items-center justify-between text-xs font-bold">
               <span>${sk.name}</span>
               <span class="text-[10px] px-1.5 py-0.5 rounded ${isEquipped ? 'bg-[#9e2a22] text-white' : 'bg-stone-200 text-stone-700'}">
-                ${isEquipped ? `#${orderIdx + 1}` : '備選'}
+                ${locked ? `🔒${getRealmByIndex(sk.minRealm).name}` : (isEquipped ? `#${orderIdx + 1}` : '備選')}
               </span>
             </div>
-            <div class="text-xs text-[#5c5346] mt-1">${sk.desc}</div>
+            <div class="text-xs text-[#5c5346] mt-1">${locked ? `🔒 達【${getRealmByIndex(sk.minRealm).name}】解鎖・` : ``}${sk.desc}</div>
           `;
           btn.addEventListener('click', () => toggleEquipDivineSkill(sk.id));
           skGrid.appendChild(btn);
@@ -6958,7 +7098,7 @@
       document.getElementById('btn-sect-fight-defense').addEventListener('click', startDefenseFight);
       document.getElementById('btn-auto-cast-combat').addEventListener('click', () => {
         if (!activeCombat) return;
-        const eq = state.equippedSkills || ['zhenyuan_shield'];
+        const eq = state.equippedSkills || ['duwu'];
         const nextSkillId = eq[activeCombat.skillIdx % eq.length] || eq[0];
         activeCombat.skillIdx += 1;
         executeCombatSkill(nextSkillId);
