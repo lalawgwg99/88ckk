@@ -189,6 +189,10 @@
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(160, 144, 118, 0.45); border-radius: 9999px; }
+    .flash-good { animation: flashGood 0.3s ease-out; }
+    .flash-bad { animation: flashBad 0.3s ease-out; }
+    @keyframes flashGood { 0% { box-shadow: 0 0 0 4px rgba(35,108,83,0.55); } 100% { box-shadow: none; } }
+    @keyframes flashBad { 0% { box-shadow: 0 0 0 4px rgba(158,42,34,0.55); } 100% { box-shadow: none; } }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -731,6 +735,13 @@
           </div>
         </div>
 
+        <div id="combat-charge-wrap" class="hidden">
+          <div class="flex justify-between text-[10px] font-bold text-[#9e2a22] mb-1"><span>⚡敵人大招讀條（控場技可打斷）</span><span id="combat-charge-text"></span></div>
+          <div class="w-full bg-[#dfd3bc] h-2.5 rounded-full overflow-hidden">
+            <div id="combat-charge-bar" class="bg-[#9e2a22] h-full" style="width:0%"></div>
+          </div>
+        </div>
+
         <p id="event-desc" class="text-xs font-bold text-[#221e1a] bg-[#fcfaf5] px-3 py-2 rounded-lg border border-[#dfd3bc]"></p>
         <div id="event-choices" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
       </div>
@@ -746,6 +757,14 @@
           <span id="equipped-skills-count" class="text-xs font-bold text-[#236c53]">上陣 4/4</span>
         </div>
         <div id="divine-skills-grid" class="grid grid-cols-2 gap-2"></div>
+      </div>
+
+      <div class="sub-card rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="font-black text-sm text-[#9e2a22]">武器背包</span>
+          <span class="text-xs font-bold text-[#236c53]">只顯示已獲得的武器</span>
+        </div>
+        <div id="weapons-list" class="grid grid-cols-2 gap-2"></div>
       </div>
 
       <!-- Bloodline Traits -->
@@ -1260,8 +1279,9 @@
         if (n > 0) p *= Math.pow(1 - per, n);
       });
       const chance = 1 - p;
-      if (c.isBoss && c.bossId === 'hunmo') return Math.min(0.95, chance * 2);
-      return Math.min(0.75, chance);
+      const wb = getWeaponBonuses();
+      if (c.isBoss && c.bossId === 'hunmo') return Math.min(0.95, chance * 2 * wb.ctrlMult);
+      return Math.min(0.75, chance * wb.ctrlMult);
     }
     function calcDotDamage(c, baseAtk, mastery) {
       const resist = c.ailmentResist || 0;
@@ -1271,14 +1291,14 @@
         const n = getAilmentStacks(c, id);
         if (n > 0) total += Math.round(baseAtk * rate * n * mastery * breakMult * (1 - resist));
       });
-      return total;
+      return Math.round(total * getWeaponBonuses().dotMult);
     }
     function calcAilmentTick(c, baseAtk, mastery) {
       const dotDmg = calcDotDamage(c, baseAtk, mastery);
       let bleedPortion = 0;
       const bn = getAilmentStacks(c, 'bleed');
-      if (bn > 0) bleedPortion = Math.round(baseAtk * 0.25 * bn * mastery * getBreakMult(c) * (1 - (c.ailmentResist || 0)));
-      const heal = Math.round(bleedPortion * 0.20);
+      if (bn > 0) bleedPortion = Math.round(baseAtk * 0.25 * bn * mastery * getBreakMult(c) * (1 - (c.ailmentResist || 0)) * getWeaponBonuses().dotMult);
+      const heal = Math.round(bleedPortion * (0.20 + getWeaponBonuses().leech));
       let controlled = false;
       const cc = getControlChance(c);
       if (cc > 0 && Math.random() <= cc) controlled = true;
@@ -2199,6 +2219,7 @@
     }
     function handleBossVictory() {
       document.getElementById('active-event-box').classList.add('hidden');
+      grantWeaponDrop(3, 1.0);
       activeCombat = null;
       resolveBossFight('kill');
       renderAll();
@@ -2326,6 +2347,8 @@
         unlockedArts: ['changchun'],
         unlockedSeeds: HERBS.slice(0, 4).map(h => h.id), // 初始 4 種，其餘靠歷練解鎖
         equippedSkills: ['duwu', 'malei', 'mihun'],
+      weapons: [],
+      equippedWeaponId: null,
         saveVersion: 3,
         bloodlineTraits: [
           { traitId: 'w1', locked: false },
@@ -2518,6 +2541,7 @@
     function handleSiegeVictory() {
       const castleId = activeCombat ? activeCombat.castleId : null;
       document.getElementById('active-event-box').classList.add('hidden');
+      grantWeaponDrop(2, 0.5);
       activeCombat = null;
       const sc = state.sect;
       const castle = CASTLES.find(c => c.id === castleId);
@@ -2558,6 +2582,7 @@
     function handleDefenseVictory() {
       const dw = state.sect && state.sect.defenseWarn;
       document.getElementById('active-event-box').classList.add('hidden');
+      grantWeaponDrop(2, 0.5);
       activeCombat = null;
       const sc = state.sect;
       if (!sc || !dw) { renderAll(); saveState(); return; }
@@ -3317,7 +3342,7 @@
         treasureCombat += (state.treasureLevels[t.id] || 0) * t.combatBonus;
       });
       const artCombatMult = 1 + (artLv - 1) * 0.22;
-      const baseCombined = mRealm.combat + Math.round(bRealm.combat * 0.85) + treasureCombat;
+      const baseCombined = mRealm.combat + Math.round(bRealm.combat * 0.85) + treasureCombat + getWeaponBonuses().combat;
       const beastB = getBeastBonuses();
       const lawB = getLawBonuses();
       return Math.round(baseCombined * (origin.id === 'thunder' ? 1.45 : 1.0) * artCombatMult * relicB.combatMult * (1 + traitB.combatMult) * resonanceMult * (1 + getSectPassiveFor('huadao')) * (1 + getCastleBonuses().combatMult) * (1 + beastB.combatMult) * (1 + lawB.combatMult) * getDaoHeartMult());
@@ -3863,6 +3888,10 @@
         spawnFloatingText(`⚡ ${nextTitle}`, 'text-[#9e2a22]');
         addLog(`🎉 晉入【${nextTitle}】（探寶令+1、宗門貢獻+20）！`, true);
         showToast(`🎉 晉入【${nextTitle}】！`);
+        DIVINE_SKILLS.filter(sk => sk.minRealm === (isBody ? state.bodyRealmIndex : state.realmIndex)).forEach(sk => {
+          showToast(`🔓 新神通：【${sk.name}】！`);
+          addLog(`🔓 新神通解鎖：【${sk.name}】！`, true);
+        });
       } else {
         if (state.tribulationShield) {
           state.tribulationShield = false;
@@ -4133,8 +4162,9 @@
         btn.type = 'button';
         const cls = idx === 0 ? 'jade-btn' : idx === 1 ? 'ink-btn' : 'cinnabar-btn';
         btn.className = `${cls} text-xs py-2.5 px-2 rounded-lg font-bold text-center`;
+        btn.id = `combat-skill-${sk.id}`;
         btn.textContent = sk.name;
-        btn.addEventListener('click', () => executeCombatSkill(sk.id));
+        btn.addEventListener('click', () => liveCastSkill(sk.id));
         choicesEl.appendChild(btn);
       });
 
@@ -4144,6 +4174,82 @@
       fleeBtn.textContent = '🛶 遁走';
       fleeBtn.addEventListener('click', () => executeCombatSkill('flee'));
       choicesEl.appendChild(fleeBtn);
+      startCombatClock();
+    }
+
+    // =========================================================================
+    // 武器系統：掉落隨機數值、未獲得不顯示、只裝備一把
+    // =========================================================================
+    const WEAPON_TIERS = [
+      { name: '凡', combatMin: 20, combatMax: 60, affixMin: 1, affixMax: 1 },
+      { name: '靈', combatMin: 60, combatMax: 150, affixMin: 1, affixMax: 2 },
+      { name: '玄', combatMin: 150, combatMax: 350, affixMin: 2, affixMax: 2 },
+      { name: '仙', combatMin: 350, combatMax: 800, affixMin: 2, affixMax: 3 },
+      { name: '神', combatMin: 800, combatMax: 1800, affixMin: 3, affixMax: 3 },
+    ];
+    const WEAPON_PREFIXES = ['蝕骨', '幽冥', '赤焰', '寒霜', '雷罡', '血煞', '迷魂', '玄武', '青冥', '紫電', '枯榮', '碎星'];
+    const WEAPON_TYPES = ['劍', '刀', '幡', '鈴', '針', '鏡', '珠', '扇', '杖', '印'];
+    const WEAPON_AFFIX_POOL = [
+      { key: 'dotPct', label: '異常傷害', min: 5, max: 25 },
+      { key: 'ctrlPct', label: '控場率', min: 3, max: 15 },
+      { key: 'directPct', label: '直傷', min: 5, max: 20 },
+      { key: 'leechPct', label: '流血回血', min: 5, max: 15 },
+    ];
+    function rollInt(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
+    function weaponTierByRealm(minRealm) { return Math.min(4, Math.max(0, Math.floor((minRealm || 0) / 6))); }
+    function generateWeapon(tierIdx) {
+      let tier = Math.min(4, Math.max(0, tierIdx || 0));
+      if (Math.random() < 0.15 && tier < 4) tier += 1;
+      const def = WEAPON_TIERS[tier];
+      const affixCount = rollInt(def.affixMin, def.affixMax);
+      const pool = WEAPON_AFFIX_POOL.slice();
+      const affixes = [];
+      for (let i = 0; i < affixCount && pool.length > 0; i++) {
+        const pick = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+        affixes.push({ key: pick.key, label: pick.label, pct: rollInt(pick.min, pick.max) });
+      }
+      return {
+        uid: `w_${Date.now()}_${Math.floor(Math.random() * 1e6)}`,
+        name: WEAPON_PREFIXES[Math.floor(Math.random() * WEAPON_PREFIXES.length)] + WEAPON_TYPES[Math.floor(Math.random() * WEAPON_TYPES.length)],
+        tier,
+        tierName: def.name,
+        combat: rollInt(def.combatMin, def.combatMax),
+        affixes,
+      };
+    }
+    function getWeaponBonuses() {
+      const neutral = { combat: 0, dotMult: 1, ctrlMult: 1, directMult: 1, leech: 0 };
+      const list = Array.isArray(state.weapons) ? state.weapons : [];
+      const w = list.find(x => x && x.uid === state.equippedWeaponId);
+      if (!w) return neutral;
+      const b = { combat: w.combat || 0, dotMult: 1, ctrlMult: 1, directMult: 1, leech: 0 };
+      (w.affixes || []).forEach(a => {
+        if (a.key === 'dotPct') b.dotMult += (a.pct || 0) / 100;
+        else if (a.key === 'ctrlPct') b.ctrlMult += (a.pct || 0) / 100;
+        else if (a.key === 'directPct') b.directMult += (a.pct || 0) / 100;
+        else if (a.key === 'leechPct') b.leech += (a.pct || 0) / 100;
+      });
+      return b;
+    }
+    function grantWeaponDrop(tierIdx, chance) {
+      if (Math.random() > chance) return null;
+      const w = generateWeapon(tierIdx);
+      if (!Array.isArray(state.weapons)) state.weapons = [];
+      state.weapons.push(w);
+      const affTxt = w.affixes.map(a => `${a.label}+${a.pct}%`).join('、');
+      showToast(`⚔️ 獲得武器【${w.tierName}・${w.name}】！`);
+      addLog(`⚔️ 獲得武器【${w.tierName}・${w.name}】（戰力+${w.combat}、${affTxt}）！`, true);
+      return w;
+    }
+    function equipWeapon(uid) {
+      state.equippedWeaponId = uid || null;
+      saveState();
+      renderArtsAndTreasuresTab();
+      updateStatusUI();
+    }
+    function getUnlockedSkills() {
+      const realmId = state.activePath === 'body' ? (state.bodyRealmIndex || 0) : (state.realmIndex || 0);
+      return DIVINE_SKILLS.filter(sk => realmId >= (sk.minRealm || 0));
     }
 
     // 敵人出招：三步循環 [攻擊、護盾、蓄力]，蓄力下回合必出大招（可被控場打斷）；血量 ≤30% 狂暴（攻擊 +50%，整場一次）。
@@ -4155,8 +4261,8 @@
       if (c.enemyCharging) return '💥大招';
       return ['攻擊', '🛡️護盾', '⚡蓄力'][c.enemyPattern || 0];
     }
-    function executeCombatSkill(skillId) {
-      if (!activeCombat) return;
+    function castPlayerSkill(skillId) {
+      if (!activeCombat) return { ended: true, notes: [], turnDmg: 0 };
       const loc = activeCombat.loc;
 
       if (skillId === 'flee') {
@@ -4165,7 +4271,7 @@
         showToast('🛶 成功遁走！');
         document.getElementById('active-event-box').classList.add('hidden');
         activeCombat = null;
-        return;
+        return { ended: true, notes: [], turnDmg: 0 };
       }
 
       const sk = DIVINE_SKILLS.find(s => s.id === skillId) || DIVINE_SKILLS[0];
@@ -4173,7 +4279,7 @@
       const mastery = getStatusMastery();
       if (!activeCombat.ailments) activeCombat.ailments = {};
       let notes = [sk.name];
-      let directDmg = Math.round(playerBaseAtk * sk.mult);
+      let directDmg = Math.round(playerBaseAtk * sk.mult * getWeaponBonuses().directMult);
 
       if (sk.costStone && state.stones >= sk.costStone) {
         state.stones -= sk.costStone;
@@ -4199,6 +4305,18 @@
       } else if (sk.ailment) {
         const added = addAilmentStacks(activeCombat, sk.ailment, sk.stacks);
         if (added > 0) notes.push(`${AILMENTS[sk.ailment].name}+${added}層`);
+      }
+      // 即時打斷：讀條中點控場技直接打斷大招（不只等 tick 擲骰）
+      if (activeCombat.enemyCharging && sk.ailment && ['paralysis', 'sleep', 'freeze'].includes(sk.ailment)) {
+        activeCombat.enemyCharging = false;
+        activeCombat.enemyPattern = 0;
+        if (activeCombat.live) activeCombat.live.chargeMs = 0;
+        const _cw = document.getElementById('combat-charge-wrap');
+        if (_cw) _cw.classList.add('hidden');
+        notes.push('⚡打斷蓄力！大招取消');
+        spawnFloatingText('⚡打斷！', 'text-[#236c53]');
+        combatFlash('flash-good');
+        combatVibrate(50);
       }
       directDmg = Math.round(directDmg * getBreakMult(activeCombat));
       if (activeCombat.enemyGuard) {
@@ -4259,12 +4377,23 @@
         } else {
           handleCombatVictory(loc);
         }
-        return;
+        return { ended: true, notes, turnDmg: directDmg };
       }
+
+      return { ended: false, notes, turnDmg: directDmg };
+    }
+
+    // 敵人階段：異常 tick → 狂暴 → 控場／混亂／敵人出招 → 戰敗判定 → 渲染
+    function resolveEnemyPhase(turn) {
+      if (!activeCombat) return;
+      const loc = activeCombat.loc;
+      const playerBaseAtk = Math.max(25, Math.round(getTotalCombat() * 0.48));
+      const mastery = getStatusMastery();
+      const notes = turn.notes;
+      let turnDmg = turn.turnDmg;
 
       // 異常結算：DoT → 流血回血 → 控場 → 混亂自傷 → 敵反擊
       const tick = calcAilmentTick(activeCombat, playerBaseAtk, mastery);
-      let turnDmg = directDmg;
       if (tick.dotDmg > 0) {
         activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - tick.dotDmg);
         turnDmg += tick.dotDmg;
@@ -4329,26 +4458,17 @@
           enemyNote = '🛡️敵人架起護盾！';
         } else if (kind === 'charge') {
           activeCombat.enemyCharging = true;
+          if (activeCombat.live) activeCombat.live.chargeMs = 3000;
           enemyNote = '⚡敵人蓄力中！下回合大招';
         } else {
           const effAtk = Math.round(activeCombat.enemyAtk * getWeakenMult(activeCombat) * (activeCombat.enemyRage ? 1.5 : 1));
           if (kind === 'unleash') {
             activeCombat.enemyCharging = false;
             activeCombat.enemyPattern = 0;
-            let rawEnemyDmg = Math.max(5, Math.round(effAtk * 2 * (0.85 + Math.random() * 0.25)));
-            if (activeCombat.playerShield > 0) {
-              const absorbed = Math.min(activeCombat.playerShield, rawEnemyDmg);
-              activeCombat.playerShield -= absorbed;
-              rawEnemyDmg -= absorbed;
-            }
-            activeCombat.playerHp = Math.max(0, activeCombat.playerHp - rawEnemyDmg);
-            const totalEnemyDmg = rawEnemyDmg;
-            enemyNote = `💥敵人大招-${formatNum(totalEnemyDmg)}`;
-            if (activeCombat.isBoss && activeCombat.bossId === 'guxian' && totalEnemyDmg > 0) {
-              const leech = Math.round(totalEnemyDmg * 0.25);
-              activeCombat.enemyHp = Math.min(activeCombat.enemyMaxHp, activeCombat.enemyHp + leech);
-              enemyNote += `｜古仙吸血+${formatNum(leech)}`;
-            }
+            const _ul = fireUnleash(activeCombat, effAtk);
+            if (!activeCombat) return;
+            enemyNote = `💥敵人大招-${formatNum(_ul.dealt)}`;
+            if (_ul.leech > 0) enemyNote += `｜古仙吸血+${formatNum(_ul.leech)}`;
           } else {
             activeCombat.enemyPattern = ((activeCombat.enemyPattern || 0) + 1) % 3;
             const atkCount = (activeCombat.isBoss && activeCombat.bossId === 'tiandao') ? 2 : 1;
@@ -4377,55 +4497,169 @@
       activeCombat.round += 1;
 
       if (activeCombat.playerHp <= 0) {
-        playSound('plucked');
-        if (activeCombat.isBoss) {
-          const pct = activeCombat.enemyMaxHp > 0 ? activeCombat.enemyHp / activeCombat.enemyMaxHp : 0;
-          document.getElementById('active-event-box').classList.add('hidden');
-          activeCombat = null;
-          resolveBossFight(pct <= 0.30 ? 'repel' : 'lose');
-          renderAll();
-          saveState();
-          return;
-        }
-        if (activeCombat.isSiege) {
-          const cid = activeCombat.castleId;
-          document.getElementById('active-event-box').classList.add('hidden');
-          activeCombat = null;
-          ensureCastles();
-          if (cid) state.castles[cid].siegeCooldownSeconds = SIEGE_COOLDOWN;
-          showToast('🏯 攻城失敗！冷卻 30 分鐘後才能再打，不扣修為。');
-          renderAll();
-          saveState();
-          return;
-        }
-        if (activeCombat.isDefense) {
-          document.getElementById('active-event-box').classList.add('hidden');
-          activeCombat = null;
-          handleDefenseDefeat();
-          renderAll();
-          saveState();
-          return;
-        }
-        if (activeCombat.isTower) {
-          showToast(`🗼 挑戰失敗！請提升戰力再戰`);
-        } else {
-          const lostQi = Math.round(state.qi * 0.15);
-          state.qi = Math.max(0, state.qi - lostQi);
-          state.injuryTimer = 20;
-          showToast(`💥 戰敗！扣 15% 修為`);
-        }
-        document.getElementById('active-event-box').classList.add('hidden');
-        activeCombat = null;
-        renderAll();
-        saveState();
+        handlePlayerDefeat();
         return;
       }
-
       playSound('plucked');
       const intentLabel = enemyIntentLabel(activeCombat);
       renderCombatBox(`${notes.join(' ')} -${formatNum(turnDmg)}｜${enemyNote}｜👁️下回合：${intentLabel}`);
       updateStatusUI();
     }
+    // 大招傷害共用（敵人階段＋讀條跑完）：2 倍單發、護盾吸收、古仙吸血、閃光震動；玩家死則走戰敗流程
+    function fireUnleash(c, effAtk) {
+      const atk = effAtk !== undefined ? effAtk : Math.round(c.enemyAtk * getWeakenMult(c) * (c.enemyRage ? 1.5 : 1));
+      let rawEnemyDmg = Math.max(5, Math.round(atk * 2 * (0.85 + Math.random() * 0.25)));
+      if (c.playerShield > 0) {
+        const absorbed = Math.min(c.playerShield, rawEnemyDmg);
+        c.playerShield -= absorbed;
+        rawEnemyDmg -= absorbed;
+      }
+      c.playerHp = Math.max(0, c.playerHp - rawEnemyDmg);
+      let leech = 0;
+      if (c.isBoss && c.bossId === 'guxian' && rawEnemyDmg > 0) {
+        leech = Math.round(rawEnemyDmg * 0.25);
+        c.enemyHp = Math.min(c.enemyMaxHp, c.enemyHp + leech);
+      }
+      spawnFloatingText(`💥-${formatNum(rawEnemyDmg)}`, 'text-[#9e2a22]');
+      combatFlash('flash-bad');
+      combatVibrate(100);
+      if (c.playerHp <= 0 && activeCombat === c) handlePlayerDefeat();
+      return { dealt: rawEnemyDmg, leech };
+    }
+
+    function handlePlayerDefeat() {
+      playSound('plucked');
+      if (activeCombat.isBoss) {
+        const pct = activeCombat.enemyMaxHp > 0 ? activeCombat.enemyHp / activeCombat.enemyMaxHp : 0;
+        document.getElementById('active-event-box').classList.add('hidden');
+        activeCombat = null;
+        resolveBossFight(pct <= 0.30 ? 'repel' : 'lose');
+        renderAll();
+        saveState();
+        return;
+      }
+      if (activeCombat.isSiege) {
+        const cid = activeCombat.castleId;
+        document.getElementById('active-event-box').classList.add('hidden');
+        activeCombat = null;
+        ensureCastles();
+        if (cid) state.castles[cid].siegeCooldownSeconds = SIEGE_COOLDOWN;
+        showToast('🏯 攻城失敗！冷卻 30 分鐘後才能再打，不扣修為。');
+        renderAll();
+        saveState();
+        return;
+      }
+      if (activeCombat.isDefense) {
+        document.getElementById('active-event-box').classList.add('hidden');
+        activeCombat = null;
+        handleDefenseDefeat();
+        renderAll();
+        saveState();
+        return;
+      }
+      if (activeCombat.isTower) {
+        showToast(`🗼 挑戰失敗！請提升戰力再戰`);
+      } else {
+        const lostQi = Math.round(state.qi * 0.15);
+        state.qi = Math.max(0, state.qi - lostQi);
+        state.injuryTimer = 20;
+        showToast(`💥 戰敗！扣 15% 修為`);
+      }
+      document.getElementById('active-event-box').classList.add('hidden');
+      activeCombat = null;
+      renderAll();
+      saveState();
+      return;
+    }
+
+    // 回合制外殼（連招、一鍵決戰、舊測試共用）：出招＋敵人階段一次走完
+    function executeCombatSkill(skillId) {
+      if (!activeCombat) return;
+      const turn = castPlayerSkill(skillId);
+      if (turn && !turn.ended && activeCombat) resolveEnemyPhase(turn);
+    }
+
+    // 即時戰鬥：玩家點技只出招（帶冷卻），敵人由戰鬥時鐘出招
+    function liveCastSkill(skillId) {
+      if (!activeCombat) return false;
+      const c = activeCombat;
+      if (!c.live) c.live = { enemyMs: 2000, chargeMs: 0, cooldowns: {} };
+      const now = Date.now();
+      if (c.live.cooldowns[skillId] && c.live.cooldowns[skillId] > now) {
+        showToast('技能冷卻中');
+        return false;
+      }
+      const turn = castPlayerSkill(skillId);
+      if (!turn || turn.ended || !activeCombat) return !!turn;
+      const sk = DIVINE_SKILLS.find(s => s.id === skillId);
+      const isCtrl = sk && ['paralysis', 'sleep', 'freeze'].includes(sk.ailment);
+      c.live.cooldowns[skillId] = now + (isCtrl ? 4000 : 2000);
+      renderCombatBox(`${turn.notes.join(' ')} -${formatNum(turn.turnDmg)}｜👁️下回合：${enemyIntentLabel(activeCombat)}`);
+      updateStatusUI();
+      return true;
+    }
+
+    function combatFlash(cls) {
+      const box = document.getElementById('active-event-box');
+      if (!box) return;
+      box.classList.add(cls);
+      setTimeout(() => box.classList.remove(cls), 300);
+    }
+    function combatVibrate(ms) {
+      try {
+        if (typeof navigator !== 'undefined' && navigator && typeof navigator.vibrate === 'function') navigator.vibrate(ms);
+      } catch (e) {}
+    }
+
+    let combatClock = null;
+    function startCombatClock() {
+      if (combatClock) return;
+      combatClock = setInterval(tickCombatClock, 100);
+    }
+    function tickCombatClock() {
+      const c = activeCombat;
+      if (!c) {
+        if (combatClock) { clearInterval(combatClock); combatClock = null; }
+        const w = document.getElementById('combat-charge-wrap');
+        if (w) w.classList.add('hidden');
+        return;
+      }
+      if (!c.live) c.live = { enemyMs: 2000, chargeMs: 0, cooldowns: {} };
+      const now = Date.now();
+      (state.equippedSkills || []).forEach(id => {
+        const btn = document.getElementById('combat-skill-' + id);
+        if (!btn) return;
+        const cd = c.live.cooldowns[id] || 0;
+        if (cd > now) { btn.disabled = true; btn.style.opacity = '0.5'; }
+        else { btn.disabled = false; btn.style.opacity = ''; }
+      });
+      if (c.enemyCharging) {
+        c.live.chargeMs -= 100;
+        const wrap = document.getElementById('combat-charge-wrap');
+        const bar = document.getElementById('combat-charge-bar');
+        const txt = document.getElementById('combat-charge-text');
+        if (wrap) wrap.classList.remove('hidden');
+        if (bar) bar.style.width = `${Math.max(0, Math.round(c.live.chargeMs / 3000 * 100))}%`;
+        if (txt) txt.textContent = `${Math.max(0, Math.ceil(c.live.chargeMs / 1000))}s`;
+        if (c.live.chargeMs <= 0) {
+          c.enemyCharging = false;
+          c.enemyPattern = 0;
+          const _ul = fireUnleash(c);
+          if (!activeCombat) return;
+          renderCombatBox(`💥敵人大招-${formatNum(_ul.dealt)}${_ul.leech > 0 ? `｜古仙吸血+${formatNum(_ul.leech)}` : ''}｜👁️下回合：${enemyIntentLabel(activeCombat)}`);
+          updateStatusUI();
+        }
+      } else {
+        const wrap = document.getElementById('combat-charge-wrap');
+        if (wrap) wrap.classList.add('hidden');
+      }
+      c.live.enemyMs -= 100;
+      if (c.live.enemyMs <= 0) {
+        c.live.enemyMs = 2000;
+        if (activeCombat) resolveEnemyPhase({ notes: [], turnDmg: 0 });
+      }
+    }
+
 
     function autoFinishCombat() {
       if (!activeCombat) return;
@@ -4458,6 +4692,7 @@
 
     function handleTowerVictory(floor) {
       const r = grantTowerVictory(floor);
+      grantWeaponDrop(Math.min(4, Math.floor((floor - 1) / 6)), 0.5);
 
       playSound('breakthrough');
       const msg = `🗼 鎮妖塔 ${floor} 層通關！探寶令+${r.tokens}、靈塵+${r.dust}${r.milestone ? '（🎉5層里程碑）' : ''}`;
@@ -4471,6 +4706,7 @@
     }
 
     function handleCombatVictory(loc) {
+      grantWeaponDrop(weaponTierByRealm(loc.minRealm), 0.35);
       const origin = getOrigin();
       const yuanwaoMult = 1 + ((state.companionAffinity.yuanwao || 0) * 0.015);
       const dropMult = (origin.dropBonus || 1.0) * yuanwaoMult * (1 + getSectPassiveFor('lingshou')) * (1 + getCastleBonuses().dropMult) * (1 + getLawBonuses().dropMult) * (1 + getBeastBonuses().stoneMult);
@@ -4553,7 +4789,7 @@
         rounds += 1;
         const sk = DIVINE_SKILLS.find(s => s.id === equipped[idx % equipped.length]) || DIVINE_SKILLS[0];
         idx += 1;
-        let dmg = Math.round(baseAtk * sk.mult);
+        let dmg = Math.round(baseAtk * sk.mult * getWeaponBonuses().directMult);
         if (sk.costStone) {
           if (stonePool.stones >= sk.costStone) {
             stonePool.stones -= sk.costStone;
@@ -5574,11 +5810,38 @@
     }
 
     function renderArtsAndTreasuresTab() {
+      const wpList = document.getElementById('weapons-list');
+      if (wpList) {
+        wpList.innerHTML = '';
+        const owned = Array.isArray(state.weapons) ? state.weapons : [];
+        if (owned.length === 0) {
+          const hint = document.createElement('div');
+          hint.className = 'text-xs text-[#5c5346]';
+          hint.textContent = '尚未獲得武器（歷練、鎮妖塔、宗門戰鬥勝利有機率掉落，數值隨機）。';
+          wpList.appendChild(hint);
+        } else {
+          owned.forEach(w => {
+            const isEq = state.equippedWeaponId === w.uid;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `p-2.5 rounded-lg border text-left ${isEq ? 'bg-[#f3ead8] border-2 border-[#9e2a22]' : 'bg-[#fbf8f1] border-[#d6c7ac]'}`;
+            btn.innerHTML = `
+              <div class="flex items-center justify-between text-xs font-bold">
+                <span>⚔️ ${w.tierName}・${w.name}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded ${isEq ? 'bg-[#9e2a22] text-white' : 'bg-stone-200 text-stone-700'}">${isEq ? '裝備中' : '備用'}</span>
+              </div>
+              <div class="text-xs text-[#5c5346] mt-1">戰力+${w.combat}｜${w.affixes.map(a => `${a.label}+${a.pct}%`).join('、')}</div>
+            `;
+            btn.addEventListener('click', () => equipWeapon(isEq ? null : w.uid));
+            wpList.appendChild(btn);
+          });
+        }
+      }
       const skGrid = document.getElementById('divine-skills-grid');
       if (skGrid) {
         skGrid.innerHTML = '';
         document.getElementById('equipped-skills-count').textContent = `上陣 ${state.equippedSkills.length}/4`;
-        DIVINE_SKILLS.forEach(sk => {
+        getUnlockedSkills().forEach(sk => {
           const orderIdx = state.equippedSkills.indexOf(sk.id);
           const isEquipped = orderIdx >= 0;
           const realmId = state.activePath === 'body' ? (state.bodyRealmIndex || 0) : (state.realmIndex || 0);
@@ -7167,9 +7430,13 @@
       document.getElementById('btn-auto-cast-combat').addEventListener('click', () => {
         if (!activeCombat) return;
         const eq = state.equippedSkills || ['duwu'];
-        const nextSkillId = eq[activeCombat.skillIdx % eq.length] || eq[0];
-        activeCombat.skillIdx += 1;
-        executeCombatSkill(nextSkillId);
+        let ok = false;
+        for (let k = 0; k < eq.length; k++) {
+          const nextSkillId = eq[activeCombat.skillIdx % eq.length] || eq[0];
+          activeCombat.skillIdx += 1;
+          if (liveCastSkill(nextSkillId)) { ok = true; break; }
+        }
+        if (!ok) showToast('技能都在冷卻中');
       });
 
       document.getElementById('btn-goto-alchemy').addEventListener('click', () => switchMobileView('alchemy'));
