@@ -2190,7 +2190,8 @@
         enemyMaxHp: enemyHp,
         enemyAtk,
         ailments: {},
-        ailmentResist: boss.id === 'hunmo' ? 0.10 : 0.40
+        ailmentResist: boss.id === 'hunmo' ? 0.10 : 0.40,
+        enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false
       };
       switchMobileView('adventure');
       renderCombatBox(`👹 神級 Boss【${boss.name}】降臨！${boss.desc}。點神通或【⚡連招】出擊，宗門弟子會每回合助戰：`);
@@ -2509,7 +2510,7 @@
       const enemyHp = Math.round(combat * (10 + (cur.defLv || 1)));
       const enemyAtk = Math.round(combat * 0.5 * (1 - reduction));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
-      activeCombat = { isSiege: true, castleId, loc: { name: '攻城戰', enemyName: `${castle.name}守軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: 0 };
+      activeCombat = { isSiege: true, castleId, loc: { name: '攻城戰', enemyName: `${castle.name}守軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: 0, enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
       switchMobileView('adventure');
       renderCombatBox(`🏯 攻城戰：進攻【${castle.emoji}${castle.name}】（城防 ${cur.defLv || 1} 級）！點神通或【⚡連招】出擊，宗門弟子會每回合助戰：`);
       playSound('plucked');
@@ -2549,7 +2550,7 @@
       const enemyAtk = Math.round(combat * 0.45 * (1 - reduction));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
       sc.defenseWarn.inCombat = true;
-      activeCombat = { isDefense: true, castleId: castle.id, loc: { name: '守城戰', enemyName: `${castle.name}攻城軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: 0 };
+      activeCombat = { isDefense: true, castleId: castle.id, loc: { name: '守城戰', enemyName: `${castle.name}攻城軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: 0, enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
       switchMobileView('adventure');
       renderCombatBox(`🛡️ 守城戰：【${castle.emoji}${castle.name}】遭到攻擊！點神通或【⚡連招】出擊，宗門弟子會每回合助戰：`);
       playSound('plucked');
@@ -4063,7 +4064,8 @@
         enemyMaxHp: enemyHp,
         enemyAtk,
         ailments: {},
-        ailmentResist: 0
+        ailmentResist: 0,
+        enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false
       };
 
       renderCombatBox(`鎮妖塔第 ${floor} 層！點神通或【⚡連招】出擊：`);
@@ -4093,7 +4095,8 @@
         enemyMaxHp: loc.enemyHp,
         enemyAtk: loc.enemyAtk,
         ailments: {},
-        ailmentResist: 0
+        ailmentResist: 0,
+        enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false
       };
 
       renderCombatBox(`遭遇【${loc.enemyName}】！請出招：`);
@@ -4143,6 +4146,15 @@
       choicesEl.appendChild(fleeBtn);
     }
 
+    // 敵人出招：三步循環 [攻擊、護盾、蓄力]，蓄力下回合必出大招（可被控場打斷）；血量 ≤30% 狂暴（攻擊 +50%，整場一次）。
+    function nextEnemyKind(c) {
+      if (c.enemyCharging) return 'unleash';
+      return ['attack', 'guard', 'charge'][c.enemyPattern || 0];
+    }
+    function enemyIntentLabel(c) {
+      if (c.enemyCharging) return '💥大招';
+      return ['攻擊', '🛡️護盾', '⚡蓄力'][c.enemyPattern || 0];
+    }
     function executeCombatSkill(skillId) {
       if (!activeCombat) return;
       const loc = activeCombat.loc;
@@ -4189,6 +4201,11 @@
         if (added > 0) notes.push(`${AILMENTS[sk.ailment].name}+${added}層`);
       }
       directDmg = Math.round(directDmg * getBreakMult(activeCombat));
+      if (activeCombat.enemyGuard) {
+        directDmg = Math.round(directDmg * 0.5);
+        activeCombat.enemyGuard = false;
+        notes.push('🛡️敵人護盾格擋');
+      }
       activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - directDmg);
 
       // 本命靈獸協同出戰（啼魂改上麻痺層，其餘不變）
@@ -4271,9 +4288,20 @@
         }
         return;
       }
+      // 狂暴判定（血量 ≤30% 只觸發一次，整場持續）
+      if (!activeCombat.enemyRage && activeCombat.enemyHp <= activeCombat.enemyMaxHp * 0.30) {
+        activeCombat.enemyRage = true;
+        notes.push('🔥敵人狂暴！');
+      }
       let enemyNote = '';
       if (tick.controlled) {
-        enemyNote = '敵被控場！';
+        if (activeCombat.enemyCharging) {
+          activeCombat.enemyCharging = false;
+          activeCombat.enemyPattern = 0;
+          enemyNote = '⚡打斷蓄力！大招取消';
+        } else {
+          enemyNote = '敵被控場！';
+        }
       } else {
         if (tick.selfDmg > 0) {
           activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - tick.selfDmg);
@@ -4294,25 +4322,55 @@
             return;
           }
         }
-        const effAtk = Math.round(activeCombat.enemyAtk * getWeakenMult(activeCombat));
-        const atkCount = (activeCombat.isBoss && activeCombat.bossId === 'tiandao') ? 2 : 1;
-        let totalEnemyDmg = 0;
-        for (let a = 0; a < atkCount; a++) {
-          let rawEnemyDmg = Math.max(5, Math.round(effAtk * (0.85 + Math.random() * 0.25)));
-          if (activeCombat.playerShield > 0) {
-            const absorbed = Math.min(activeCombat.playerShield, rawEnemyDmg);
-            activeCombat.playerShield -= absorbed;
-            rawEnemyDmg -= absorbed;
+        const kind = nextEnemyKind(activeCombat);
+        if (kind === 'guard') {
+          activeCombat.enemyGuard = true;
+          activeCombat.enemyPattern = ((activeCombat.enemyPattern || 0) + 1) % 3;
+          enemyNote = '🛡️敵人架起護盾！';
+        } else if (kind === 'charge') {
+          activeCombat.enemyCharging = true;
+          enemyNote = '⚡敵人蓄力中！下回合大招';
+        } else {
+          const effAtk = Math.round(activeCombat.enemyAtk * getWeakenMult(activeCombat) * (activeCombat.enemyRage ? 1.5 : 1));
+          if (kind === 'unleash') {
+            activeCombat.enemyCharging = false;
+            activeCombat.enemyPattern = 0;
+            let rawEnemyDmg = Math.max(5, Math.round(effAtk * 2 * (0.85 + Math.random() * 0.25)));
+            if (activeCombat.playerShield > 0) {
+              const absorbed = Math.min(activeCombat.playerShield, rawEnemyDmg);
+              activeCombat.playerShield -= absorbed;
+              rawEnemyDmg -= absorbed;
+            }
+            activeCombat.playerHp = Math.max(0, activeCombat.playerHp - rawEnemyDmg);
+            const totalEnemyDmg = rawEnemyDmg;
+            enemyNote = `💥敵人大招-${formatNum(totalEnemyDmg)}`;
+            if (activeCombat.isBoss && activeCombat.bossId === 'guxian' && totalEnemyDmg > 0) {
+              const leech = Math.round(totalEnemyDmg * 0.25);
+              activeCombat.enemyHp = Math.min(activeCombat.enemyMaxHp, activeCombat.enemyHp + leech);
+              enemyNote += `｜古仙吸血+${formatNum(leech)}`;
+            }
+          } else {
+            activeCombat.enemyPattern = ((activeCombat.enemyPattern || 0) + 1) % 3;
+            const atkCount = (activeCombat.isBoss && activeCombat.bossId === 'tiandao') ? 2 : 1;
+            let totalEnemyDmg = 0;
+            for (let a = 0; a < atkCount; a++) {
+              let rawEnemyDmg = Math.max(5, Math.round(effAtk * (0.85 + Math.random() * 0.25)));
+              if (activeCombat.playerShield > 0) {
+                const absorbed = Math.min(activeCombat.playerShield, rawEnemyDmg);
+                activeCombat.playerShield -= absorbed;
+                rawEnemyDmg -= absorbed;
+              }
+              activeCombat.playerHp = Math.max(0, activeCombat.playerHp - rawEnemyDmg);
+              totalEnemyDmg += rawEnemyDmg;
+              if (activeCombat.playerHp <= 0) break;
+            }
+            enemyNote = `敵反擊-${formatNum(totalEnemyDmg)}`;
+            if (activeCombat.isBoss && activeCombat.bossId === 'guxian' && totalEnemyDmg > 0) {
+              const leech = Math.round(totalEnemyDmg * 0.25);
+              activeCombat.enemyHp = Math.min(activeCombat.enemyMaxHp, activeCombat.enemyHp + leech);
+              enemyNote += `｜古仙吸血+${formatNum(leech)}`;
+            }
           }
-          activeCombat.playerHp = Math.max(0, activeCombat.playerHp - rawEnemyDmg);
-          totalEnemyDmg += rawEnemyDmg;
-          if (activeCombat.playerHp <= 0) break;
-        }
-        enemyNote = `敵反擊-${formatNum(totalEnemyDmg)}`;
-        if (activeCombat.isBoss && activeCombat.bossId === 'guxian' && totalEnemyDmg > 0) {
-          const leech = Math.round(totalEnemyDmg * 0.25);
-          activeCombat.enemyHp = Math.min(activeCombat.enemyMaxHp, activeCombat.enemyHp + leech);
-          enemyNote += `｜古仙吸血+${formatNum(leech)}`;
         }
       }
 
@@ -4364,7 +4422,8 @@
       }
 
       playSound('plucked');
-      renderCombatBox(`${notes.join(' ')} -${formatNum(turnDmg)}｜${enemyNote}`);
+      const intentLabel = enemyIntentLabel(activeCombat);
+      renderCombatBox(`${notes.join(' ')} -${formatNum(turnDmg)}｜${enemyNote}｜👁️下回合：${intentLabel}`);
       updateStatusUI();
     }
 
@@ -4489,7 +4548,7 @@
       let enemyHp = enemyMaxHp;
       let idx = 0;
       let rounds = 0;
-      const shim = { ailments: {}, enemyAtk, isBoss: false, bossId: null, ailmentResist: 0 };
+      const shim = { ailments: {}, enemyAtk, isBoss: false, bossId: null, ailmentResist: 0, enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
       while (playerHp > 0 && enemyHp > 0 && rounds < 200) {
         rounds += 1;
         const sk = DIVINE_SKILLS.find(s => s.id === equipped[idx % equipped.length]) || DIVINE_SKILLS[0];
@@ -4511,6 +4570,7 @@
           addAilmentStacks(shim, sk.ailment, sk.stacks);
         }
         dmg = Math.round(dmg * getBreakMult(shim));
+        if (shim.enemyGuard) { dmg = Math.round(dmg * 0.5); shim.enemyGuard = false; }
         enemyHp = Math.max(0, enemyHp - dmg);
         const beastId = state.activeBeastId || 'beetle_king';
         const beastLv = (state.beastLevels && state.beastLevels[beastId]) || 0;
@@ -4536,14 +4596,22 @@
           if (tick.heal > 0) playerHp = Math.min(playerMaxHp, playerHp + tick.heal);
         }
         if (enemyHp <= 0) break;
+        if (!shim.enemyRage && enemyHp <= enemyMaxHp * 0.30) shim.enemyRage = true;
         if (tick.controlled) {
+          if (shim.enemyCharging) { shim.enemyCharging = false; shim.enemyPattern = 0; }
           continue;
         }
         if (tick.selfDmg > 0) {
           enemyHp = Math.max(0, enemyHp - tick.selfDmg);
           if (enemyHp <= 0) break;
         }
-        const effAtk = Math.round(enemyAtk * getWeakenMult(shim));
+        const kind = nextEnemyKind(shim);
+        if (kind === 'guard') { shim.enemyGuard = true; shim.enemyPattern = ((shim.enemyPattern || 0) + 1) % 3; continue; }
+        if (kind === 'charge') { shim.enemyCharging = true; continue; }
+        let mult = 1;
+        if (kind === 'unleash') { shim.enemyCharging = false; shim.enemyPattern = 0; mult = 2; }
+        else { shim.enemyPattern = ((shim.enemyPattern || 0) + 1) % 3; }
+        const effAtk = Math.round(enemyAtk * getWeakenMult(shim) * (shim.enemyRage ? 1.5 : 1) * mult);
         let raw = Math.max(5, Math.round(effAtk * (0.85 + Math.random() * 0.25)));
         if (shield > 0) {
           const absorbed = Math.min(shield, raw);
