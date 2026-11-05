@@ -753,15 +753,22 @@
           </div>
         </div>
 
-        <div id="combat-stage" class="bg-[#fcfaf5] rounded-xl border border-[#d6c7ac] px-3 py-2 flex items-center justify-between">
-          <div class="text-center w-16">
-            <div id="combat-player-char" class="char-idle text-5xl leading-none">🧙</div>
-            <div id="combat-player-name" class="text-[10px] font-bold text-[#236c53] mt-1 truncate">我方</div>
+        <div id="combat-stage" class="relative rounded-xl border border-[#d6c7ac] px-3 py-3 flex items-center justify-between overflow-hidden" style="background-image:url('assets/stage-bg.webp');background-size:cover;background-position:center;">
+          <div class="absolute inset-0 bg-black/45"></div>
+          <div class="relative text-center w-20">
+            <div id="combat-player-char" class="char-idle relative w-20 h-24 mx-auto rounded-lg overflow-hidden border-2 border-[#d6c7ac] shadow-lg bg-[#1a1a1a]">
+              <span class="absolute inset-0 flex items-center justify-center text-4xl">🧙</span>
+              <img id="combat-player-img" src="assets/player.webp" alt="" onerror="this.remove()" class="relative z-10 w-full h-full object-cover">
+            </div>
+            <div id="combat-player-name" class="text-[10px] font-bold text-white mt-1 truncate drop-shadow">我方</div>
           </div>
-          <div class="text-xl">⚔️</div>
-          <div class="text-center w-16">
-            <div id="combat-enemy-char" class="char-idle text-5xl leading-none">👹</div>
-            <div id="combat-enemy-name" class="text-[10px] font-bold text-[#9e2a22] mt-1 truncate">敵方</div>
+          <div class="relative z-10 w-8 h-8 rounded-full bg-[#9e2a22] text-white text-xs font-black flex items-center justify-center border border-[#d6c7ac] shrink-0">VS</div>
+          <div class="relative text-center w-20">
+            <div id="combat-enemy-char" class="char-idle relative w-20 h-24 mx-auto rounded-lg overflow-hidden border-2 border-[#9e2a22] shadow-lg bg-[#1a1a1a]">
+              <span class="absolute inset-0 flex items-center justify-center text-4xl">👹</span>
+              <img id="combat-enemy-img" src="assets/enemy-beast.webp" alt="" onerror="this.remove()" class="relative z-10 w-full h-full object-cover">
+            </div>
+            <div id="combat-enemy-name" class="text-[10px] font-bold text-white mt-1 truncate drop-shadow">敵方</div>
           </div>
         </div>
 
@@ -4180,8 +4187,7 @@
       document.getElementById('player-hp-bar').style.width = `${pPct}%`;
       document.getElementById('enemy-hp-bar').style.width = `${ePct}%`;
 
-      document.getElementById('combat-player-char').textContent = '🧙';
-      document.getElementById('combat-enemy-char').textContent = combatEnemyEmoji(activeCombat);
+      document.getElementById('combat-enemy-img').src = combatEnemyImage(activeCombat);
       document.getElementById('combat-player-name').textContent = state.playerName || '韓立';
       document.getElementById('combat-enemy-name').textContent = (activeCombat.loc && activeCombat.loc.enemyName) || '敵方';
       document.getElementById('event-desc').textContent = statusMsg;
@@ -4620,12 +4626,12 @@
     }
 
     // 戰鬥舞台人物動作：立繪 emoji＋CSS 動作（攻擊／受擊／施法／護盾／蓄力／回血）
-    function combatEnemyEmoji(c) {
-      if (!c) return '👹';
-      if (c.isBoss) return '👹';
-      if (c.isTower) return '👻';
-      if (c.isSiege || c.isDefense) return '🥷';
-      return '🐲';
+    function combatEnemyImage(c) {
+      if (!c) return 'assets/enemy-boss.webp';
+      if (c.isBoss) return 'assets/enemy-boss.webp';
+      if (c.isTower) return 'assets/enemy-ghost.webp';
+      if (c.isSiege || c.isDefense) return 'assets/enemy-ninja.webp';
+      return 'assets/enemy-beast.webp';
     }
     function playCharAnim(side, cls) {
       const el = document.getElementById(side === 'player' ? 'combat-player-char' : 'combat-enemy-char');
