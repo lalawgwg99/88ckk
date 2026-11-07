@@ -683,6 +683,9 @@
           <button id="btn-quick-tower" type="button" class="cinnabar-btn text-xs py-2.5 px-3 rounded-lg font-bold">
             速通
           </button>
+          <button id="btn-challenge-rival" type="button" class="paper-btn text-xs py-2.5 px-3 rounded-lg font-bold">
+            天驕挑戰
+          </button>
         </div>
       </div>
 
@@ -802,6 +805,30 @@
           <span class="text-xs font-bold text-[#236c53]">只顯示已獲得的武器</span>
         </div>
         <div id="weapons-list" class="grid grid-cols-2 gap-2"></div>
+      </div>
+
+      <div class="sub-card rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="font-black text-sm text-[#9e2a22]">法袍背包</span>
+          <span class="text-xs font-bold text-[#236c53]">只顯示已獲得的法袍</span>
+        </div>
+        <div id="armors-list" class="grid grid-cols-2 gap-2"></div>
+      </div>
+
+      <div class="sub-card rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="font-black text-sm text-[#9e2a22]">飾品背包</span>
+          <span class="text-xs font-bold text-[#236c53]">只顯示已獲得的飾品</span>
+        </div>
+        <div id="accessories-list" class="grid grid-cols-2 gap-2"></div>
+      </div>
+
+      <div class="sub-card rounded-xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="font-black text-sm text-[#9e2a22]">靈珠背包</span>
+          <span class="text-xs font-bold text-[#236c53]">點靈珠選取，再點裝備鑲嵌</span>
+        </div>
+        <div id="gems-bar" class="flex flex-wrap gap-2"></div>
       </div>
 
       <!-- Bloodline Traits -->
@@ -1316,7 +1343,7 @@
         if (n > 0) p *= Math.pow(1 - per, n);
       });
       const chance = 1 - p;
-      const wb = getWeaponBonuses();
+      const wb = getEquipmentBonuses();
       if (c.isBoss && c.bossId === 'hunmo') return Math.min(0.95, chance * 2 * wb.ctrlMult);
       return Math.min(0.75, chance * wb.ctrlMult);
     }
@@ -1328,14 +1355,14 @@
         const n = getAilmentStacks(c, id);
         if (n > 0) total += Math.round(baseAtk * rate * n * mastery * breakMult * (1 - resist));
       });
-      return Math.round(total * getWeaponBonuses().dotMult);
+      return Math.round(total * getEquipmentBonuses().dotMult);
     }
     function calcAilmentTick(c, baseAtk, mastery) {
       const dotDmg = calcDotDamage(c, baseAtk, mastery);
       let bleedPortion = 0;
       const bn = getAilmentStacks(c, 'bleed');
-      if (bn > 0) bleedPortion = Math.round(baseAtk * 0.25 * bn * mastery * getBreakMult(c) * (1 - (c.ailmentResist || 0)) * getWeaponBonuses().dotMult);
-      const heal = Math.round(bleedPortion * (0.20 + getWeaponBonuses().leech));
+      if (bn > 0) bleedPortion = Math.round(baseAtk * 0.25 * bn * mastery * getBreakMult(c) * (1 - (c.ailmentResist || 0)) * getEquipmentBonuses().dotMult);
+      const heal = Math.round(bleedPortion * (0.20 + getEquipmentBonuses().leech));
       let controlled = false;
       const cc = getControlChance(c);
       if (cc > 0 && Math.random() <= cc) controlled = true;
@@ -2147,7 +2174,8 @@
     const SECT_BOSSES = [
       { id: 'hunmo', name: '混沌古魔', emoji: '👹', desc: '血厚攻高，控場抗性低（控場成功率加倍）' },
       { id: 'tiandao', name: '天道化身', emoji: '☀️', desc: '攻擊頻率高，每回合反擊兩次' },
-      { id: 'guxian', name: '古仙殘念', emoji: '👻', desc: '反擊吸血（回血 25%）' }
+      { id: 'guxian', name: '古仙殘念', emoji: '👻', desc: '反擊吸血（回血 25%）' },
+      { id: 'hundun', name: '混沌魔尊', emoji: '🌑', desc: '控場抗性極高，越打越強（擊殺數加成）' }
     ];
     const BOSS_INTERVAL = 1800; // 神級 Boss 擲骰間隔（2026-11-01 改短：原 5400 秒＝90 分鐘）
     function getSectArrayReduction() {
@@ -2163,7 +2191,7 @@
       const aff = state.companionAffinity || {};
       const affTotal = (aff.nangong || 0) + (aff.ziyan || 0) + (aff.yinyue || 0) + (aff.yuanwao || 0);
       const companionPart = Math.round(getTotalCombat() * 0.001 * affTotal);
-      return getTotalCombat() + rankIdx * 500 + arrayPart + companionPart + ((state.sect && state.sect.disciples) || 0) * 20;
+      return getTotalCombat() + rankIdx * 500 + arrayPart + companionPart + getDiscipleDefense((state.sect && state.sect.disciples) || 0);
     }
     function fmtBossTime(sec) {
       const m = Math.floor(sec / 60), s = sec % 60;
@@ -2230,8 +2258,9 @@
       const boss = SECT_BOSSES.find(b => b.id === sc.bossState.bossId) || SECT_BOSSES[0];
       const combat = getTotalCombat();
       const reduction = getSectArrayReduction();
-      const enemyHp = Math.round(combat * 25);
-      const enemyAtk = Math.round(combat * 0.6 * (1 - reduction));
+      const bossKills = sc.bossKills || 0;
+      const enemyHp = Math.round(combat * 25 * (1 + 0.30 * bossKills));
+      const enemyAtk = Math.round(combat * 0.6 * (1 - reduction) * (1 + 0.20 * bossKills));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
       sc.bossState.inCombat = true;
       activeCombat = {
@@ -2247,7 +2276,7 @@
         enemyMaxHp: enemyHp,
         enemyAtk,
         ailments: {},
-        ailmentResist: boss.id === 'hunmo' ? 0.10 : 0.40,
+        ailmentResist: boss.id === 'hunmo' ? 0.10 : Math.min(0.65, (boss.id === 'hundun' ? 0.50 : 0.40) + 0.05 * bossKills),
         enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false
       };
       switchMobileView('adventure');
@@ -2257,6 +2286,10 @@
     function handleBossVictory() {
       document.getElementById('active-event-box').classList.add('hidden');
       grantWeaponDrop(3, 1.0);
+      grantEquipmentDrop('accessory', 3, 0.5);
+      grantGemDrop(2, 1.0);
+      state.blessedCharms = (state.blessedCharms || 0) + 1;
+      if (state.sect) state.sect.bossKills = (state.sect.bossKills || 0) + 1;
       activeCombat = null;
       resolveBossFight('kill');
       renderAll();
@@ -2386,6 +2419,13 @@
         equippedSkills: ['duwu', 'malei', 'mihun'],
       weapons: [],
       equippedWeaponId: null,
+      armors: [],
+      accessories: [],
+      equippedArmorId: null,
+      equippedAccessoryId: null,
+      gems: {},
+      blessedCharms: 0,
+      rivalTier: 0,
         saveVersion: 3,
         bloodlineTraits: [
           { traitId: 'w1', locked: false },
@@ -2529,8 +2569,8 @@
       if (!sc.truce) sc.truce = {};
       sc.truce[enemyId] = wasPeace ? PEACE_COOLDOWN : TRUCE_SECONDS;
       let msg = '';
-      if (result === 'victory') { addSectContribution(500); state.gachaTokens = (state.gachaTokens || 0) + 3; state.stones = (state.stones || 0) + 2000; msg = `🏆 大勝！${enemy ? enemy.name : ''}主城被佔，戰爭結束。貢獻＋500、探寶令＋3、靈石＋2000。主城已歸還。`; const wr = grantBossRelic(); msg += `古寶【${wr.name}】+1！`; }
-      else if (result === 'win') { addSectContribution(200); state.gachaTokens = (state.gachaTokens || 0) + 1; msg = `⚔️ 交戰期滿，我方城數較多，小勝！貢獻＋200、探寶令＋1。主城已歸還。`; if (Math.random() < 0.5) { const wr = grantBossRelic(); msg += `古寶【${wr.name}】+1！`; } }
+      if (result === 'victory') { sc.warWins = (sc.warWins || 0) + 1; addSectContribution(500); state.gachaTokens = (state.gachaTokens || 0) + 3; state.stones = (state.stones || 0) + 2000; msg = `🏆 大勝！${enemy ? enemy.name : ''}主城被佔，戰爭結束。貢獻＋500、探寶令＋3、靈石＋2000。主城已歸還。`; const wr = grantBossRelic(); msg += `古寶【${wr.name}】+1！`; }
+      else if (result === 'win') { sc.warWins = (sc.warWins || 0) + 1; addSectContribution(200); state.gachaTokens = (state.gachaTokens || 0) + 1; msg = `⚔️ 交戰期滿，我方城數較多，小勝！貢獻＋200、探寶令＋1。主城已歸還。`; if (Math.random() < 0.5) { const wr = grantBossRelic(); msg += `古寶【${wr.name}】+1！`; } }
       else if (result === 'defeat') { msg = `💥 主城失守，大敗。戰爭結束，主城已歸還，休戰 ${fmtWarTime(TRUCE_SECONDS)}。`; }
       else if (result === 'lose') { msg = `⚔️ 交戰期滿，我方城數較少，落敗。主城已歸還，休戰 ${fmtWarTime(TRUCE_SECONDS)}。`; }
       else if (result === 'draw') { msg = `⚔️ 交戰期滿，雙方城數相同，平手。主城已歸還。`; }
@@ -2567,8 +2607,8 @@
       if (activeCombat) { showToast('已有進行中的戰鬥，先打完這一場！'); return; }
       const combat = getTotalCombat();
       const reduction = getSectArrayReduction();
-      const enemyHp = Math.round(combat * (10 + (cur.defLv || 1)));
-      const enemyAtk = Math.round(combat * 0.5 * (1 - reduction));
+      const enemyHp = Math.round(combat * (10 + (cur.defLv || 1)) * (1 + 0.10 * (sc.warWins || 0)));
+      const enemyAtk = Math.round(combat * 0.5 * (1 - reduction) * (1 + 0.10 * (sc.warWins || 0)));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
       activeCombat = { isSiege: true, castleId, loc: { name: '攻城戰', enemyName: `${castle.name}守軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: 0, enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
       switchMobileView('adventure');
@@ -2579,6 +2619,8 @@
       const castleId = activeCombat ? activeCombat.castleId : null;
       document.getElementById('active-event-box').classList.add('hidden');
       grantWeaponDrop(2, 0.5);
+      grantEquipmentDrop('armor', 2, 0.3);
+      grantGemDrop(1, 0.3);
       activeCombat = null;
       const sc = state.sect;
       const castle = CASTLES.find(c => c.id === castleId);
@@ -2607,8 +2649,8 @@
       if (!castle) return;
       const combat = getTotalCombat();
       const reduction = getSectArrayReduction();
-      const enemyHp = Math.round(combat * 10);
-      const enemyAtk = Math.round(combat * 0.45 * (1 - reduction));
+      const enemyHp = Math.round(combat * 10 * (1 + 0.10 * (sc.warWins || 0)));
+      const enemyAtk = Math.round(combat * 0.45 * (1 - reduction) * (1 + 0.10 * (sc.warWins || 0)));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
       sc.defenseWarn.inCombat = true;
       activeCombat = { isDefense: true, castleId: castle.id, loc: { name: '守城戰', enemyName: `${castle.name}攻城軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: 0, enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
@@ -2620,6 +2662,8 @@
       const dw = state.sect && state.sect.defenseWarn;
       document.getElementById('active-event-box').classList.add('hidden');
       grantWeaponDrop(2, 0.5);
+      grantEquipmentDrop('armor', 2, 0.3);
+      grantGemDrop(1, 0.3);
       activeCombat = null;
       const sc = state.sect;
       if (!sc || !dw) { renderAll(); saveState(); return; }
@@ -2670,7 +2714,7 @@
       if (!castle || !cur) return;
       const rankIdx = sectRankFromTotal(sc.totalContribution || 0);
       const arrayPart = (sc.arrayDurability || 0) > 0 ? (sc.arrayLv || 1) * 200 : 0;
-      const enemyAtk = Math.round(getTotalCombat() * 1.5 + rankIdx * 300 + arrayPart);
+      const enemyAtk = Math.round(getTotalCombat() * (1.5 + 0.15 * (sc.warWins || 0)) + rankIdx * 300 + arrayPart);
       const defense = getSectDefense();
       const ratio = enemyAtk > 0 ? defense / enemyAtk : 1;
       if (ratio >= 1.0) {
@@ -2936,14 +2980,18 @@
         if (fightBtn) fightBtn.classList.add('hidden');
       }
     }
+    function getDiscipleRecruitCost(cur) { return 300 + 25 * (cur || 0); }
+    function getDiscipleAssist(n) { const c = n || 0; return Math.min(c, 20) * 10 + Math.max(0, Math.min(c, 60) - 20) * 6 + Math.max(0, c - 60) * 3; }
+    function getDiscipleDefense(n) { const c = n || 0; return Math.min(c, 20) * 20 + Math.max(0, Math.min(c, 60) - 20) * 12 + Math.max(0, c - 60) * 6; }
     function recruitDisciples() {
       const sc = state.sect;
       if (!sc || !sc.id) { showToast('請先加入宗門'); return; }
       const cap = (sectRankFromTotal(sc.totalContribution || 0) + 1) * 20;
       const cur = sc.disciples || 0;
       if (cur >= cap) { showToast(`弟子已滿 ${cap} 名！提升職位可再招募。`); return; }
-      if ((state.stones || 0) < 300) { showToast('招募弟子需 300 靈石！'); return; }
-      state.stones -= 300;
+      const cost = getDiscipleRecruitCost(cur);
+      if ((state.stones || 0) < cost) { showToast(`招募弟子需 ${cost} 靈石！`); return; }
+      state.stones -= cost;
       sc.disciples = cur + 1;
       progressSectTask('recruit1', 1);
       checkSectMilestones();
@@ -2956,13 +3004,20 @@
       const cap = (sectRankFromTotal(sc.totalContribution || 0) + 1) * 20;
       const cur = sc.disciples || 0;
       if (cur >= cap) { showToast(`弟子已滿 ${cap} 名！提升職位可再招募。`); return; }
-      const canBuy = Math.min(cap - cur, Math.floor((state.stones || 0) / 300));
-      if (canBuy <= 0) { showToast('招募弟子需 300 靈石！'); return; }
-      state.stones -= canBuy * 300;
+      let canBuy = 0;
+      let totalCost = 0;
+      while (cur + canBuy < cap) {
+        const c = getDiscipleRecruitCost(cur + canBuy);
+        if ((state.stones || 0) - totalCost < c) break;
+        totalCost += c;
+        canBuy += 1;
+      }
+      if (canBuy <= 0) { showToast(`招募弟子需 ${getDiscipleRecruitCost(cur)} 靈石！`); return; }
+      state.stones -= totalCost;
       sc.disciples = cur + canBuy;
       progressSectTask('recruit1', canBuy);
       checkSectMilestones();
-      showToast(`👥 一鍵招募弟子 +${canBuy}（現有 ${sc.disciples}/${cap} 名）！`);
+      showToast(`👥 一鍵招募弟子 +${canBuy}（現有 ${sc.disciples}/${cap} 名，共花 ${totalCost} 石）！`);
       renderAll(); saveState();
     }
     function renderDiscipleCard() {
@@ -2979,9 +3034,9 @@
     <div class="w-full bg-[#dfd3bc] h-1.5 rounded-full overflow-hidden">
       <div class="bg-[#236c53] h-full transition-all" style="width:${Math.min(100, Math.round((cur / cap) * 100))}%"></div>
     </div>
-    <div class="text-xs text-[#5c5346] font-bold">助戰傷害 +${cur * 10} ｜ 守城防禦 +${cur * 20} ｜ 每日貢獻 +${cur}</div>
+    <div class="text-xs text-[#5c5346] font-bold">助戰 +${getDiscipleAssist(cur)} ｜ 守城 +${getDiscipleDefense(cur)} ｜ 每日貢獻 +${cur}（前 20 名全額，之後遞減）</div>
     <div class="grid grid-cols-2 gap-2">
-      <button type="button" data-sect-action="recruit" ${full ? 'disabled' : ''} class="${full ? 'paper-btn' : 'cinnabar-btn'} text-xs py-2.5 px-3 rounded-lg font-bold">${full ? '已滿員' : '<span class="block">招募弟子</span><span class="block text-[10px] leading-tight opacity-80">300石</span>'}</button>
+      <button type="button" data-sect-action="recruit" ${full ? 'disabled' : ''} class="${full ? 'paper-btn' : 'cinnabar-btn'} text-xs py-2.5 px-3 rounded-lg font-bold">${full ? '已滿員' : '<span class="block">招募弟子</span><span class="block text-[10px] leading-tight opacity-80">' + getDiscipleRecruitCost(cur) + '石</span>'}</button>
       <button type="button" data-sect-action="recruit-max" ${full ? 'disabled' : ''} class="${full ? 'paper-btn' : 'gold-btn'} text-xs py-2.5 px-3 rounded-lg font-bold">${full ? '已滿員' : '一鍵招滿'}</button>
     </div>
   </div>`;
@@ -3026,6 +3081,17 @@
           }
           if (!state.playerName || typeof state.playerName !== 'string') state.playerName = '韓立';
           if (!Array.isArray(state.equippedSkills) || state.equippedSkills.length === 0) state.equippedSkills = def.equippedSkills;
+          if (!Array.isArray(state.armors)) state.armors = [];
+          if (!Array.isArray(state.accessories)) state.accessories = [];
+          if (typeof state.equippedArmorId === 'undefined') state.equippedArmorId = null;
+          if (typeof state.equippedAccessoryId === 'undefined') state.equippedAccessoryId = null;
+          if (!state.gems || typeof state.gems !== 'object') state.gems = {};
+          if (typeof state.blessedCharms !== 'number') state.blessedCharms = 0;
+          if (typeof state.rivalTier !== 'number') state.rivalTier = 0;
+          if (state.sect) {
+            if (typeof state.sect.bossKills !== 'number') state.sect.bossKills = 0;
+            if (typeof state.sect.warWins !== 'number') state.sect.warWins = 0;
+          }
           if (!Array.isArray(state.bloodlineTraits) || state.bloodlineTraits.length < 3) {
             state.bloodlineTraits = def.bloodlineTraits;
           } else {
@@ -3379,7 +3445,7 @@
         treasureCombat += (state.treasureLevels[t.id] || 0) * t.combatBonus;
       });
       const artCombatMult = 1 + (artLv - 1) * 0.22;
-      const baseCombined = mRealm.combat + Math.round(bRealm.combat * 0.85) + treasureCombat + getWeaponBonuses().combat;
+      const baseCombined = mRealm.combat + Math.round(bRealm.combat * 0.85) + treasureCombat + getEquipmentBonuses().combat;
       const beastB = getBeastBonuses();
       const lawB = getLawBonuses();
       return Math.round(baseCombined * (origin.id === 'thunder' ? 1.45 : 1.0) * artCombatMult * relicB.combatMult * (1 + traitB.combatMult) * resonanceMult * (1 + getSectPassiveFor('huadao')) * (1 + getCastleBonuses().combatMult) * (1 + beastB.combatMult) * (1 + lawB.combatMult) * getDaoHeartMult());
@@ -4113,14 +4179,15 @@
     function startTowerChallenge() {
       switchMobileView('adventure');
       const floor = state.towerFloor || 1;
-      const enemyHp = Math.round(140 * Math.pow(1.48, floor - 1));
-      const enemyAtk = Math.round(15 * Math.pow(1.42, floor - 1));
+      const isEliteFloor = floor % 10 === 0;
+      const enemyHp = Math.round(140 * Math.pow(1.48, floor - 1) * (isEliteFloor ? 2.5 : 1));
+      const enemyAtk = Math.round(15 * Math.pow(1.42, floor - 1) * (isEliteFloor ? 1.8 : 1));
       const playerMaxHp = Math.max(150, Math.round(getTotalCombat() * 2.5));
 
       activeCombat = {
         isTower: true,
         floor,
-        loc: { name: `鎮妖塔${floor}層`, enemyName: `守塔妖王` },
+        loc: { name: `鎮妖塔${floor}層`, enemyName: isEliteFloor ? '守塔妖王・精英' : '守塔妖王' },
         round: 1,
         skillIdx: 0,
         playerHp: playerMaxHp,
@@ -4130,11 +4197,11 @@
         enemyMaxHp: enemyHp,
         enemyAtk,
         ailments: {},
-        ailmentResist: 0,
+        ailmentResist: isEliteFloor ? 0.25 : 0,
         enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false
       };
 
-      renderCombatBox(`鎮妖塔第 ${floor} 層！點神通或【⚡連招】出擊：`);
+      renderCombatBox(isEliteFloor ? `👹 精英守塔妖王！血量×2.5、攻擊×1.8、控場抗性 25%，贏了必掉裝備＋靈珠！` : `鎮妖塔第 ${floor} 層！點神通或【⚡連招】出擊：`);
       playSound('plucked');
     }
 
@@ -4258,34 +4325,299 @@
       };
     }
     function getWeaponBonuses() {
-      const neutral = { combat: 0, dotMult: 1, ctrlMult: 1, directMult: 1, leech: 0 };
       const list = Array.isArray(state.weapons) ? state.weapons : [];
       const w = list.find(x => x && x.uid === state.equippedWeaponId);
-      if (!w) return neutral;
-      const b = { combat: w.combat || 0, dotMult: 1, ctrlMult: 1, directMult: 1, leech: 0 };
-      (w.affixes || []).forEach(a => {
+      if (!w) return { combat: 0, dotMult: 1, ctrlMult: 1, directMult: 1, leech: 0 };
+      return getItemBonuses(w);
+    }
+    function grantWeaponDrop(tierIdx, chance) { return grantEquipmentDrop('weapon', tierIdx, chance); }
+    function equipWeapon(uid) { equipEquipment('weapon', uid); }
+    // =========================================================================
+    // 裝備系統 v2：武器／法袍／飾品三槽＋淬煉（天堂式安定值）＋靈珠鑲嵌
+    // 參考天堂：武器安定 +6、防具 +4，超過才賭；祝福成功 +1~+2；失敗不爆裝、只降 1 級。
+    // 移除的舊設計：單一武器槽、無強化無鑲嵌；敵人戰力跟玩家 1:1 等比；
+    // 弟子 300 石固定價＋線性加成；靜態 NPC 天花板（改無盡天驕）；塔每層都一樣。
+    // =========================================================================
+    const EQUIP_SLOTS = {
+      weapon: { key: 'weapon', listKey: 'weapons', equippedKey: 'equippedWeaponId', emoji: '⚔️', label: '武器', safeEnh: 6, combatRanges: [[20, 60], [60, 150], [150, 350], [350, 800], [800, 1800]], prefixes: WEAPON_PREFIXES, types: WEAPON_TYPES },
+      armor: { key: 'armor', listKey: 'armors', equippedKey: 'equippedArmorId', emoji: '🛡️', label: '法袍', safeEnh: 4, combatRanges: [[15, 50], [50, 120], [120, 280], [280, 650], [650, 1500]], prefixes: ['玄鐵', '青木', '紫金', '寒玉', '赤霞', '墨麟', '雲錦', '星隕', '龍鱗', '鳳羽', '玄武', '白虎'], types: ['法袍', '寶甲', '道袍', '戰鎧', '雲裳', '仙衣'] },
+      accessory: { key: 'accessory', listKey: 'accessories', equippedKey: 'equippedAccessoryId', emoji: '📿', label: '飾品', safeEnh: 4, combatRanges: [[10, 40], [40, 100], [100, 220], [220, 500], [500, 1200]], prefixes: ['青冥', '紫電', '血玉', '寒星', '赤陽', '幽月', '玄黃', '九霄', '玲瓏', '鎮魂', '聚靈', '碎星'], types: ['佩', '環', '鐲', '符', '珠', '印', '鈴', '鏡'] },
+    };
+    const EQUIP_AFFIX_POOLS = {
+      weapon: WEAPON_AFFIX_POOL,
+      armor: [
+        { key: 'dotPct', label: '異常傷害', min: 5, max: 20 },
+        { key: 'ctrlPct', label: '控場率', min: 3, max: 12 },
+        { key: 'leechPct', label: '流血回血', min: 5, max: 12 },
+      ],
+      accessory: [
+        { key: 'directPct', label: '直傷', min: 5, max: 20 },
+        { key: 'dotPct', label: '異常傷害', min: 5, max: 20 },
+        { key: 'ctrlPct', label: '控場率', min: 3, max: 15 },
+      ],
+    };
+    const GEM_TYPES = {
+      dot: { name: '毒靈珠', label: '異常傷害', per: 4 },
+      ctrl: { name: '雷靈珠', label: '控場率', per: 3 },
+      direct: { name: '劍靈珠', label: '直傷', per: 3 },
+      leech: { name: '血靈珠', label: '流血回血', per: 3 },
+    };
+    function gemKey(type, lv) { return `${type}${lv}`; }
+    function gemCount(key) { return (state.gems && state.gems[key]) || 0; }
+    function equipSocketCount(item) {
+      const base = [0, 0, 1, 1, 2][Math.min(4, Math.max(0, item.tier || 0))];
+      return Math.min(2, base + (((item.maxEnh || item.enh || 0) >= 5) ? 1 : 0));
+    }
+    function equipSockets(item) {
+      if (!Array.isArray(item.sockets)) item.sockets = [];
+      while (item.sockets.length < equipSocketCount(item)) item.sockets.push(null);
+      return item.sockets.slice(0, equipSocketCount(item));
+    }
+    function generateEquipment(slot, tierIdx) {
+      const def = EQUIP_SLOTS[slot] || EQUIP_SLOTS.weapon;
+      let tier = Math.min(4, Math.max(0, tierIdx || 0));
+      if (Math.random() < 0.15 && tier < 4) tier += 1;
+      const range = def.combatRanges[tier];
+      const affixCount = rollInt(WEAPON_TIERS[tier].affixMin, WEAPON_TIERS[tier].affixMax);
+      const pool = (EQUIP_AFFIX_POOLS[slot] || WEAPON_AFFIX_POOL).slice();
+      const affixes = [];
+      for (let i = 0; i < affixCount && pool.length > 0; i++) {
+        const pick = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+        affixes.push({ key: pick.key, label: pick.label, pct: rollInt(pick.min, pick.max) });
+      }
+      const item = {
+        uid: `${slot}_${Date.now()}_${Math.floor(Math.random() * 1e6)}`,
+        slot,
+        name: def.prefixes[Math.floor(Math.random() * def.prefixes.length)] + def.types[Math.floor(Math.random() * def.types.length)],
+        tier,
+        tierName: WEAPON_TIERS[tier].name,
+        combat: rollInt(range[0], range[1]),
+        affixes,
+        enh: 0,
+        maxEnh: 0,
+        sockets: [],
+      };
+      item.sockets = Array(equipSocketCount(item)).fill(null);
+      return item;
+    }
+    function getItemBonuses(item) {
+      const b = { combat: 0, dotMult: 1, ctrlMult: 1, directMult: 1, leech: 0 };
+      if (!item) return b;
+      b.combat = Math.round((item.combat || 0) * (1 + 0.12 * (item.enh || 0)));
+      (item.affixes || []).forEach(a => {
         if (a.key === 'dotPct') b.dotMult += (a.pct || 0) / 100;
         else if (a.key === 'ctrlPct') b.ctrlMult += (a.pct || 0) / 100;
         else if (a.key === 'directPct') b.directMult += (a.pct || 0) / 100;
         else if (a.key === 'leechPct') b.leech += (a.pct || 0) / 100;
       });
+      equipSockets(item).forEach(g => {
+        if (!g) return;
+        const gt = GEM_TYPES[g.type];
+        if (!gt) return;
+        const pct = gt.per * (g.lv || 1);
+        if (g.type === 'dot') b.dotMult += pct / 100;
+        else if (g.type === 'ctrl') b.ctrlMult += pct / 100;
+        else if (g.type === 'direct') b.directMult += pct / 100;
+        else if (g.type === 'leech') b.leech += pct / 100;
+      });
       return b;
     }
-    function grantWeaponDrop(tierIdx, chance) {
-      if (Math.random() > chance) return null;
-      const w = generateWeapon(tierIdx);
-      if (!Array.isArray(state.weapons)) state.weapons = [];
-      state.weapons.push(w);
-      const affTxt = w.affixes.map(a => `${a.label}+${a.pct}%`).join('、');
-      showToast(`⚔️ 獲得武器【${w.tierName}・${w.name}】！`);
-      addLog(`⚔️ 獲得武器【${w.tierName}・${w.name}】（戰力+${w.combat}、${affTxt}）！`, true);
-      return w;
+    function getEquipmentBonuses() {
+      const b = { combat: 0, dotMult: 1, ctrlMult: 1, directMult: 1, leech: 0 };
+      [['weapons', 'equippedWeaponId'], ['armors', 'equippedArmorId'], ['accessories', 'equippedAccessoryId']].forEach(([listKey, eqKey]) => {
+        const list = Array.isArray(state[listKey]) ? state[listKey] : [];
+        const it = list.find(x => x && x.uid === state[eqKey]);
+        if (!it) return;
+        const ib = getItemBonuses(it);
+        b.combat += ib.combat;
+        b.dotMult += ib.dotMult - 1;
+        b.ctrlMult += ib.ctrlMult - 1;
+        b.directMult += ib.directMult - 1;
+        b.leech += ib.leech;
+      });
+      return b;
     }
-    function equipWeapon(uid) {
-      state.equippedWeaponId = uid || null;
+    function grantEquipmentDrop(slot, tierIdx, chance) {
+      if (Math.random() > chance) return null;
+      const def = EQUIP_SLOTS[slot] || EQUIP_SLOTS.weapon;
+      const item = generateEquipment(slot, tierIdx);
+      if (!Array.isArray(state[def.listKey])) state[def.listKey] = [];
+      state[def.listKey].push(item);
+      const affTxt = item.affixes.map(a => `${a.label}+${a.pct}%`).join('、');
+      showToast(`${def.emoji} 獲得${def.label}【${item.tierName}・${item.name}】！`);
+      addLog(`${def.emoji} 獲得${def.label}【${item.tierName}・${item.name}】（戰力+${item.combat}、${affTxt}）！`, true);
+      return item;
+    }
+    function equipEquipment(slot, uid) {
+      const def = EQUIP_SLOTS[slot];
+      if (!def) return;
+      state[def.equippedKey] = uid || null;
       saveState();
       renderArtsAndTreasuresTab();
       updateStatusUI();
+    }
+    function enhanceCostFor(item) {
+      const enh = item.enh || 0;
+      return { stones: 100 * (enh + 1) * ((item.tier || 0) + 1), dust: 20 * (enh + 1) };
+    }
+    function enhanceEquipment(slot, uid, blessed) {
+      const def = EQUIP_SLOTS[slot];
+      if (!def) return false;
+      const list = Array.isArray(state[def.listKey]) ? state[def.listKey] : [];
+      const item = list.find(x => x && x.uid === uid);
+      if (!item) return false;
+      if ((item.enh || 0) >= 15) { showToast('已淬煉滿級 +15！'); return false; }
+      if (blessed && (state.blessedCharms || 0) <= 0) { showToast('沒有祝福淬煉符！'); return false; }
+      const cost = enhanceCostFor(item);
+      if ((state.stones || 0) < cost.stones || (state.spiritDust || 0) < cost.dust) { showToast(`淬煉需 ${cost.stones}石＋${cost.dust}塵！`); return false; }
+      const enh = item.enh || 0;
+      const safe = def.safeEnh;
+      let rate = 1;
+      if (enh >= safe) rate = Math.max(0.30, 0.90 - 0.05 * (enh - safe));
+      state.stones -= cost.stones;
+      state.spiritDust = (state.spiritDust || 0) - cost.dust;
+      if (blessed) state.blessedCharms -= 1;
+      if (Math.random() <= rate) {
+        const gain = blessed ? (Math.random() < 0.5 ? 2 : 1) : 1;
+        item.enh = Math.min(15, enh + gain);
+        item.maxEnh = Math.max(item.maxEnh || 0, item.enh);
+        showToast(`✨ 淬煉成功！【${item.name}】+${item.enh}`);
+        addLog(`✨ 淬煉成功【${item.tierName}・${item.name}】+${item.enh}！`, true);
+      } else {
+        item.enh = Math.max(0, enh - 1);
+        showToast(`💥 淬煉失敗！【${item.name}】降為 +${item.enh}（裝備未損壞）`);
+        addLog(`💥 淬煉失敗【${item.tierName}・${item.name}】降為 +${item.enh}。`, false);
+      }
+      saveState();
+      renderArtsAndTreasuresTab();
+      updateStatusUI();
+      return true;
+    }
+    function socketGem(slot, uid, socketIdx, key) {
+      const def = EQUIP_SLOTS[slot];
+      if (!def) return false;
+      const list = Array.isArray(state[def.listKey]) ? state[def.listKey] : [];
+      const item = list.find(x => x && x.uid === uid);
+      if (!item) return false;
+      const socks = equipSockets(item);
+      if (socketIdx < 0 || socketIdx >= socks.length) { showToast('這個裝備沒有這個孔位！'); return false; }
+      if (socks[socketIdx]) { showToast('孔位已有靈珠，先拆下再鑲嵌！'); return false; }
+      const type = key.replace(/[0-9]/g, '');
+      const lv = parseInt(key.replace(/[^0-9]/g, ''), 10) || 1;
+      if (!GEM_TYPES[type] || gemCount(key) <= 0) { showToast('靈珠不足！'); return false; }
+      if ((state.stones || 0) < 100) { showToast('鑲嵌需 100 靈石！'); return false; }
+      state.stones -= 100;
+      state.gems[key] -= 1;
+      item.sockets[socketIdx] = { type, lv };
+      showToast(`💎 鑲嵌【${GEM_TYPES[type].name} Lv${lv}】！`);
+      saveState();
+      renderArtsAndTreasuresTab();
+      updateStatusUI();
+      return true;
+    }
+    function unsocketGem(slot, uid, socketIdx) {
+      const def = EQUIP_SLOTS[slot];
+      if (!def) return false;
+      const list = Array.isArray(state[def.listKey]) ? state[def.listKey] : [];
+      const item = list.find(x => x && x.uid === uid);
+      if (!item) return false;
+      const socks = equipSockets(item);
+      if (socketIdx < 0 || socketIdx >= socks.length || !socks[socketIdx]) return false;
+      if ((state.stones || 0) < 50) { showToast('拆珠需 50 靈石！'); return false; }
+      state.stones -= 50;
+      const g = socks[socketIdx];
+      const key = gemKey(g.type, g.lv);
+      if (!state.gems) state.gems = {};
+      state.gems[key] = gemCount(key) + 1;
+      item.sockets[socketIdx] = null;
+      showToast(`💎 拆下【${GEM_TYPES[g.type].name} Lv${g.lv}】！`);
+      saveState();
+      renderArtsAndTreasuresTab();
+      updateStatusUI();
+      return true;
+    }
+    function dismantleEquipment(slot, uid) {
+      const def = EQUIP_SLOTS[slot];
+      if (!def) return false;
+      const list = Array.isArray(state[def.listKey]) ? state[def.listKey] : [];
+      const idx = list.findIndex(x => x && x.uid === uid);
+      if (idx < 0) return false;
+      const item = list[idx];
+      if (state[def.equippedKey] === uid) state[def.equippedKey] = null;
+      equipSockets(item).forEach(g => {
+        if (!g) return;
+        const key = gemKey(g.type, g.lv);
+        if (!state.gems) state.gems = {};
+        state.gems[key] = gemCount(key) + 1;
+      });
+      const dustGain = 20 * ((item.tier || 0) + 1) + 10 * (item.enh || 0);
+      const stoneGain = 50 * ((item.tier || 0) + 1);
+      state.spiritDust = (state.spiritDust || 0) + dustGain;
+      state.stones = (state.stones || 0) + stoneGain;
+      list.splice(idx, 1);
+      showToast(`♻️ 分解【${item.name}】：靈塵＋${dustGain}、靈石＋${stoneGain}（靈珠已歸還）`);
+      saveState();
+      renderArtsAndTreasuresTab();
+      updateStatusUI();
+      return true;
+    }
+    function grantGemDrop(lv, chance) {
+      if (Math.random() > chance) return null;
+      const types = Object.keys(GEM_TYPES);
+      const type = types[Math.floor(Math.random() * types.length)];
+      const level = Math.min(3, Math.max(1, lv || 1));
+      const key = gemKey(type, level);
+      if (!state.gems) state.gems = {};
+      state.gems[key] = (state.gems[key] || 0) + 1;
+      showToast(`💎 獲得【${GEM_TYPES[type].name} Lv${level}】！`);
+      addLog(`💎 獲得【${GEM_TYPES[type].name} Lv${level}】！`, true);
+      return key;
+    }
+    // =========================================================================
+    // 天驕挑戰：無盡強敵，永遠比你強。擊敗一位，下一位更強（+10%／位）。
+    // 移除的舊設計：排行榜 NPC 靜態數值當天花板——打贏就沒對手了。
+    // =========================================================================
+    const RIVAL_NAMES = ['劍狂・燕十三', '刀聖・顧寒', '毒仙・苗青青', '雷帝・蕭戰天', '劍仙・李太白', '血手・厲千秋'];
+    function getRivalCombat() {
+      const tier = state.rivalTier || 0;
+      return Math.round(getTotalCombat() * 1.30 * (1 + 0.10 * tier) + 5000 * tier);
+    }
+    function startRivalFight() {
+      if (activeCombat) { showToast('已有進行中的戰鬥，先打完這一場！'); return; }
+      const tier = state.rivalTier || 0;
+      const name = RIVAL_NAMES[tier % RIVAL_NAMES.length];
+      const rivalCombat = getRivalCombat();
+      const enemyHp = Math.round(rivalCombat * 3);
+      const enemyAtk = Math.round(rivalCombat * 0.55);
+      const playerMaxHp = Math.max(150, Math.round(getTotalCombat() * 2.5));
+      switchMobileView('adventure');
+      activeCombat = { isRival: true, rivalTier: tier, loc: { name: '天驕挑戰', enemyName: `${name}（第 ${tier + 1} 位）` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: Math.min(0.5, 0.20 + 0.03 * tier), enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
+      renderCombatBox(`⚔️ 天驕【${name}】前來挑戰！戰力約為你的 ${Math.round((rivalCombat / Math.max(1, getTotalCombat())) * 100)}%，贏了就晉升下一位天驕：`);
+      playSound('plucked');
+    }
+    function handleRivalVictory() {
+      const tier = state.rivalTier || 0;
+      document.getElementById('active-event-box').classList.add('hidden');
+      activeCombat = null;
+      state.rivalTier = tier + 1;
+      const slot = ['weapon', 'armor', 'accessory'][Math.floor(Math.random() * 3)];
+      grantEquipmentDrop(slot, weaponTierByRealm(Math.max(state.realmIndex || 0, state.bodyRealmIndex || 0)), 1.0);
+      grantGemDrop(2, 1.0);
+      state.blessedCharms = (state.blessedCharms || 0) + 1;
+      state.stones = (state.stones || 0) + 2000;
+      const msg = `🏆 擊敗天驕【${RIVAL_NAMES[tier % RIVAL_NAMES.length]}】！第 ${tier + 2} 位天驕更強，靈石＋2000、祝福淬煉符＋1。`;
+      addLog(msg, true);
+      showToast(msg);
+      renderAll();
+      saveState();
+    }
+    function routeCombatVictory(loc) {
+      if (activeCombat.isBoss) handleBossVictory();
+      else if (activeCombat.isRival) handleRivalVictory();
+      else if (activeCombat.isSiege) handleSiegeVictory();
+      else if (activeCombat.isDefense) handleDefenseVictory();
+      else if (activeCombat.isTower) handleTowerVictory(activeCombat.floor);
+      else handleCombatVictory(loc);
     }
     function getUnlockedSkills() {
       const realmId = state.activePath === 'body' ? (state.bodyRealmIndex || 0) : (state.realmIndex || 0);
@@ -4319,7 +4651,7 @@
       const mastery = getStatusMastery();
       if (!activeCombat.ailments) activeCombat.ailments = {};
       let notes = [sk.name];
-      let directDmg = Math.round(playerBaseAtk * sk.mult * getWeaponBonuses().directMult);
+      let directDmg = Math.round(playerBaseAtk * sk.mult * getEquipmentBonuses().directMult);
 
       if (sk.costStone && state.stones >= sk.costStone) {
         state.stones -= sk.costStone;
@@ -4401,7 +4733,7 @@
       }
       if (activeCombat.isBoss || activeCombat.isSiege || activeCombat.isDefense) {
         const _sc = state.sect || {};
-        const assist = sectRankFromTotal(_sc.totalContribution || 0) * 50 + ((_sc.arrayDurability || 0) > 0 ? (_sc.arrayLv || 1) * 30 : 0) + ((_sc.disciples || 0) * 10);
+        const assist = sectRankFromTotal(_sc.totalContribution || 0) * 50 + ((_sc.arrayDurability || 0) > 0 ? (_sc.arrayLv || 1) * 30 : 0) + getDiscipleAssist(_sc.disciples || 0);
         if (assist > 0) {
           activeCombat.enemyHp = Math.max(0, activeCombat.enemyHp - assist);
           notes.push(`宗門助戰-${formatNum(assist)}`);
@@ -4409,17 +4741,7 @@
       }
 
       if (activeCombat.enemyHp <= 0) {
-        if (activeCombat.isBoss) {
-          handleBossVictory();
-        } else if (activeCombat.isSiege) {
-          handleSiegeVictory();
-        } else if (activeCombat.isDefense) {
-          handleDefenseVictory();
-        } else if (activeCombat.isTower) {
-          handleTowerVictory(activeCombat.floor);
-        } else {
-          handleCombatVictory(loc);
-        }
+        routeCombatVictory(loc);
         return { ended: true, notes, turnDmg: directDmg };
       }
 
@@ -4449,17 +4771,7 @@
         }
       }
       if (activeCombat.enemyHp <= 0) {
-        if (activeCombat.isBoss) {
-          handleBossVictory();
-        } else if (activeCombat.isSiege) {
-          handleSiegeVictory();
-        } else if (activeCombat.isDefense) {
-          handleDefenseVictory();
-        } else if (activeCombat.isTower) {
-          handleTowerVictory(activeCombat.floor);
-        } else {
-          handleCombatVictory(loc);
-        }
+        routeCombatVictory(loc);
         return;
       }
       // 狂暴判定（血量 ≤30% 只觸發一次，整場持續）
@@ -4483,17 +4795,7 @@
           turnDmg += tick.selfDmg;
           notes.push(`🌀混亂自傷-${formatNum(tick.selfDmg)}`);
           if (activeCombat.enemyHp <= 0) {
-            if (activeCombat.isBoss) {
-              handleBossVictory();
-            } else if (activeCombat.isSiege) {
-              handleSiegeVictory();
-            } else if (activeCombat.isDefense) {
-              handleDefenseVictory();
-            } else if (activeCombat.isTower) {
-              handleTowerVictory(activeCombat.floor);
-            } else {
-              handleCombatVictory(loc);
-            }
+            routeCombatVictory(loc);
             return;
           }
         }
@@ -4772,6 +5074,13 @@
     function handleTowerVictory(floor) {
       const r = grantTowerVictory(floor);
       grantWeaponDrop(Math.min(4, Math.floor((floor - 1) / 6)), 0.5);
+      grantEquipmentDrop('armor', Math.min(4, Math.floor((floor - 1) / 6)), 0.4);
+      grantGemDrop(1, 0.3);
+      if (floor % 10 === 0) {
+        grantEquipmentDrop(['weapon', 'armor', 'accessory'][Math.floor(Math.random() * 3)], Math.min(4, Math.floor((floor - 1) / 6)), 1.0);
+        grantGemDrop(2, 1.0);
+        state.blessedCharms = (state.blessedCharms || 0) + 1;
+      }
 
       playSound('breakthrough');
       const msg = `🗼 鎮妖塔 ${floor} 層通關！探寶令+${r.tokens}、靈塵+${r.dust}${r.milestone ? '（🎉5層里程碑）' : ''}`;
@@ -4786,6 +5095,7 @@
 
     function handleCombatVictory(loc) {
       grantWeaponDrop(weaponTierByRealm(loc.minRealm), 0.35);
+      grantGemDrop(1, 0.15);
       const origin = getOrigin();
       const yuanwaoMult = 1 + ((state.companionAffinity.yuanwao || 0) * 0.015);
       const dropMult = (origin.dropBonus || 1.0) * yuanwaoMult * (1 + getSectPassiveFor('lingshou')) * (1 + getCastleBonuses().dropMult) * (1 + getLawBonuses().dropMult) * (1 + getBeastBonuses().stoneMult);
@@ -4853,8 +5163,9 @@
     // 與手動戰鬥同公式的瞬間模擬：攻擊、護盾、定身、吸血、鏡花水月耗石皆一致。
     // 與手動戰鬥同公式的瞬間模擬：狀態異常結算（疊層／DoT／控場／虛弱／蝕甲）皆一致。
     function simulateTowerFloor(combat, floor, equipped, stonePool) {
-      const enemyMaxHp = Math.round(140 * Math.pow(1.48, floor - 1));
-      const enemyAtk = Math.round(15 * Math.pow(1.42, floor - 1));
+      const isEliteFloor = floor % 10 === 0;
+      const enemyMaxHp = Math.round(140 * Math.pow(1.48, floor - 1) * (isEliteFloor ? 2.5 : 1));
+      const enemyAtk = Math.round(15 * Math.pow(1.42, floor - 1) * (isEliteFloor ? 1.8 : 1));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
       const baseAtk = Math.max(25, Math.round(combat * 0.48));
       const mastery = getStatusMastery();
@@ -4863,12 +5174,12 @@
       let enemyHp = enemyMaxHp;
       let idx = 0;
       let rounds = 0;
-      const shim = { ailments: {}, enemyAtk, isBoss: false, bossId: null, ailmentResist: 0, enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
+      const shim = { ailments: {}, enemyAtk, isBoss: false, bossId: null, ailmentResist: isEliteFloor ? 0.25 : 0, enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
       while (playerHp > 0 && enemyHp > 0 && rounds < 200) {
         rounds += 1;
         const sk = DIVINE_SKILLS.find(s => s.id === equipped[idx % equipped.length]) || DIVINE_SKILLS[0];
         idx += 1;
-        let dmg = Math.round(baseAtk * sk.mult * getWeaponBonuses().directMult);
+        let dmg = Math.round(baseAtk * sk.mult * getEquipmentBonuses().directMult);
         if (sk.costStone) {
           if (stonePool.stones >= sk.costStone) {
             stonePool.stones -= sk.costStone;
@@ -5888,34 +6199,92 @@
       });
     }
 
-    function renderArtsAndTreasuresTab() {
-      const wpList = document.getElementById('weapons-list');
-      if (wpList) {
-        wpList.innerHTML = '';
-        const owned = Array.isArray(state.weapons) ? state.weapons : [];
-        if (owned.length === 0) {
-          const hint = document.createElement('div');
-          hint.className = 'text-xs text-[#5c5346]';
-          hint.textContent = '尚未獲得武器（歷練、鎮妖塔、宗門戰鬥勝利有機率掉落，數值隨機）。';
-          wpList.appendChild(hint);
-        } else {
-          owned.forEach(w => {
-            const isEq = state.equippedWeaponId === w.uid;
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = `p-2.5 rounded-lg border text-left ${isEq ? 'bg-[#f3ead8] border-2 border-[#9e2a22]' : 'bg-[#fbf8f1] border-[#d6c7ac]'}`;
-            btn.innerHTML = `
-              <div class="flex items-center justify-between text-xs font-bold">
-                <span>⚔️ ${w.tierName}・${w.name}</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded ${isEq ? 'bg-[#9e2a22] text-white' : 'bg-stone-200 text-stone-700'}">${isEq ? '裝備中' : '備用'}</span>
-              </div>
-              <div class="text-xs text-[#5c5346] mt-1">戰力+${w.combat}｜${w.affixes.map(a => `${a.label}+${a.pct}%`).join('、')}</div>
-            `;
-            btn.addEventListener('click', () => equipWeapon(isEq ? null : w.uid));
-            wpList.appendChild(btn);
-          });
-        }
+    let selectedGemKey = null;
+    function renderEquipSlotList(listEl, slot) {
+      if (!listEl) return;
+      const def = EQUIP_SLOTS[slot];
+      listEl.innerHTML = '';
+      const owned = Array.isArray(state[def.listKey]) ? state[def.listKey] : [];
+      if (owned.length === 0) {
+        const hint = document.createElement('div');
+        hint.className = 'text-xs text-[#5c5346]';
+        hint.textContent = `尚未獲得${def.label}（歷練、鎮妖塔、宗門戰鬥勝利有機率掉落，數值隨機）。`;
+        listEl.appendChild(hint);
+        return;
       }
+      owned.forEach(item => {
+        const isEq = state[def.equippedKey] === item.uid;
+        const card = document.createElement('div');
+        card.className = `p-2.5 rounded-lg border text-left ${isEq ? 'bg-[#f3ead8] border-2 border-[#9e2a22]' : 'bg-[#fbf8f1] border-[#d6c7ac]'}`;
+        const socks = equipSockets(item);
+        const sockTxt = socks.length === 0 ? '無孔' : socks.map((g, i) => g ? `💎${GEM_TYPES[g.type].name}Lv${g.lv}` : `○空孔${i + 1}`).join(' ');
+        const cost = enhanceCostFor(item);
+        const enhTxt = (item.enh || 0) > 0 ? ` +${item.enh}` : '';
+        card.innerHTML = `
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span>${def.emoji} ${item.tierName}・${item.name}${enhTxt}</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded ${isEq ? 'bg-[#9e2a22] text-white' : 'bg-stone-200 text-stone-700'}">${isEq ? '裝備中' : '備用'}</span>
+          </div>
+          <div class="text-xs text-[#5c5346] mt-1">戰力+${getItemBonuses(item).combat}｜${item.affixes.map(a => `${a.label}+${a.pct}%`).join('、')}</div>
+          <div class="text-xs text-[#5c5346] mt-0.5">${sockTxt}</div>
+        `;
+        const row = document.createElement('div');
+        row.className = 'flex gap-1 mt-1.5 flex-wrap';
+        const mkBtn = (label, fn) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'paper-btn text-[11px] px-2 py-1 rounded font-bold';
+          b.textContent = label;
+          b.addEventListener('click', (e) => { if (e && e.stopPropagation) e.stopPropagation(); fn(); });
+          row.appendChild(b);
+          return b;
+        };
+        mkBtn(isEq ? '卸下' : '裝備', () => equipEquipment(slot, isEq ? null : item.uid));
+        mkBtn(`強化${cost.stones}石`, () => enhanceEquipment(slot, item.uid, false));
+        if ((state.blessedCharms || 0) > 0) mkBtn(`祝福(${(state.blessedCharms || 0)})`, () => enhanceEquipment(slot, item.uid, true));
+        if (socks.some(s => !s) && selectedGemKey) {
+          const gt = GEM_TYPES[selectedGemKey.replace(/[0-9]/g, '')];
+          if (gt) mkBtn(`鑲嵌${gt.name}`, () => { const idx = socks.findIndex(s => !s); socketGem(slot, item.uid, idx, selectedGemKey); });
+        }
+        if (socks.some(s => s)) mkBtn('拆珠', () => { const idx = socks.findIndex(s => s); unsocketGem(slot, item.uid, idx); });
+        mkBtn('分解', () => dismantleEquipment(slot, item.uid));
+        card.appendChild(row);
+        card.addEventListener('click', () => equipEquipment(slot, isEq ? null : item.uid));
+        listEl.appendChild(card);
+      });
+    }
+    function renderGemsBar() {
+      const bar = document.getElementById('gems-bar');
+      if (!bar) return;
+      bar.innerHTML = '';
+      const keys = Object.keys(GEM_TYPES).flatMap(t => [1, 2, 3].map(lv => gemKey(t, lv))).filter(k => gemCount(k) > 0);
+      if (keys.length === 0) {
+        const hint = document.createElement('div');
+        hint.className = 'text-xs text-[#5c5346]';
+        hint.textContent = '尚未獲得靈珠（塔、Boss、天驕掉落）。';
+        bar.appendChild(hint);
+      } else {
+        keys.forEach(k => {
+          const type = k.replace(/[0-9]/g, '');
+          const lv = parseInt(k.replace(/[^0-9]/g, ''), 10) || 1;
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = `text-xs px-2.5 py-1.5 rounded-lg font-bold ${selectedGemKey === k ? 'bg-[#9e2a22] text-white' : 'bg-[#fbf8f1] border border-[#d6c7ac]'}`;
+          chip.textContent = `${GEM_TYPES[type].name} Lv${lv} ×${gemCount(k)}`;
+          chip.addEventListener('click', () => { selectedGemKey = selectedGemKey === k ? null : k; renderArtsAndTreasuresTab(); });
+          bar.appendChild(chip);
+        });
+      }
+      const bc = document.createElement('div');
+      bc.className = 'text-xs text-[#5c5346] w-full';
+      bc.textContent = `祝福淬煉符 ×${state.blessedCharms || 0}（Boss／天驕掉落，強化成功 +1~+2）`;
+      bar.appendChild(bc);
+    }
+    function renderArtsAndTreasuresTab() {
+      renderEquipSlotList(document.getElementById('weapons-list'), 'weapon');
+      renderGemsBar();
+      renderEquipSlotList(document.getElementById('armors-list'), 'armor');
+      renderEquipSlotList(document.getElementById('accessories-list'), 'accessory');
       const skGrid = document.getElementById('divine-skills-grid');
       if (skGrid) {
         skGrid.innerHTML = '';
@@ -7501,6 +7870,7 @@
       });
 
       document.getElementById('btn-challenge-tower').addEventListener('click', startTowerChallenge);
+      document.getElementById('btn-challenge-rival').addEventListener('click', startRivalFight);
       document.getElementById('btn-quick-tower').addEventListener('click', handleQuickTower);
       document.getElementById('btn-goto-sect').addEventListener('click', () => switchMobileView('sect'));
       document.getElementById('view-panel-sect').addEventListener('click', handleSectPanelClick);
