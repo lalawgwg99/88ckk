@@ -2259,8 +2259,8 @@
       const combat = getTotalCombat();
       const reduction = getSectArrayReduction();
       const bossKills = sc.bossKills || 0;
-      const enemyHp = Math.round(combat * 25 * (1 + 0.30 * bossKills));
-      const enemyAtk = Math.round(combat * 0.6 * (1 - reduction) * (1 + 0.20 * bossKills));
+      const enemyHp = Math.round(combat * 25 * (1 + 0.30 * Math.min(bossKills, 5)));
+      const enemyAtk = Math.round(combat * 0.6 * (1 - reduction) * (1 + 0.20 * Math.min(bossKills, 5)));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
       sc.bossState.inCombat = true;
       activeCombat = {
@@ -2276,7 +2276,7 @@
         enemyMaxHp: enemyHp,
         enemyAtk,
         ailments: {},
-        ailmentResist: boss.id === 'hunmo' ? 0.10 : Math.min(0.65, (boss.id === 'hundun' ? 0.50 : 0.40) + 0.05 * bossKills),
+        ailmentResist: boss.id === 'hunmo' ? 0.10 : Math.min(0.65, (boss.id === 'hundun' ? 0.50 : 0.40) + 0.05 * Math.min(bossKills, 5)),
         enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false
       };
       switchMobileView('adventure');
@@ -2426,6 +2426,7 @@
       gems: {},
       blessedCharms: 0,
       rivalTier: 0,
+      rivalUnlockedAt: 0,
         saveVersion: 3,
         bloodlineTraits: [
           { traitId: 'w1', locked: false },
@@ -2607,8 +2608,8 @@
       if (activeCombat) { showToast('已有進行中的戰鬥，先打完這一場！'); return; }
       const combat = getTotalCombat();
       const reduction = getSectArrayReduction();
-      const enemyHp = Math.round(combat * (10 + (cur.defLv || 1)) * (1 + 0.10 * (sc.warWins || 0)));
-      const enemyAtk = Math.round(combat * 0.5 * (1 - reduction) * (1 + 0.10 * (sc.warWins || 0)));
+      const enemyHp = Math.round(combat * (10 + (cur.defLv || 1)) * (1 + 0.10 * Math.min(sc.warWins || 0, 5)));
+      const enemyAtk = Math.round(combat * 0.5 * (1 - reduction) * (1 + 0.10 * Math.min(sc.warWins || 0, 5)));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
       activeCombat = { isSiege: true, castleId, loc: { name: '攻城戰', enemyName: `${castle.name}守軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: 0, enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
       switchMobileView('adventure');
@@ -2649,8 +2650,8 @@
       if (!castle) return;
       const combat = getTotalCombat();
       const reduction = getSectArrayReduction();
-      const enemyHp = Math.round(combat * 10 * (1 + 0.10 * (sc.warWins || 0)));
-      const enemyAtk = Math.round(combat * 0.45 * (1 - reduction) * (1 + 0.10 * (sc.warWins || 0)));
+      const enemyHp = Math.round(combat * 10 * (1 + 0.10 * Math.min(sc.warWins || 0, 5)));
+      const enemyAtk = Math.round(combat * 0.45 * (1 - reduction) * (1 + 0.10 * Math.min(sc.warWins || 0, 5)));
       const playerMaxHp = Math.max(150, Math.round(combat * 2.5));
       sc.defenseWarn.inCombat = true;
       activeCombat = { isDefense: true, castleId: castle.id, loc: { name: '守城戰', enemyName: `${castle.name}攻城軍` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: 0, enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
@@ -2714,7 +2715,7 @@
       if (!castle || !cur) return;
       const rankIdx = sectRankFromTotal(sc.totalContribution || 0);
       const arrayPart = (sc.arrayDurability || 0) > 0 ? (sc.arrayLv || 1) * 200 : 0;
-      const enemyAtk = Math.round(getTotalCombat() * (1.5 + 0.15 * (sc.warWins || 0)) + rankIdx * 300 + arrayPart);
+      const enemyAtk = Math.round(getTotalCombat() * (1.5 + 0.15 * Math.min(sc.warWins || 0, 5)) + rankIdx * 300 + arrayPart);
       const defense = getSectDefense();
       const ratio = enemyAtk > 0 ? defense / enemyAtk : 1;
       if (ratio >= 1.0) {
@@ -3088,6 +3089,7 @@
           if (!state.gems || typeof state.gems !== 'object') state.gems = {};
           if (typeof state.blessedCharms !== 'number') state.blessedCharms = 0;
           if (typeof state.rivalTier !== 'number') state.rivalTier = 0;
+          if (typeof state.rivalUnlockedAt !== 'number' || !state.rivalUnlockedAt) state.rivalUnlockedAt = Date.now();
           if (state.sect) {
             if (typeof state.sect.bossKills !== 'number') state.sect.bossKills = 0;
             if (typeof state.sect.warWins !== 'number') state.sect.warWins = 0;
@@ -4574,25 +4576,48 @@
       return key;
     }
     // =========================================================================
-    // 天驕挑戰：無盡強敵，永遠比你強。擊敗一位，下一位更強（+10%／位）。
-    // 移除的舊設計：排行榜 NPC 靜態數值當天花板——打贏就沒對手了。
+    // 天驕挑戰：對手有自己的升級公式，不照抄玩家戰力。
+    // 實測：不帶裝備的玩家戰力 ≈ 境界表戰力 × 3.03，所以天驕取表戰力 × 3.3——
+    // 在對應境界時只比白身玩家強約一成，靠裝備／功法／古寶就能反超；
+    // 打贏一位才解鎖下一位（境界 +2 階），第 12 位之後是無盡傳說天驕。
+    // 天驕還會自己閉關：解鎖後每天 +2%，上限 +50%，拖越久越難打。
     // =========================================================================
-    const RIVAL_NAMES = ['劍狂・燕十三', '刀聖・顧寒', '毒仙・苗青青', '雷帝・蕭戰天', '劍仙・李太白', '血手・厲千秋'];
+    const RIVAL_LADDER = [
+      { name: '劍狂・燕十三', realm: 2 }, { name: '刀聖・顧寒', realm: 4 },
+      { name: '毒仙・苗青青', realm: 6 }, { name: '雷帝・蕭戰天', realm: 8 },
+      { name: '劍仙・李太白', realm: 10 }, { name: '血手・厲千秋', realm: 12 },
+      { name: '玄女・蘇清寒', realm: 14 }, { name: '槍尊・趙破軍', realm: 16 },
+      { name: '琴魔・夜未央', realm: 18 }, { name: '拳皇・石破天', realm: 20 },
+      { name: '符聖・陸沉舟', realm: 22 }, { name: '道子・君莫問', realm: 24 },
+    ];
+    function getRivalRealm(tier) {
+      if (tier < RIVAL_LADDER.length) return RIVAL_LADDER[tier].realm;
+      return 26 + 2 * (tier - RIVAL_LADDER.length);
+    }
+    function getRivalName(tier) {
+      if (tier < RIVAL_LADDER.length) return RIVAL_LADDER[tier].name;
+      return `傳說・${RIVAL_LADDER[tier % RIVAL_LADDER.length].name}`;
+    }
     function getRivalCombat() {
       const tier = state.rivalTier || 0;
-      return Math.round(getTotalCombat() * 1.30 * (1 + 0.10 * tier) + 5000 * tier);
+      const base = getRealmByIndex(getRivalRealm(tier)).combat * 3.3;
+      const bornAt = state.rivalUnlockedAt || Date.now();
+      const days = Math.max(0, (Date.now() - bornAt) / 86400000);
+      const growth = 1 + Math.min(0.5, 0.02 * days);
+      return Math.round(base * growth);
     }
     function startRivalFight() {
       if (activeCombat) { showToast('已有進行中的戰鬥，先打完這一場！'); return; }
       const tier = state.rivalTier || 0;
-      const name = RIVAL_NAMES[tier % RIVAL_NAMES.length];
+      const name = getRivalName(tier);
       const rivalCombat = getRivalCombat();
       const enemyHp = Math.round(rivalCombat * 3);
       const enemyAtk = Math.round(rivalCombat * 0.55);
       const playerMaxHp = Math.max(150, Math.round(getTotalCombat() * 2.5));
       switchMobileView('adventure');
       activeCombat = { isRival: true, rivalTier: tier, loc: { name: '天驕挑戰', enemyName: `${name}（第 ${tier + 1} 位）` }, round: 1, skillIdx: 0, playerHp: playerMaxHp, playerMaxHp, playerShield: 0, enemyHp, enemyMaxHp: enemyHp, enemyAtk, ailments: {}, ailmentResist: Math.min(0.5, 0.20 + 0.03 * tier), enemyPattern: 0, enemyCharging: false, enemyGuard: false, enemyRage: false };
-      renderCombatBox(`⚔️ 天驕【${name}】前來挑戰！戰力約為你的 ${Math.round((rivalCombat / Math.max(1, getTotalCombat())) * 100)}%，贏了就晉升下一位天驕：`);
+      const rivalRealm = getRealmByIndex(getRivalRealm(tier));
+      renderCombatBox(`⚔️ 天驕【${name}】（${rivalRealm.name}）前來挑戰！對方戰力 ${formatNum(rivalCombat)}，你的戰力 ${formatNum(getTotalCombat())}（對方約為你的 ${Math.round((rivalCombat / Math.max(1, getTotalCombat())) * 100)}%），贏了就晉升下一位天驕：`);
       playSound('plucked');
     }
     function handleRivalVictory() {
@@ -4600,12 +4625,13 @@
       document.getElementById('active-event-box').classList.add('hidden');
       activeCombat = null;
       state.rivalTier = tier + 1;
+      state.rivalUnlockedAt = Date.now();
       const slot = ['weapon', 'armor', 'accessory'][Math.floor(Math.random() * 3)];
       grantEquipmentDrop(slot, weaponTierByRealm(Math.max(state.realmIndex || 0, state.bodyRealmIndex || 0)), 1.0);
       grantGemDrop(2, 1.0);
       state.blessedCharms = (state.blessedCharms || 0) + 1;
       state.stones = (state.stones || 0) + 2000;
-      const msg = `🏆 擊敗天驕【${RIVAL_NAMES[tier % RIVAL_NAMES.length]}】！第 ${tier + 2} 位天驕更強，靈石＋2000、祝福淬煉符＋1。`;
+      const msg = `🏆 擊敗天驕【${getRivalName(tier)}】！第 ${tier + 2} 位天驕更強，靈石＋2000、祝福淬煉符＋1。`;
       addLog(msg, true);
       showToast(msg);
       renderAll();
