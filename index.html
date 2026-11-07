@@ -3533,6 +3533,7 @@
 
     function switchMobileView(viewKey) {
       if (!VIEW_MAP[viewKey]) viewKey = 'cultivate';
+      const prevView = state.activeView;
       state.activeView = viewKey;
       Object.entries(VIEW_MAP).forEach(([k, panelId]) => {
         const el = document.getElementById(panelId);
@@ -3541,7 +3542,7 @@
       document.querySelectorAll('.view-cat-btn').forEach(btn => {
         btn.classList.toggle('cat-btn-active', btn.getAttribute('data-view') === viewKey);
       });
-      if (viewKey === 'sect') renderSectTab();
+      if (viewKey !== prevView) renderAll();
       saveState();
     }
 
@@ -3588,6 +3589,7 @@
 
       if (animFrameId) cancelAnimationFrame(animFrameId);
       function drawLoop() {
+        if (document.hidden) { animFrameId = null; return; }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         canvasParticles.forEach(p => {
           p.x += p.vx * state.speedMult;
@@ -3603,6 +3605,9 @@
         });
         animFrameId = requestAnimationFrame(drawLoop);
       }
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && !animFrameId) drawLoop();
+      });
       drawLoop();
     }
 
@@ -4256,7 +4261,9 @@
       document.getElementById('player-hp-bar').style.width = `${pPct}%`;
       document.getElementById('enemy-hp-bar').style.width = `${ePct}%`;
 
-      document.getElementById('combat-enemy-img').src = combatEnemyImage(activeCombat);
+      const _enemyImg = document.getElementById('combat-enemy-img');
+      const _enemySrc = combatEnemyImage(activeCombat);
+      if (_enemyImg && (!_enemyImg.getAttribute || _enemyImg.getAttribute('src') !== _enemySrc)) _enemyImg.src = _enemySrc;
       document.getElementById('combat-player-name').textContent = state.playerName || '韓立';
       document.getElementById('combat-enemy-name').textContent = (activeCombat.loc && activeCombat.loc.enemyName) || '敵方';
       document.getElementById('event-desc').textContent = statusMsg;
@@ -5734,19 +5741,31 @@
 
       const grid = document.getElementById('breakdown-grid');
       if (grid) {
-        grid.innerHTML = items.map(it => `
+        const _bdHtml = items.map(it => `
           <div class="bg-[#fcfaf5] border border-[#dfd3bc] rounded-lg px-2.5 py-1.5">
             <div class="text-[11px] text-[#5c5346] font-semibold">${it.label}</div>
             <div class="text-xs font-black text-[#236c53]">${it.val}</div>
           </div>
         `).join('');
+        if (_bdHtml !== _lastBonusHtml) { _lastBonusHtml = _bdHtml; grid.innerHTML = _bdHtml; }
       }
       const sumTag = document.getElementById('breakdown-summary-tag');
       if (sumTag) {
-        sumTag.textContent = `總修速 +${formatNum(getQiRatePerSec() * state.speedMult)}/秒 ｜ 總戰力 ${formatNum(getTotalCombat())}`;
+        setTxtEl(sumTag, `總修速 +${formatNum(getQiRatePerSec() * state.speedMult)}/秒 ｜ 總戰力 ${formatNum(getTotalCombat())}`);
       }
     }
 
+    // 順暢優化：高頻 DOM 寫入先比對，沒變就不寫，避免每秒／每次操作都觸發樣式重算與重排；
+    // 重型分頁只在可見時才重建（見 renderAll）。
+    function setTxtEl(el, v) { if (el && el.textContent !== v) el.textContent = v; }
+    function setTxt(id, v) { setTxtEl(document.getElementById(id), v); }
+    function setCls(el, cls) { if (el && el.className !== cls) el.className = cls; }
+    function setBarEl(el, pct) { if (!el) return; const w = `${pct}%`; if (el.style.width !== w) el.style.width = w; }
+    function setBar(id, pct) { setBarEl(document.getElementById(id), pct); }
+    let _lastHerbSummaryHtml = '';
+    let _lastBonusHtml = '';
+    let _lastMiniLogHtml = '';
+    let _lastLogSig = '';
     function updateStatusUI() {
       const mRealm = getMagicRealm();
       const bRealm = getBodyRealm();
@@ -5759,65 +5778,64 @@
       const breakChance = Math.round(getBreakthroughChance() * 100);
       const combat = getTotalCombat();
 
-      document.getElementById('stat-realm').textContent = isBody ? `體・${bRealm.bodyName}` : `法・${mRealm.name}`;
-      document.getElementById('stat-title').textContent = activeRealm.world;
-      document.getElementById('stat-combat').textContent = `戰力 ${formatNum(combat)}`;
-      document.getElementById('stat-dew').textContent = `綠液 ${state.dew}`;
-      document.getElementById('stat-stones').textContent = `靈石 ${formatNum(state.stones)}`;
+      setTxt('stat-realm', isBody ? `體・${bRealm.bodyName}` : `法・${mRealm.name}`);
+      setTxt('stat-title', activeRealm.world);
+      setTxt('stat-combat', `戰力 ${formatNum(combat)}`);
+      setTxt('stat-dew', `綠液 ${state.dew}`);
+      setTxt('stat-stones', `靈石 ${formatNum(state.stones)}`);
 
       // Update Secondary Header Strip & Custom Player Name
       const pName = state.playerName || '韓立';
       const pNameBtn = document.getElementById('btn-header-player-name');
       if (pNameBtn) {
-        pNameBtn.textContent = `道號：${pName}`;
+        setTxtEl(pNameBtn, `道號：${pName}`);
       }
       const chronTitle = document.getElementById('chronicle-title-label');
       if (chronTitle) {
-        chronTitle.textContent = `${pName}修真編年錄`;
+        setTxtEl(chronTitle, `${pName}修真編年錄`);
       }
       const cloudBtn = document.getElementById('btn-header-cloud');
       if (cloudBtn) {
-        cloudBtn.textContent = state.cloudUsername ? `雲端・${state.cloudUsername}` : '雲端';
+        setTxtEl(cloudBtn, state.cloudUsername ? `雲端・${state.cloudUsername}` : '雲端');
       }
       const dustEl = document.getElementById('header-stat-dust');
-      if (dustEl) dustEl.textContent = `靈塵 ${formatNum(state.spiritDust || 0)}`;
+      if (dustEl) setTxtEl(dustEl, `靈塵 ${formatNum(state.spiritDust || 0)}`);
       const tokEl = document.getElementById('header-stat-tokens');
-      if (tokEl) tokEl.textContent = `探寶令 ${state.gachaTokens || 0}`;
+      if (tokEl) setTxtEl(tokEl, `探寶令 ${state.gachaTokens || 0}`);
       const toxHeaderEl = document.getElementById('header-stat-tox');
       if (toxHeaderEl) {
-        toxHeaderEl.textContent = `丹毒 ${state.toxicity}/100`;
-        toxHeaderEl.className = `px-2 py-0.5 rounded-md border font-semibold ${
+        setTxtEl(toxHeaderEl, `丹毒 ${state.toxicity}/100`);
+        setCls(toxHeaderEl, `px-2 py-0.5 rounded-md border font-semibold ${
           state.toxicity >= 80
             ? 'bg-rose-100 border-rose-400 text-[#9e2a22]'
             : state.toxicity >= 50
               ? 'bg-amber-100 border-amber-400 text-amber-900'
               : 'bg-[#fcfaf5] border-[#d8cbb3] text-[#5c5346]'
-        }`;
+        }`);
       }
       const sectAlertBtn = document.getElementById('btn-header-sect-alert');
       if (sectAlertBtn) {
         const sc = state.sect || {};
         if (sc.bossState && sc.bossState.arrived) {
-          sectAlertBtn.textContent = '古魔降臨';
-          sectAlertBtn.className = 'cinnabar-btn text-[11px] px-2 py-0.5 rounded-md font-semibold';
+          setTxtEl(sectAlertBtn, '古魔降臨');
+          setCls(sectAlertBtn, 'cinnabar-btn text-[11px] px-2 py-0.5 rounded-md font-semibold');
         } else if (sc.defenseWarn && sc.defenseWarn.arrived) {
-          sectAlertBtn.textContent = '敵軍攻城';
-          sectAlertBtn.className = 'cinnabar-btn text-[11px] px-2 py-0.5 rounded-md font-semibold';
+          setTxtEl(sectAlertBtn, '敵軍攻城');
+          setCls(sectAlertBtn, 'cinnabar-btn text-[11px] px-2 py-0.5 rounded-md font-semibold');
         } else if (sc.bossState || sc.warWarn || sc.defenseWarn) {
-          sectAlertBtn.textContent = '宗門預警';
-          sectAlertBtn.className = 'gold-btn text-[11px] px-2 py-0.5 rounded-md font-semibold';
+          setTxtEl(sectAlertBtn, '宗門預警');
+          setCls(sectAlertBtn, 'gold-btn text-[11px] px-2 py-0.5 rounded-md font-semibold');
         } else if (sc.id) {
           const def = getSectDef();
-          sectAlertBtn.textContent = def ? def.name : '宗門';
-          sectAlertBtn.className = 'paper-btn text-[11px] px-2 py-0.5 rounded-md font-semibold text-[#9c6b21]';
+          setTxtEl(sectAlertBtn, def ? def.name : '宗門');
+          setCls(sectAlertBtn, 'paper-btn text-[11px] px-2 py-0.5 rounded-md font-semibold text-[#9c6b21]');
         } else {
-          sectAlertBtn.textContent = '宗門';
-          sectAlertBtn.className = 'paper-btn text-[11px] px-2 py-0.5 rounded-md font-semibold text-[#9c6b21]';
+          setTxtEl(sectAlertBtn, '宗門');
+          setCls(sectAlertBtn, 'paper-btn text-[11px] px-2 py-0.5 rounded-md font-semibold text-[#9c6b21]');
         }
       }
 
       // Sync Hidden Compatibility Spans
-      const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
       setTxt('stat-body-realm', bRealm.bodyName);
       setTxt('stat-toxicity-badge', `${state.toxicity}/100`);
       setTxt('stat-tower-floor', `${state.towerFloor || 1}`);
@@ -5826,58 +5844,57 @@
       setTxt('stat-tokens', `${state.gachaTokens || 0}`);
       setTxt('stat-sense', `${getTotalSense()}`);
 
-      document.getElementById('btn-toggle-path').textContent = isBody ? '主修：體' : '主修：法';
-      document.getElementById('path-progress-label').textContent = isBody ? '煉體' : '修法';
+      setTxt('btn-toggle-path', isBody ? '主修：體' : '主修：法');
+      setTxt('path-progress-label', isBody ? '煉體' : '修法');
       const qiOverflow = Math.max(0, curQi - activeRealm.maxQi);
-      document.getElementById('stat-qi-current').textContent = formatNum(Math.min(curQi, activeRealm.maxQi));
-      document.getElementById('stat-qi-max').textContent = formatNum(activeRealm.maxQi);
+      setTxt('stat-qi-current', formatNum(Math.min(curQi, activeRealm.maxQi)));
+      setTxt('stat-qi-max', formatNum(activeRealm.maxQi));
       const overflowEl = document.getElementById('stat-qi-overflow');
-      if (overflowEl) overflowEl.textContent = qiOverflow > 0 ? `（溢出+${formatNum(qiOverflow)}）` : '';
+      if (overflowEl) setTxtEl(overflowEl, qiOverflow > 0 ? `（溢出+${formatNum(qiOverflow)}）` : '');
       const qiBar = document.getElementById('qi-progress-bar');
       if (qiBar) qiBar.classList.toggle('qi-full', curQi >= activeRealm.maxQi);
-      document.getElementById('stat-qi-rate').textContent = `+${formatNum(qiRate * state.speedMult)}/秒`;
+      setTxt('stat-qi-rate', `+${formatNum(qiRate * state.speedMult)}/秒`);
 
       const pct = Math.min(100, Math.round((curQi / activeRealm.maxQi) * 100));
-      document.getElementById('qi-progress-bar').style.width = `${pct}%`;
+      setBar('qi-progress-bar', pct);
 
       const fmtQi = (q, max) => q > max ? `${formatNum(max)} / ${formatNum(max)} (+${formatNum(q - max)})` : `${formatNum(q)} / ${formatNum(max)}`;
-      document.getElementById('magic-realm-detail').textContent = mRealm.name;
-      document.getElementById('magic-qi-detail').textContent = fmtQi(state.qi, mRealm.maxQi);
-      document.getElementById('body-realm-detail').textContent = bRealm.bodyName;
-      document.getElementById('body-qi-detail').textContent = fmtQi(state.bodyQi || 0, bRealm.maxQi);
+      setTxt('magic-realm-detail', mRealm.name);
+      setTxt('magic-qi-detail', fmtQi(state.qi, mRealm.maxQi));
+      setTxt('body-realm-detail', bRealm.bodyName);
+      setTxt('body-qi-detail', fmtQi(state.bodyQi || 0, bRealm.maxQi));
 
       const magicCard = document.getElementById('card-path-magic');
       const bodyCard = document.getElementById('card-path-body');
       if (magicCard && bodyCard) {
-        magicCard.className = `p-3.5 rounded-xl cursor-pointer space-y-1 transition-all ${!isBody ? 'border-2 border-[#236c53] bg-[#f2ead7] shadow-xs' : 'border border-[#cbbba0] bg-[#fcfaf5]'}`;
-        bodyCard.className = `p-3.5 rounded-xl cursor-pointer space-y-1 transition-all ${isBody ? 'border-2 border-[#9e2a22] bg-[#f3ead8] shadow-xs' : 'border border-[#cbbba0] bg-[#fcfaf5]'}`;
-        document.getElementById('magic-active-tag').textContent = !isBody ? '主修' : '切換';
-        document.getElementById('body-active-tag').textContent = isBody ? '主修' : '切換';
+        setCls(magicCard, `p-3.5 rounded-xl cursor-pointer space-y-1 transition-all ${!isBody ? 'border-2 border-[#236c53] bg-[#f2ead7] shadow-xs' : 'border border-[#cbbba0] bg-[#fcfaf5]'}`);
+        setCls(bodyCard, `p-3.5 rounded-xl cursor-pointer space-y-1 transition-all ${isBody ? 'border-2 border-[#9e2a22] bg-[#f3ead8] shadow-xs' : 'border border-[#cbbba0] bg-[#fcfaf5]'}`);
+        setTxt('magic-active-tag', !isBody ? '主修' : '切換');
+        setTxt('body-active-tag', isBody ? '主修' : '切換');
       }
 
       const resBadge = document.getElementById('resonance-badge');
       if (resBadge) {
         const res = isDualResonanceActive();
-        resBadge.textContent = res ? '共鳴+30%' : '未共鳴';
-        resBadge.className = res ? 'seal-stamp text-xs px-2 py-0.5 rounded' : 'text-xs px-2 py-0.5 rounded bg-stone-200 text-stone-700 font-bold';
+        setTxtEl(resBadge, res ? '共鳴+30%' : '未共鳴');
+        setCls(resBadge, res ? 'seal-stamp text-xs px-2 py-0.5 rounded' : 'text-xs px-2 py-0.5 rounded bg-stone-200 text-stone-700 font-bold');
       }
 
-      document.getElementById('current-art-name').textContent = `${art.name}・${artLv}層`;
+      setTxt('current-art-name', `${art.name}・${artLv}層`);
 
       const medGain = Math.max(4, Math.round(qiRate * 1.2));
-      document.getElementById('meditate-gain-label').textContent = `(+${formatNum(medGain)})`;
+      setTxt('meditate-gain-label', `(+${formatNum(medGain)})`);
 
       const totalPills = Object.values(state.pills).reduce((a, b) => a + b, 0);
-      document.getElementById('quick-pill-count').textContent = `(${totalPills})`;
+      setTxt('quick-pill-count', `(${totalPills})`);
       const qTowerFloor = document.getElementById('quick-tower-floor-label');
-      if (qTowerFloor) qTowerFloor.textContent = `(${state.towerFloor || 1}層)`;
+      if (qTowerFloor) setTxtEl(qTowerFloor, `(${state.towerFloor || 1}層)`);
 
       const qiReady = curQi >= activeRealm.maxQi;
-      document.getElementById('breakthrough-rate-label').textContent =
-        qiReady ? `(${breakChance}%)` : `(${pct}%)`;
+      setTxt('breakthrough-rate-label', qiReady ? `(${breakChance}%)` : `(${pct}%)`);
       const topBreakBtn = document.getElementById('btn-top-break');
       if (topBreakBtn) {
-        topBreakBtn.textContent = qiReady ? '可破境' : '破境';
+        setTxtEl(topBreakBtn, qiReady ? '可破境' : '破境');
         topBreakBtn.classList.toggle('break-ready', qiReady);
       }
       const mainBreakBtn = document.getElementById('btn-breakthrough');
@@ -5885,13 +5902,13 @@
 
       const lifeLine = document.getElementById('lifespan-status-line');
       if (lifeLine) {
-        lifeLine.textContent = `道號：${state.playerName || '韓立'} ｜ 神識：${formatNum(getTotalSense())} ｜ 道心：${state.daoHeart || 0}`;
-        lifeLine.className = 'text-[11px] font-semibold text-[#5c5346]';
+        setTxtEl(lifeLine, `道號：${state.playerName || '韓立'} ｜ 神識：${formatNum(getTotalSense())} ｜ 道心：${state.daoHeart || 0}`);
+        setCls(lifeLine, 'text-[11px] font-semibold text-[#5c5346]');
       }
       const injLabel = document.getElementById('cultivate-injury-label');
       if (injLabel) {
         if (state.injuryTimer > 0) {
-          injLabel.textContent = `道基受損 (${state.injuryTimer}s)`;
+          setTxtEl(injLabel, `道基受損 (${state.injuryTimer}s)`);
           injLabel.classList.remove('hidden');
         } else {
           injLabel.classList.add('hidden');
@@ -5899,8 +5916,8 @@
       }
       const cultToxBar = document.getElementById('cultivate-tox-bar');
       if (cultToxBar) {
-        cultToxBar.style.width = `${Math.min(100, state.toxicity)}%`;
-        cultToxBar.className = `h-full transition-all duration-300 ${state.toxicity >= 80 ? 'bg-[#9e2a22]' : state.toxicity >= 50 ? 'bg-amber-600' : 'bg-[#236c53]'}`;
+        setBarEl(cultToxBar, Math.min(100, state.toxicity));
+        setCls(cultToxBar, `h-full transition-all duration-300 ${state.toxicity >= 80 ? 'bg-[#9e2a22]' : state.toxicity >= 50 ? 'bg-amber-600' : 'bg-[#236c53]'}`);
       }
 
       const nextStepEl = document.getElementById('next-step-text');
@@ -5908,36 +5925,36 @@
         const nextR = getRealmByIndex((isBody ? state.bodyRealmIndex : state.realmIndex) + 1);
         const nextName = isBody ? nextR.bodyName : nextR.name;
         if (qiReady) {
-          nextStepEl.textContent = `修為圓滿，可衝擊【${nextName}】（成功率 ${breakChance}%）`;
+          setTxtEl(nextStepEl, `修為圓滿，可衝擊【${nextName}】（成功率 ${breakChance}%）`);
         } else {
           const remain = activeRealm.maxQi - curQi;
           const perSec = Math.max(1, Math.round(qiRate * state.speedMult));
           const secs = Math.ceil(remain / perSec);
           const eta = secs >= 60 ? `約 ${Math.ceil(secs / 60)} 分鐘` : `約 ${secs} 秒`;
-          nextStepEl.textContent = `距【${nextName}】尚差 ${formatNum(remain)} 修為（${eta}）`;
+          setTxtEl(nextStepEl, `距【${nextName}】尚差 ${formatNum(remain)} 修為（${eta}）`);
         }
       }
 
-      document.getElementById('pity-bonus-badge').textContent = `破境 ${breakChance}%`;
+      setTxt('pity-bonus-badge', `破境 ${breakChance}%`);
 
       // Mysterious Bottle Dew Progress Bar
       const dewPct = Math.min(100, Math.floor(state.dewProgress || 0));
       const dewMiniPct = document.getElementById('dew-mini-pct');
       const dewMiniBar = document.getElementById('dew-mini-bar');
-      if (dewMiniPct) dewMiniPct.textContent = `${dewPct}%`;
-      if (dewMiniBar) dewMiniBar.style.width = `${dewPct}%`;
+      if (dewMiniPct) setTxtEl(dewMiniPct, `${dewPct}%`);
+      if (dewMiniBar) setBarEl(dewMiniBar, dewPct);
 
       const moonBtn = document.getElementById('btn-absorb-moon');
       if (state.moonCooldown > 0) {
-        if (moonBtn) moonBtn.textContent = `月華 (${state.moonCooldown}s)`;
+        if (moonBtn) setTxtEl(moonBtn, `月華 (${state.moonCooldown}s)`);
       } else {
-        if (moonBtn) moonBtn.textContent = '採納月華';
+        if (moonBtn) setTxtEl(moonBtn, '採納月華');
       }
 
       const nextRealm = getRealmByIndex((isBody ? state.bodyRealmIndex : state.realmIndex) + 1);
       const hintEl = document.getElementById('realm-perk-hint');
       if (hintEl) {
-        hintEl.textContent = activeRealm.gateHint || `下一階：${isBody ? nextRealm.bodyName : nextRealm.name}`;
+        setTxtEl(hintEl, activeRealm.gateHint || `下一階：${isBody ? nextRealm.bodyName : nextRealm.name}`);
       }
 
       // Cave Mansion Spirit Array & Tribulation Shield UI
@@ -5946,16 +5963,16 @@
       const caveTitleEl = document.getElementById('cave-array-title');
       const caveBonusEl = document.getElementById('cave-array-bonus');
       const caveBtn = document.getElementById('btn-upgrade-cave-array');
-      if (caveTitleEl) caveTitleEl.textContent = `${caveName}（${caveLv}/15階）`;
-      if (caveBonusEl) caveBonusEl.textContent = `修速+${Math.round((getCaveArrayQiMult() - 1) * 100)}%｜凝露+${Math.round((getCaveArrayDewMult() - 1) * 100)}%`;
+      if (caveTitleEl) setTxtEl(caveTitleEl, `${caveName}（${caveLv}/15階）`);
+      if (caveBonusEl) setTxtEl(caveBonusEl, `修速+${Math.round((getCaveArrayQiMult() - 1) * 100)}%｜凝露+${Math.round((getCaveArrayDewMult() - 1) * 100)}%`);
       if (caveBtn) {
         if (caveLv >= 15) {
-          caveBtn.textContent = '已滿 15 階';
+          setTxtEl(caveBtn, '已滿 15 階');
           caveBtn.disabled = true;
         } else {
           const sCost = Math.round(200 * Math.pow(1.75, caveLv - 1));
           const dCost = 15 * caveLv;
-          caveBtn.textContent = `升階聚靈陣 (${formatNum(sCost)}石+${dCost}塵)`;
+          setTxtEl(caveBtn, `升階聚靈陣 (${formatNum(sCost)}石+${dCost}塵)`);
           caveBtn.disabled = false;
         }
       }
@@ -5963,24 +5980,24 @@
       const shieldBtn = document.getElementById('btn-forge-trib-shield');
       if (shieldStatusEl && shieldBtn) {
         if (state.tribulationShield) {
-          shieldStatusEl.textContent = '已佈陣（破境+20%免傷）';
-          shieldStatusEl.className = 'text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-[#236c53] font-bold';
-          shieldBtn.textContent = '護法陣盤已就緒';
+          setTxtEl(shieldStatusEl, '已佈陣（破境+20%免傷）');
+          setCls(shieldStatusEl, 'text-[11px] px-2 py-0.5 rounded bg-emerald-100 text-[#236c53] font-bold');
+          setTxtEl(shieldBtn, '護法陣盤已就緒');
           shieldBtn.disabled = true;
         } else {
-          shieldStatusEl.textContent = '未佈陣（破境+20%免傷）';
-          shieldStatusEl.className = 'text-[11px] px-2 py-0.5 rounded bg-[#e6dcc5] text-[#5c5346] font-bold';
-          shieldBtn.textContent = '祭煉護法陣盤 (80靈塵)';
+          setTxtEl(shieldStatusEl, '未佈陣（破境+20%免傷）');
+          setCls(shieldStatusEl, 'text-[11px] px-2 py-0.5 rounded bg-[#e6dcc5] text-[#5c5346] font-bold');
+          setTxtEl(shieldBtn, '祭煉護法陣盤 (80靈塵)');
           shieldBtn.disabled = false;
         }
       }
       const encSenseEl = document.getElementById('encounter-sense-label');
       const encChargesEl = document.getElementById('encounter-charges-badge');
       const encBtn = document.getElementById('btn-trigger-encounter');
-      if (encSenseEl) encSenseEl.textContent = `神識 ${formatNum(getTotalSense())} ｜ 道心 ${state.daoHeart || 0}`;
-      if (encChargesEl) encChargesEl.textContent = `機緣 ${state.encounterCharges || 0}/5`;
+      if (encSenseEl) setTxtEl(encSenseEl, `神識 ${formatNum(getTotalSense())} ｜ 道心 ${state.daoHeart || 0}`);
+      if (encChargesEl) setTxtEl(encChargesEl, `機緣 ${state.encounterCharges || 0}/5`);
       if (encBtn) {
-        encBtn.textContent = (state.encounterCharges || 0) > 0 ? `神識探查 (${state.encounterCharges})` : '推演奇遇 (30塵)';
+        setTxtEl(encBtn, (state.encounterCharges || 0) > 0 ? `神識探查 (${state.encounterCharges})` : '推演奇遇 (30塵)');
       }
 
       // Spirit Vein & Tower Tribute Live UI
@@ -5990,36 +6007,36 @@
       const veinRateEl = document.getElementById('spirit-vein-rate');
       const upVeinBtn = document.getElementById('btn-upgrade-vein');
       const mineVeinBtn = document.getElementById('btn-mine-vein');
-      if (veinTitleEl) veinTitleEl.textContent = `洞府靈脈・${veinName}`;
-      if (veinRateEl) veinRateEl.textContent = `靈石+${formatNum(getStoneRatePerSec() * (state.speedMult || 1))}/秒 ｜ 靈塵+${formatNum(getRoamDustGain() * (state.speedMult || 1))}/8秒`;
+      if (veinTitleEl) setTxtEl(veinTitleEl, `洞府靈脈・${veinName}`);
+      if (veinRateEl) setTxtEl(veinRateEl, `靈石+${formatNum(getStoneRatePerSec() * (state.speedMult || 1))}/秒 ｜ 靈塵+${formatNum(getRoamDustGain() * (state.speedMult || 1))}/8秒`);
       if (upVeinBtn) {
         if (veinLv >= 15) {
-          upVeinBtn.textContent = '已滿15階';
+          setTxtEl(upVeinBtn, '已滿15階');
           upVeinBtn.disabled = true;
         } else {
           const vCost = Math.round(150 * Math.pow(1.65, veinLv - 1));
-          upVeinBtn.textContent = `升階 (${formatNum(vCost)}石)`;
+          setTxtEl(upVeinBtn, `升階 (${formatNum(vCost)}石)`);
           upVeinBtn.disabled = false;
         }
       }
       if (mineVeinBtn) {
         const estStone = Math.max(180, getStoneRatePerSec() * 25);
         const estDust = Math.max(25, getRoamDustGain() * 3);
-        mineVeinBtn.textContent = (state.mineCooldown || 0) > 0
+        setTxtEl(mineVeinBtn, (state.mineCooldown || 0) > 0
           ? `聚氣中 (${state.mineCooldown}s)`
-          : `靈脈採掘 (+${formatNum(estStone)}石/+${formatNum(estDust)}塵)`;
+          : `靈脈採掘 (+${formatNum(estStone)}石/+${formatNum(estDust)}塵)`);
       }
       const tribTributeBtn = document.getElementById('btn-claim-tower-tribute');
       if (tribTributeBtn) {
-        tribTributeBtn.textContent = (state.towerTributeCooldown || 0) > 0
+        setTxtEl(tribTributeBtn, (state.towerTributeCooldown || 0) > 0
           ? `俸祿 (${state.towerTributeCooldown}s)`
-          : '鎮塔俸祿';
+          : '鎮塔俸祿');
       }
 
       const unlockedRelicCount = Object.keys(state.relics || {}).filter(k => state.relics[k] > 0).length;
       const roadmapEl = document.getElementById('roadmap-status-text');
       if (roadmapEl) {
-        roadmapEl.textContent = `靈種 ${(state.unlockedSeeds || []).length}/${HERBS.length} ｜ 古寶 ${unlockedRelicCount}/${RELICS.length}`;
+        setTxtEl(roadmapEl, `靈種 ${(state.unlockedSeeds || []).length}/${HERBS.length} ｜ 古寶 ${unlockedRelicCount}/${RELICS.length}`);
       }
 
       // Update Bottom Navigation Notification Dots
@@ -6052,7 +6069,7 @@
       state.plots.forEach((plot, idx) => {
         const herb = HERBS.find(h => h.id === plot.herbId) || HERBS[0];
         const card = document.createElement('div');
-        card.className = 'bg-[#f4ede0] border border-[#cbbba0] rounded-xl p-3.5 flex flex-col justify-between gap-3';
+        setCls(card, 'bg-[#f4ede0] border border-[#cbbba0] rounded-xl p-3.5 flex flex-col justify-between gap-3');
 
         const _unlocked = state.unlockedSeeds || [];
         const optionsHtml = HERBS.filter(h => _unlocked.includes(h.id) || h.id === herb.id).map(h =>
@@ -6103,28 +6120,29 @@
         const descEl = document.getElementById(`plot-desc-${idx}`);
         const pctEl = document.getElementById(`plot-pct-${idx}`);
         const barEl = document.getElementById(`plot-bar-${idx}`);
-        if (stockEl) stockEl.textContent = `庫存：${state.herbs[herb.id] || 0} 株`;
-        if (descEl) descEl.textContent = herb.desc;
-        if (pctEl) pctEl.textContent = `${Math.floor(plot.progress)}%`;
-        if (barEl) barEl.style.width = `${Math.min(100, plot.progress)}%`;
+        if (stockEl) setTxtEl(stockEl, `庫存：${state.herbs[herb.id] || 0} 株`);
+        if (descEl) setTxtEl(descEl, herb.desc);
+        if (pctEl) setTxtEl(pctEl, `${Math.floor(plot.progress)}%`);
+        setBarEl(barEl, Math.min(100, plot.progress));
       });
 
       const growthMult = getSectGrowthMult() * (1 + getCastleBonuses().herbMult) * (state.speedMult || 1);
       const speedHintEl = document.getElementById('garden-speed-hint');
       if (speedHintEl) {
-        speedHintEl.textContent = `生長倍率 x${growthMult.toFixed(2)}`;
+        setTxtEl(speedHintEl, `生長倍率 x${growthMult.toFixed(2)}`);
       }
       const summaryEl = document.getElementById('herb-stock-summary');
       if (summaryEl) {
-        summaryEl.innerHTML = '<div class="font-bold text-[#1e1a16] mb-1.5">靈草庫存</div><div class="flex flex-wrap gap-1.5">' +
+        const _hsHtml = '<div class="font-bold text-[#1e1a16] mb-1.5">靈草庫存</div><div class="flex flex-wrap gap-1.5">' +
           HERBS.map(h => {
             const cnt = state.herbs[h.id] || 0;
             return `<span class="px-2 py-0.5 rounded-md border text-xs font-bold ${cnt > 0 ? 'bg-[#fcfaf5] border-[#b8a483] text-[#236c53]' : 'bg-[#f4ede0]/60 border-[#dfd3bc] text-[#8c7e6a]'}">${h.name} ${cnt}</span>`;
           }).join('') + '</div>';
+        if (_hsHtml !== _lastHerbSummaryHtml) { _lastHerbSummaryHtml = _hsHtml; summaryEl.innerHTML = _hsHtml; }
       }
       const seedHintEl = document.getElementById('seed-unlock-hint');
       if (seedHintEl) {
-        seedHintEl.textContent = `掌天藥園（靈種 ${(state.unlockedSeeds || []).length}/${HERBS.length}）`;
+        setTxtEl(seedHintEl, `掌天藥園（靈種 ${(state.unlockedSeeds || []).length}/${HERBS.length}）`);
       }
     }
 
@@ -6686,9 +6704,23 @@
       });
     }
 
+    function _logSig() {
+      const n = state.logs.length;
+      if (!n) return '0';
+      const f = state.logs[0], l = state.logs[n - 1];
+      return `${n}|${f.time}${f.text}|${l.time}${l.text}`;
+    }
+    function updateMiniLogPreview() {
+      const mini = document.getElementById('mini-log-preview');
+      if (!mini) return;
+      const html = state.logs.slice(0, 3).map(item => `<div><span class="font-bold text-[#9e2a22]">${item.time}</span> ${item.text}</div>`).join('');
+      if (html !== _lastMiniLogHtml) { _lastMiniLogHtml = html; mini.innerHTML = html; }
+    }
     function renderLogs() {
+      const sig = _logSig();
       const container = document.getElementById('chronicle-log');
-      if (container) {
+      if (container && sig !== _lastLogSig) {
+        _lastLogSig = sig;
         container.innerHTML = '';
         state.logs.forEach(item => {
           const row = document.createElement('div');
@@ -6701,16 +6733,7 @@
           container.appendChild(row);
         });
       }
-
-      const mini = document.getElementById('mini-log-preview');
-      if (mini) {
-        mini.innerHTML = '';
-        state.logs.slice(0, 3).forEach(item => {
-          const div = document.createElement('div');
-          div.innerHTML = `<span class="font-bold text-[#9e2a22]">${item.time}</span> ${item.text}`;
-          mini.appendChild(div);
-        });
-      }
+      updateMiniLogPreview();
     }
 
     function switchOrigin(originId) {
@@ -6769,15 +6792,19 @@
     }
 
     function renderAll() {
+      // 順暢優化：只重建當前可見分頁。舊版每次操作都把 8 個分頁全重建一次
+      // （innerHTML 全部撕掉重貼），是點一下就卡一下的主因。
+      // 隱藏分頁切換回來時再渲染，永遠是新鮮的。
       updateStatusUI();
       updateGardenLiveDOM();
-      renderAlchemyTab();
-      renderAdventureTab();
-      renderArtsAndTreasuresTab();
-      renderCompanionsTab();
-      renderSectTab();
-      renderPillBag();
-      renderLogs();
+      updateMiniLogPreview();
+      const view = state.activeView || 'cultivate';
+      if (view === 'alchemy') renderAlchemyTab();
+      else if (view === 'pillbag') renderPillBag();
+      else if (view === 'adventure') renderAdventureTab();
+      else if (view === 'arts' || view === 'treasures') renderArtsAndTreasuresTab();
+      else if (view === 'sect') renderSectTab();
+      else if (view === 'chronicle') { renderCompanionsTab(); renderLogs(); }
     }
 
     // =========================================================================
@@ -6785,6 +6812,7 @@
     // =========================================================================
     let tickIntervalId = null;
     let roamTickCounter = 0;
+    let saveTickCounter = 0;
 
     function startIdleLoop() {
       if (tickIntervalId) clearInterval(tickIntervalId);
@@ -6863,7 +6891,8 @@
         updateBossBannerDOM();
         updateWarBannerDOM();
         updateAttackForecastDOM();
-        saveState();
+        saveTickCounter += 1;
+        if (saveTickCounter >= 5) { saveTickCounter = 0; saveState(); }
       }, 1000);
     }
 
