@@ -1225,50 +1225,58 @@
     // 1. Game Data
     // =========================================================================
     const BASE_REALMS = [
-      { id: 0, world: '人界', name: '練氣一層', bodyName: '通脈一層', maxQi: 300, baseRate: 2, lifespan: 100, combat: 50, breakChance: 0.90, reqCombat: 0, majorGate: false },
-      { id: 1, world: '人界', name: '練氣四層', bodyName: '通脈四層', maxQi: 950, baseRate: 4, lifespan: 105, combat: 120, breakChance: 0.80, reqCombat: 100, majorGate: false },
-      { id: 2, world: '人界', name: '練氣七層', bodyName: '通脈七層', maxQi: 2800, baseRate: 8, lifespan: 110, combat: 280, breakChance: 0.70, reqCombat: 260, majorGate: false },
-      { id: 3, world: '人界', name: '練氣十層', bodyName: '通脈十層', maxQi: 8000, baseRate: 15, lifespan: 115, combat: 600, breakChance: 0.60, reqCombat: 550, majorGate: false },
-      { id: 4, world: '人界', name: '練氣圓滿', bodyName: '通脈圓滿', maxQi: 24000, baseRate: 28, lifespan: 120, combat: 1200, breakChance: 0.25, reqCombat: 1500, majorGate: true, gateHint: '築基關：需戰力1,500' },
+      { id: 0, world: '人界', name: '練氣一層', bodyName: '通脈一層', maxQi: 2400, baseRate: 2, lifespan: 100, combat: 50, breakChance: 0.7, reqCombat: 0, majorGate: false },
+      { id: 1, world: '人界', name: '練氣四層', bodyName: '通脈四層', maxQi: 7600, baseRate: 4, lifespan: 105, combat: 120, breakChance: 0.6, reqCombat: 100, majorGate: false },
+      { id: 2, world: '人界', name: '練氣七層', bodyName: '通脈七層', maxQi: 22400, baseRate: 8, lifespan: 110, combat: 280, breakChance: 0.55, reqCombat: 260, majorGate: false },
+      { id: 3, world: '人界', name: '練氣十層', bodyName: '通脈十層', maxQi: 64000, baseRate: 15, lifespan: 115, combat: 600, breakChance: 0.5, reqCombat: 550, majorGate: false },
+      { id: 4, world: '人界', name: '練氣圓滿', bodyName: '通脈圓滿', maxQi: 192000, baseRate: 28, lifespan: 120, combat: 1200, breakChance: 0.25, reqCombat: 1500, majorGate: true, gateHint: '築基關：需戰力1,500' },
 
-      { id: 5, world: '人界', name: '築基初期', bodyName: '鍛骨初期', maxQi: 75000, baseRate: 60, lifespan: 220, combat: 3200, breakChance: 0.65, reqCombat: 3000, majorGate: false },
-      { id: 6, world: '人界', name: '築基中期', bodyName: '鍛骨中期', maxQi: 220000, baseRate: 125, lifespan: 240, combat: 6800, breakChance: 0.55, reqCombat: 6200, majorGate: false },
-      { id: 7, world: '人界', name: '築基後期', bodyName: '鍛骨後期', maxQi: 680000, baseRate: 260, lifespan: 260, combat: 14000, breakChance: 0.20, reqCombat: 16500, majorGate: true, gateHint: '結丹劫：需戰力1.65萬' },
+      { id: 5, world: '人界', name: '築基初期', bodyName: '鍛骨初期', maxQi: 225000, baseRate: 60, lifespan: 220, combat: 3200, breakChance: 0.55, reqCombat: 3000, majorGate: false },
+      { id: 6, world: '人界', name: '築基中期', bodyName: '鍛骨中期', maxQi: 660000, baseRate: 125, lifespan: 240, combat: 6800, breakChance: 0.45, reqCombat: 6200, majorGate: false },
+      { id: 7, world: '人界', name: '築基後期', bodyName: '鍛骨後期', maxQi: 2040000, baseRate: 260, lifespan: 260, combat: 14000, breakChance: 0.20, reqCombat: 16500, majorGate: true, gateHint: '結丹劫：需戰力1.65萬' },
 
-      { id: 8, world: '人界', name: '結丹初期', bodyName: '煉腑初期', maxQi: 2100000, baseRate: 580, lifespan: 500, combat: 36000, breakChance: 0.55, reqCombat: 34000, majorGate: false },
-      { id: 9, world: '人界', name: '結丹中期', bodyName: '煉腑中期', maxQi: 6500000, baseRate: 1250, lifespan: 550, combat: 78000, breakChance: 0.50, reqCombat: 72000, majorGate: false },
-      { id: 10, world: '人界', name: '結丹圓滿', bodyName: '煉腑圓滿', maxQi: 20000000, baseRate: 2800, lifespan: 600, combat: 165000, breakChance: 0.15, reqCombat: 190000, majorGate: true, gateHint: '凝嬰劫：需戰力19萬' },
+      { id: 8, world: '人界', name: '結丹初期', bodyName: '煉腑初期', maxQi: 4200000, baseRate: 580, lifespan: 500, combat: 36000, breakChance: 0.45, reqCombat: 34000, majorGate: false },
+      { id: 9, world: '人界', name: '結丹中期', bodyName: '煉腑中期', maxQi: 13000000, baseRate: 1250, lifespan: 550, combat: 78000, breakChance: 0.4, reqCombat: 72000, majorGate: false },
+      { id: 10, world: '人界', name: '結丹圓滿', bodyName: '煉腑圓滿', maxQi: 40000000, baseRate: 2800, lifespan: 600, combat: 165000, breakChance: 0.15, reqCombat: 190000, majorGate: true, gateHint: '凝嬰劫：需戰力19萬' },
 
-      { id: 11, world: '人界', name: '元嬰初期', bodyName: '元武初期', maxQi: 65000000, baseRate: 6500, lifespan: 1200, combat: 420000, breakChance: 0.50, reqCombat: 400000, majorGate: false },
-      { id: 12, world: '人界', name: '元嬰中期', bodyName: '元武中期', maxQi: 210000000, baseRate: 15000, lifespan: 1400, combat: 950000, breakChance: 0.45, reqCombat: 900000, majorGate: false },
-      { id: 13, world: '人界', name: '元嬰圓滿', bodyName: '元武圓滿', maxQi: 700000000, baseRate: 35000, lifespan: 1600, combat: 2200000, breakChance: 0.15, reqCombat: 2500000, majorGate: true, gateHint: '化神關：需戰力250萬' },
+      { id: 11, world: '人界', name: '元嬰初期', bodyName: '元武初期', maxQi: 97500000, baseRate: 6500, lifespan: 1200, combat: 420000, breakChance: 0.50, reqCombat: 400000, majorGate: false },
+      { id: 12, world: '人界', name: '元嬰中期', bodyName: '元武中期', maxQi: 315000000, baseRate: 15000, lifespan: 1400, combat: 950000, breakChance: 0.45, reqCombat: 900000, majorGate: false },
+      { id: 13, world: '人界', name: '元嬰圓滿', bodyName: '元武圓滿', maxQi: 1050000000, baseRate: 35000, lifespan: 1600, combat: 2200000, breakChance: 0.15, reqCombat: 2500000, majorGate: true, gateHint: '化神關：需戰力250萬' },
 
-      { id: 14, world: '人界', name: '化神初期', bodyName: '神力初期', maxQi: 2400000000, baseRate: 85000, lifespan: 3000, combat: 5800000, breakChance: 0.45, reqCombat: 5500000, majorGate: false },
-      { id: 15, world: '人界', name: '化神圓滿', bodyName: '神力圓滿', maxQi: 8500000000, baseRate: 210000, lifespan: 3500, combat: 15000000, breakChance: 0.12, reqCombat: 18000000, majorGate: true, gateHint: '飛昇靈界：需戰力1,800萬' },
+      { id: 14, world: '人界', name: '化神初期', bodyName: '神力初期', maxQi: 2880000000, baseRate: 85000, lifespan: 3000, combat: 5800000, breakChance: 0.45, reqCombat: 5500000, majorGate: false },
+      { id: 15, world: '人界', name: '化神圓滿', bodyName: '神力圓滿', maxQi: 10200000000, baseRate: 210000, lifespan: 3500, combat: 15000000, breakChance: 0.12, reqCombat: 18000000, majorGate: true, gateHint: '飛昇靈界：需戰力1,800萬' },
 
-      { id: 16, world: '靈界', name: '返虛初期', bodyName: '破虛初期', maxQi: 30000000000, baseRate: 520000, lifespan: 6000, combat: 42000000, breakChance: 0.45, reqCombat: 40000000, majorGate: false },
-      { id: 17, world: '靈界', name: '返虛中期', bodyName: '破虛中期', maxQi: 100000000000, baseRate: 1300000, lifespan: 7000, combat: 95000000, breakChance: 0.40, reqCombat: 90000000, majorGate: false },
-      { id: 18, world: '靈界', name: '返虛後期', bodyName: '破虛後期', maxQi: 350000000000, baseRate: 3200000, lifespan: 8000, combat: 220000000, breakChance: 0.35, reqCombat: 200000000, majorGate: false },
-      { id: 19, world: '靈界', name: '返虛圓滿', bodyName: '破虛圓滿', maxQi: 1200000000000, baseRate: 8000000, lifespan: 9500, combat: 500000000, breakChance: 0.12, reqCombat: 550000000, majorGate: true, gateHint: '合體劫：需戰力5.5億' },
+      { id: 16, world: '靈界', name: '返虛初期', bodyName: '破虛初期', maxQi: 36000000000, baseRate: 520000, lifespan: 6000, combat: 42000000, breakChance: 0.45, reqCombat: 40000000, majorGate: false },
+      { id: 17, world: '靈界', name: '返虛中期', bodyName: '破虛中期', maxQi: 120000000000, baseRate: 1300000, lifespan: 7000, combat: 95000000, breakChance: 0.40, reqCombat: 90000000, majorGate: false },
+      { id: 18, world: '靈界', name: '返虛後期', bodyName: '破虛後期', maxQi: 420000000000, baseRate: 3200000, lifespan: 8000, combat: 220000000, breakChance: 0.35, reqCombat: 200000000, majorGate: false },
+      { id: 19, world: '靈界', name: '返虛圓滿', bodyName: '破虛圓滿', maxQi: 1440000000000, baseRate: 8000000, lifespan: 9500, combat: 500000000, breakChance: 0.12, reqCombat: 550000000, majorGate: true, gateHint: '合體劫：需戰力5.5億' },
 
-      { id: 20, world: '靈界', name: '合體初期', bodyName: '混元初期', maxQi: 4200000000000, baseRate: 20000000, lifespan: 15000, combat: 1300000000, breakChance: 0.40, reqCombat: 1200000000, majorGate: false },
-      { id: 21, world: '靈界', name: '合體中期', bodyName: '混元中期', maxQi: 15000000000000, baseRate: 50000000, lifespan: 18000, combat: 3200000000, breakChance: 0.35, reqCombat: 3000000000, majorGate: false },
-      { id: 22, world: '靈界', name: '合體後期', bodyName: '混元後期', maxQi: 55000000000000, baseRate: 130000000, lifespan: 22000, combat: 7800000000, breakChance: 0.30, reqCombat: 7500000000, majorGate: false },
-      { id: 23, world: '靈界', name: '合體圓滿', bodyName: '混元圓滿', maxQi: 200000000000000, baseRate: 340000000, lifespan: 26000, combat: 19000000000, breakChance: 0.10, reqCombat: 22000000000, majorGate: true, gateHint: '大乘劫：需戰力220億' },
+      { id: 20, world: '靈界', name: '合體初期', bodyName: '混元初期', maxQi: 5040000000000, baseRate: 20000000, lifespan: 15000, combat: 1300000000, breakChance: 0.40, reqCombat: 1200000000, majorGate: false },
+      { id: 21, world: '靈界', name: '合體中期', bodyName: '混元中期', maxQi: 18000000000000, baseRate: 50000000, lifespan: 18000, combat: 3200000000, breakChance: 0.35, reqCombat: 3000000000, majorGate: false },
+      { id: 22, world: '靈界', name: '合體後期', bodyName: '混元後期', maxQi: 66000000000000, baseRate: 130000000, lifespan: 22000, combat: 7800000000, breakChance: 0.30, reqCombat: 7500000000, majorGate: false },
+      { id: 23, world: '靈界', name: '合體圓滿', bodyName: '混元圓滿', maxQi: 240000000000000, baseRate: 340000000, lifespan: 26000, combat: 19000000000, breakChance: 0.10, reqCombat: 22000000000, majorGate: true, gateHint: '大乘劫：需戰力220億' },
 
-      { id: 24, world: '靈界', name: '大乘初期', bodyName: '大成初期', maxQi: 750000000000000, baseRate: 900000000, lifespan: 50000, combat: 52000000000, breakChance: 0.35, reqCombat: 50000000000, majorGate: false },
-      { id: 25, world: '靈界', name: '大乘中期', bodyName: '大成中期', maxQi: 2800000000000000, baseRate: 2400000000, lifespan: 65000, combat: 130000000000, breakChance: 0.30, reqCombat: 120000000000, majorGate: false },
-      { id: 26, world: '靈界', name: '大乘後期', bodyName: '大成後期', maxQi: 10000000000000000, baseRate: 6500000000, lifespan: 80000, combat: 320000000000, breakChance: 0.25, reqCombat: 300000000000, majorGate: false },
-      { id: 27, world: '靈界', name: '渡劫飛昇', bodyName: '涅槃飛昇', maxQi: 38000000000000000, baseRate: 18000000000, lifespan: 99999, combat: 850000000000, breakChance: 0.10, reqCombat: 950000000000, majorGate: true, gateHint: '飛昇仙界：需戰力9,500億' },
+      { id: 24, world: '靈界', name: '大乘初期', bodyName: '大成初期', maxQi: 900000000000000, baseRate: 900000000, lifespan: 50000, combat: 52000000000, breakChance: 0.35, reqCombat: 50000000000, majorGate: false },
+      { id: 25, world: '靈界', name: '大乘中期', bodyName: '大成中期', maxQi: 3360000000000000, baseRate: 2400000000, lifespan: 65000, combat: 130000000000, breakChance: 0.30, reqCombat: 120000000000, majorGate: false },
+      { id: 26, world: '靈界', name: '大乘後期', bodyName: '大成後期', maxQi: 12000000000000000, baseRate: 6500000000, lifespan: 80000, combat: 320000000000, breakChance: 0.25, reqCombat: 300000000000, majorGate: false },
+      { id: 27, world: '靈界', name: '渡劫飛昇', bodyName: '涅槃飛昇', maxQi: 45600000000000000, baseRate: 18000000000, lifespan: 99999, combat: 850000000000, breakChance: 0.10, reqCombat: 950000000000, majorGate: true, gateHint: '飛昇仙界：需戰力9,500億' },
 
-      { id: 28, world: '仙界', name: '真仙初期', bodyName: '真武初期', maxQi: 150000000000000000, baseRate: 50000000000, lifespan: 200000, combat: 2500000000000, breakChance: 0.35, reqCombat: 2400000000000, majorGate: false },
-      { id: 29, world: '仙界', name: '真仙圓滿', bodyName: '真武圓滿', maxQi: 600000000000000000, baseRate: 150000000000, lifespan: 500000, combat: 7500000000000, breakChance: 0.12, reqCombat: 8000000000000, majorGate: true, gateHint: '金仙劫：需戰力8兆' },
-      { id: 30, world: '仙界', name: '金仙初期', bodyName: '金相初期', maxQi: 2500000000000000000, baseRate: 450000000000, lifespan: 1500000, combat: 22000000000000, breakChance: 0.30, reqCombat: 20000000000000, majorGate: false },
-      { id: 31, world: '仙界', name: '金仙圓滿', bodyName: '金相圓滿', maxQi: 10000000000000000000, baseRate: 1400000000000, lifespan: 3000000, combat: 68000000000000, breakChance: 0.10, reqCombat: 75000000000000, majorGate: true, gateHint: '太乙劫：需戰力75兆' },
-      { id: 32, world: '仙界', name: '太乙玉仙', bodyName: '太蒼金身', maxQi: 42000000000000000000, baseRate: 4500000000000, lifespan: 9999999, combat: 220000000000000, breakChance: 0.10, reqCombat: 250000000000000, majorGate: true, gateHint: '大羅劫：需戰力250兆' },
-      { id: 33, world: '仙界', name: '大羅金仙', bodyName: '大羅道體', maxQi: 180000000000000000000, baseRate: 15000000000000, lifespan: 99999999, combat: 800000000000000, breakChance: 0.08, reqCombat: 900000000000000, majorGate: true, gateHint: '道祖劫：斬三尸合道' }
+      { id: 28, world: '仙界', name: '真仙初期', bodyName: '真武初期', maxQi: 180000000000000000, baseRate: 50000000000, lifespan: 200000, combat: 2500000000000, breakChance: 0.35, reqCombat: 2400000000000, majorGate: false },
+      { id: 29, world: '仙界', name: '真仙圓滿', bodyName: '真武圓滿', maxQi: 720000000000000000, baseRate: 150000000000, lifespan: 500000, combat: 7500000000000, breakChance: 0.12, reqCombat: 8000000000000, majorGate: true, gateHint: '金仙劫：需戰力8兆' },
+      { id: 30, world: '仙界', name: '金仙初期', bodyName: '金相初期', maxQi: 3000000000000000000, baseRate: 450000000000, lifespan: 1500000, combat: 22000000000000, breakChance: 0.30, reqCombat: 20000000000000, majorGate: false },
+      { id: 31, world: '仙界', name: '金仙圓滿', bodyName: '金相圓滿', maxQi: 12000000000000000000, baseRate: 1400000000000, lifespan: 3000000, combat: 68000000000000, breakChance: 0.10, reqCombat: 75000000000000, majorGate: true, gateHint: '太乙劫：需戰力75兆' },
+      { id: 32, world: '仙界', name: '太乙玉仙', bodyName: '太蒼金身', maxQi: 50400000000000000000, baseRate: 4500000000000, lifespan: 9999999, combat: 220000000000000, breakChance: 0.10, reqCombat: 250000000000000, majorGate: true, gateHint: '大羅劫：需戰力250兆' },
+      { id: 33, world: '仙界', name: '大羅金仙', bodyName: '大羅道體', maxQi: 216000000000000000000, baseRate: 15000000000000, lifespan: 99999999, combat: 800000000000000, breakChance: 0.08, reqCombat: 900000000000000, majorGate: true, gateHint: '道祖劫：斬三尸合道' }
     ];
 
+    // 節奏 v2（2026-11-07）：前期修為上限放大倍率。舊存檔遷移時用同一張表換算修為。
+    function pacingMaxQiMult(idx) {
+      if (idx <= 4) return 8;
+      if (idx <= 7) return 3;
+      if (idx <= 10) return 2;
+      if (idx <= 13) return 1.5;
+      return 1.2;
+    }
     function getRealmByIndex(idx) {
       if (idx < BASE_REALMS.length) return BASE_REALMS[Math.max(0, idx)];
       const tier = idx - BASE_REALMS.length + 1;
@@ -3090,6 +3098,12 @@
           if (typeof state.blessedCharms !== 'number') state.blessedCharms = 0;
           if (typeof state.rivalTier !== 'number') state.rivalTier = 0;
           if (typeof state.rivalUnlockedAt !== 'number' || !state.rivalUnlockedAt) state.rivalUnlockedAt = Date.now();
+          if (!state.pacingV2) {
+            state.qi = Math.round((state.qi || 0) * pacingMaxQiMult(state.realmIndex || 0));
+            state.bodyQi = Math.round((state.bodyQi || 0) * pacingMaxQiMult(state.bodyRealmIndex || 0));
+            state.pacingV2 = true;
+            saveState();
+          }
           if (state.sect) {
             if (typeof state.sect.bossKills !== 'number') state.sect.bossKills = 0;
             if (typeof state.sect.warWins !== 'number') state.sect.warWins = 0;
@@ -3627,9 +3641,11 @@
     }
 
     function handleMeditateClick() {
+      // 節奏 v2：吐納 1 秒冷卻。連點不再無限印修為；1 秒一點剛好維持 2 秒連擊窗口。
+      const nowMs = Date.now();
+      if (nowMs - (state.lastMeditateAt || 0) < 1000) return;
       const baseGain = Math.max(4, Math.round(getQiRatePerSec() * 1.2));
       const isCrit = Math.random() <= 0.22 + getSectPassiveFor('xiesha') * 0.5 + getCastleBonuses().critRate;
-      const nowMs = Date.now();
       if (nowMs - (state.lastMeditateAt || 0) <= 2000) {
         state.meditateCombo = (state.meditateCombo || 0) + 1;
       } else {
@@ -6814,6 +6830,15 @@
     let roamTickCounter = 0;
     let saveTickCounter = 0;
 
+    // 節奏 v2：5x 流速每秒扣 20 靈石，撐不住自動降回 2x（2x 免費不動）。
+    function applySpeedUpkeep() {
+      if ((state.speedMult || 1) !== 5) return;
+      if ((state.stones || 0) >= 20) { state.stones -= 20; return; }
+      state.speedMult = 2;
+      const _sl = document.getElementById('speed-label');
+      if (_sl) _sl.textContent = '2x';
+      showToast('靈石不足，流速降回 2x');
+    }
     function startIdleLoop() {
       if (tickIntervalId) clearInterval(tickIntervalId);
       tickIntervalId = setInterval(() => {
@@ -6836,6 +6861,7 @@
         if (state.towerTributeCooldown > 0) state.towerTributeCooldown = Math.max(0, state.towerTributeCooldown - 1);
         const stoneGain = getStoneRatePerSec() * mult;
         state.stones += stoneGain;
+        applySpeedUpkeep();
 
         roamTickCounter += 1;
         if (roamTickCounter >= 8) {
@@ -7971,7 +7997,7 @@
         const cycle = [1, 2, 5];
         state.speedMult = cycle[(cycle.indexOf(state.speedMult) + 1) % cycle.length];
         document.getElementById('speed-label').textContent = speedLabels[state.speedMult] || '1x';
-        showToast(`流速：${state.speedMult}x`);
+        showToast(state.speedMult === 5 ? '流速：5x（每秒 20 靈石）' : `流速：${state.speedMult}x`);
         updateStatusUI();
         saveState();
       });
